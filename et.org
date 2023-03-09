@@ -58,11 +58,11 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
     ; clj -M -m jakub-stastny.et.runner et-examples.org run a b c
     ; ({:path "et-examples.org", :args ["a" "b" "c"], :task-name "run"})
 
-    ; clj -M -m jakub-stastny.et.runner -h
-    ; :defs [{:task {:fn help-fn}}]
+    ; clj -M -m jakub-stastny.et.runner -T
+    ; :defs [{:task {:fn jakub-stastny.et.runner/built-in-tasks/tasks]}}]
 
     ; clj -M -m jakub-stastny.et.runner -T et-examples.org
-    ; :defs ({:task {:name :tasks, :fn task-fn}, :args ("et-examples.org")})
+    ; :defs ({:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__149 0x3b0ca5e1 "jakub_stastny.et.runner$fn__149@3b0ca5e1"]}, :args ("et-examples.org")})
     {:args-to-tasks
      (fn [args]
        (reduce
