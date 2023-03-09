@@ -1,0 +1,159 @@
+#+TITLE: ET
+#+SETUPFILE: ../setupfile.org
+
+* ET (Emacs tasks)
+
+TODO: Make an independent project.
+
+et -T
+et -T my.namespace ; my/namespace.org
+
+et my.namespace Run task "main".
+et my.namespace/task-name Run task "task-name" from my/namespace.org.
+
+~#+name: task-name~
+
+#+begin_src clojure :tangle ../../.env/bin/et.clj :mkdirp yes :shebang "#!/usr/bin/env bb"
+  (require '[babashka.process :refer [shell sh process check]])
+
+  (defn abort [msg] (println msg))
+
+  (defn convert-ns-to-path [namespace]
+    (when (or (re-find #"[/:]" namespace))
+      (throw (Exception. "Namespace uses . rather than /")))
+    (str (str/replace namespace #"\." "/") ".org"))
+
+  (defn get-tasks [lines]
+    (map #(str/replace % #"^#\+name:\s*" "") (filter #(re-find #"^#\+name:" %) lines)))
+
+  (defn get-lines-or-abort [namespace]
+    (let [path (convert-ns-to-path namespace)]
+      (if (.exists (io/as-file path))
+      (str/split (slurp path) #"\n")
+      (abort (str "No such file: " path)))))
+
+  (declare parse-examples)                ; Just reorganise the code.
+  (defn filter-tasks [namespace]
+    (filter (fn [task]
+              (= (symbol "yes") ((task :opts) :task)))
+    (parse-examples (get-lines-or-abort namespace))))
+
+  (defn show-task-in-ns [namespace]
+    (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
+    (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
+
+  (defn show-tasks-in-ns [namespaces]
+    (doseq [namespace namespaces] (show-task-in-ns namespace)))
+
+  (defn show-all []
+    (println "Show all ..."))
+
+  (defn parse-var [line]
+  (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
+
+  (defn babel-to-map [string]
+    (edn/read-string (str "{" string "}")))
+
+  ;; (prn (babel-to-map ""))
+  ;; (prn (babel-to-map ":tangle test.clj"))
+  ;; (prn (babel-to-map ":tangle \"test.clj\""))
+  ;; (prn (babel-to-map ":shebang \"#!/usr/bin/env clojure -M\""))
+  ;; (prn (babel-to-map ":task yes :shebang \"#!/usr/bin/env clojure -M\""))
+  ;; (println)
+  ;; (System/exit 1)
+
+  (defn parse-examples [lines]
+    (let [update-last-task (fn [tasks update-fn]
+                             (conj (vec (butlast tasks)) (conj (last tasks) (update-fn (last tasks)))))]
+
+      (first
+       (reduce (fn [[tasks status] line]
+                 ;; (prn {:t tasks :s status :l line}) ; --------------
+                 (cond
+                   ;; Read name.
+                   (re-find #"^\s*#\+(?i)name:" line)
+                   [(conj tasks {:name (parse-var line)}) :named]
+
+                   ;; Read block options.
+                   (and (re-find #"^\s*#\+(?i)begin_src" line)
+                        (= status :named))
+                   [(update-last-task
+                     tasks
+                     (fn [task]
+                       (let [raw-opts (str/split (parse-var line) #"\s+")
+                             lang (first raw-opts)
+                             opts (babel-to-map (str/join " " (rest raw-opts)))]
+                         {:lines [] :lang lang :opts opts})))
+                    :reading]
+
+                   ;; Stop reading block body.
+                   ;; We do need this line even though it does the same
+                   ;; as the default cond so the end_src line gets skipped.
+                   (re-find #"^\s*#\+(?i)end_src" line)
+                   [tasks nil]
+
+                   ;; Read body.
+                   (= status :reading)
+                   [(update-last-task
+                     tasks
+                     (fn [task] {:lines (vec (conj (:lines task) line))}))
+                    :reading]
+
+                   :default [tasks nil]))
+               [[] nil]
+               lines))))
+
+    (defn exec [tasks task-name]
+      (let [task (first (filter #(= task-name (:name %)) tasks))]
+        (if task
+          (let [shebang (if ((task :opts) :shebang)
+                          (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
+                          [(task :lang)])
+                script-name (str "/tmp/" (task :name) "." (task :lang))
+                command (conj shebang script-name)]
+          (prn (task :opts)) (println) ; ----------------------
+            (spit script-name (str/join "\n" (task :lines)))
+            (println (str "~ Running task " task-name " ... " command))
+            (shell command))
+          (abort (str "No such task: " task-name "\nTasks in this namespace: ....")))))
+
+    (defn run [fully-qualified-task-name]
+      (let [namespace (first (str/split fully-qualified-task-name #"/"))
+            task-name (last (str/split fully-qualified-task-name #"/"))
+            lines (get-lines-or-abort namespace)
+            tasks (filter-tasks namespace)]
+        (exec tasks task-name)))
+
+    (def ARGV (set *command-line-args*))
+
+    (if (some #{"-T" "--tasks"} ARGV)
+      (let [namespaces (disj ARGV "-T" "--tasks")]
+        (if (empty? namespaces) (show-all) (show-tasks-in-ns namespaces)))
+      (doseq [a ARGV] (run a)))
+#+end_src
+
+#+name: run
+#+begin_src clojure :task yes
+  (println "Hello ET!")
+#+end_src
+
+#+name: doc
+#+begin_src clojure :shebang "#!/usr/bin/env bb" :task yes
+  (println "Hello doc!")
+#+end_src
+
+#+name: test
+#+begin_src clojure :tangle "test.clj" :task yes
+  (println "Hello test!")
+#+end_src
+
+#+name: non-task
+#+begin_src clojure :tangle "test.clj"
+  (println "Hello test!")
+#+end_src
+
+# Skip unnamed block, task needs a name.
+
+#+begin_src clojure :tangle "test.clj"
+  (println "Hello test!")
+#+end_src
