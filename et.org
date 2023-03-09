@@ -28,7 +28,7 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
   (def config
     {})
 
-  (run config (vec *command-line-args*))
+  (defn -main [& args] (run config args))
 #+end_src
 
 # clj -M -m jakub-stastny.et.runner a b c
@@ -42,18 +42,46 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
             (str \u001b "[31m" "Error: " \u001b "[0m" message)
             {:babashka/exit 1})))
 
+  (def built-in-tasks
+    {:tasks #(println "Task: tasks")
+     :help #(println "Task: help")})
+
+  (defn built-in-task [i]
+    (cond
+      (some #(= i %) ["-T" "--tasks"])
+      {:name :tasks :fn (built-in-tasks :tasks)}
+
+      true
+      {:name :help :fn (built-in-tasks :help)}))
+
   (def default-config
     ; clj -M -m jakub-stastny.et.runner et-examples.org run a b c
     ; ({:path "et-examples.org", :args ["a" "b" "c"], :task-name "run"})
+
+    ; clj -M -m jakub-stastny.et.runner -h
+    ; :defs [{:task {:fn help-fn}}]
+
+    ; clj -M -m jakub-stastny.et.runner -T et-examples.org
+    ; :defs ({:task {:name :tasks, :fn task-fn}, :args ("et-examples.org")})
     {:args-to-tasks
      (fn [args]
        (reduce
         (fn [acc i]
           (cond
-            (re-find #"\.org$" i)
-            (conj acc {:path i :args []})
+            ;; First argument starting with a dash (-T, -h etc).
+            (and (empty? acc) (re-matches #"-{1,2}\w+" i))
+            (conj acc {:task (built-in-task i)})
 
-            (nil? ((last acc) :task-name))
+            (and
+             (re-find #"\.org$" i)
+             ;; -T is followed by an org file, not a task name.
+             (not (= (get-in (last acc) [:task :name]) :tasks)))
+            (conj acc {:path i :args [] :task {}})
+
+            (and
+             (nil? ((last acc) :task-name))
+             ;; -T is followed by an org file, not a task name.
+             (not (= (get-in (last acc) [:task :name]) :tasks)))
             (conj (butlast acc)
                   (assoc-in (last acc) [:task-name] i))
 
@@ -69,13 +97,9 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
       (let [defs ((config :args-to-tasks) args)]
         (prn :defs defs))))
 
-  ;; Custom config, use in an example.
+  ;; DEBUG.
   (defn -main [& args] (run {} args))
 
-  ;; (if (some #{"-T" "--tasks"} ARGV)
-  ;;    (let [namespaces (disj ARGV "-T" "--tasks")]
-  ;;      (if (empty? namespaces) (show-all) (show-tasks-in-ns namespaces)))
-  ;;    (doseq [a ARGV
 
   ;; (defn exec [tasks task-name]
   ;;   (let [task (first (filter #(= task-name (:name %)) tasks))]
