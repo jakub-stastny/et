@@ -13,11 +13,79 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
 
 ~#+name: task-name~
 
-#+begin_src clojure :tangle ../../.env/bin/et.clj :mkdirp yes :shebang "#!/usr/bin/env bb"
-  (require '[babashka.process :refer [shell sh process check]])
+* Runner
+** Usage
+#+begin_src clojure
+  (ns runner (:require [jakub-stastny.et.runner :refer [run]]))
 
-  (defn abort [msg] (println msg))
+  (defn args-to-tasks [args])
 
+  (def config
+    {})
+
+  (run config (vec *command-line-args*))
+#+end_src
+
+#+begin_src clojure :tangle src/jakub-stastny/et/runner.clj :mkdirp yes
+      (ns jakub-stastny.et.runner
+        "")
+
+      ; BB has fs/exists? "str"
+
+      (defn abort [message]
+        (throw (ex-info
+                (str \u001b "[31m" "Error: " \u001b "[0m" message)
+                {:babashka/exit 1})))
+
+      (def default-config {})
+
+      (defn run [custom-config args]
+        (let [config (conj default-config custom-config)]
+          (prn config)
+          (prn args)
+          (let [task-defs ((config :args-to-tasks) args)]
+               )
+          ))
+
+      ;; (if (some #{"-T" "--tasks"} ARGV)
+      ;;    (let [namespaces (disj ARGV "-T" "--tasks")]
+      ;;      (if (empty? namespaces) (show-all) (show-tasks-in-ns namespaces)))
+      ;;    (doseq [a ARGV
+
+      ;; (defn exec [tasks task-name]
+      ;;   (let [task (first (filter #(= task-name (:name %)) tasks))]
+      ;;     (if task
+      ;;       (let [shebang (if ((task :opts) :shebang)
+      ;;                       (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
+      ;;                       [(task :lang)])
+      ;;             script-name (str "/tmp/" (task :name) "." (task :lang))
+      ;;             command (conj shebang script-name)]
+      ;;         (prn (task :opts)) (println)    ; ----------------------
+      ;;         (spit script-name (str/join "\n" (task :lines)))
+      ;;         (println (str "~ Running task " task-name " ... " command))
+      ;;         (shell command))
+      ;;       (abort (str "No such task: " task-name "\nTasks in this namespace: ....")))))
+
+      ;;    (defn run [fully-qualified-task-name]
+      ;;      (let [namespace (first (str/split fully-qualified-task-name #"/"))
+      ;;            task-name (last (str/split fully-qualified-task-name #"/"))
+      ;;            lines (get-lines-or-abort namespace)
+      ;;            tasks (filter-tasks namespace)]
+      ;;        (exec tasks task-name)))
+      ;;            (run a)))
+
+      ;; (defn show-task-in-ns [namespace]
+      ;;   (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
+      ;;   (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
+
+      ;; (defn show-tasks-in-ns [namespaces]
+      ;;   (doseq [namespace namespaces] (show-task-in-ns namespace)))
+
+      ;; (defn show-all []
+      ;;   (println "Show all ..."))
+#+end_src
+
+#+begin_src clojure :tangle src/jakub-stastny/et/parser.clj :mkdirp yes
   (defn convert-ns-to-path [namespace]
     (when (or (re-find #"[/:]" namespace))
       (throw (Exception. "Namespace uses . rather than /")))
@@ -37,16 +105,6 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
     (filter (fn [task]
               (= (symbol "yes") ((task :opts) :task)))
     (parse-examples (get-lines-or-abort namespace))))
-
-  (defn show-task-in-ns [namespace]
-    (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
-    (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
-
-  (defn show-tasks-in-ns [namespaces]
-    (doseq [namespace namespaces] (show-task-in-ns namespace)))
-
-  (defn show-all []
-    (println "Show all ..."))
 
   (defn parse-var [line]
   (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
@@ -102,58 +160,4 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
                    :default [tasks nil]))
                [[] nil]
                lines))))
-
-    (defn exec [tasks task-name]
-      (let [task (first (filter #(= task-name (:name %)) tasks))]
-        (if task
-          (let [shebang (if ((task :opts) :shebang)
-                          (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
-                          [(task :lang)])
-                script-name (str "/tmp/" (task :name) "." (task :lang))
-                command (conj shebang script-name)]
-          (prn (task :opts)) (println) ; ----------------------
-            (spit script-name (str/join "\n" (task :lines)))
-            (println (str "~ Running task " task-name " ... " command))
-            (shell command))
-          (abort (str "No such task: " task-name "\nTasks in this namespace: ....")))))
-
-    (defn run [fully-qualified-task-name]
-      (let [namespace (first (str/split fully-qualified-task-name #"/"))
-            task-name (last (str/split fully-qualified-task-name #"/"))
-            lines (get-lines-or-abort namespace)
-            tasks (filter-tasks namespace)]
-        (exec tasks task-name)))
-
-    (def ARGV (set *command-line-args*))
-
-    (if (some #{"-T" "--tasks"} ARGV)
-      (let [namespaces (disj ARGV "-T" "--tasks")]
-        (if (empty? namespaces) (show-all) (show-tasks-in-ns namespaces)))
-      (doseq [a ARGV] (run a)))
-#+end_src
-
-#+name: run
-#+begin_src clojure :task yes
-  (println "Hello ET!")
-#+end_src
-
-#+name: doc
-#+begin_src clojure :shebang "#!/usr/bin/env bb" :task yes
-  (println "Hello doc!")
-#+end_src
-
-#+name: test
-#+begin_src clojure :tangle "test.clj" :task yes
-  (println "Hello test!")
-#+end_src
-
-#+name: non-task
-#+begin_src clojure :tangle "test.clj"
-  (println "Hello test!")
-#+end_src
-
-# Skip unnamed block, task needs a name.
-
-#+begin_src clojure :tangle "test.clj"
-  (println "Hello test!")
 #+end_src
