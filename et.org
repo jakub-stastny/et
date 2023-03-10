@@ -31,150 +31,153 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
   (defn -main [& args] (run config args))
 #+end_src
 
-# clj -M -m jakub-stastny.et.runner a b c
-#+begin_src clojure :tangle src/jakub_stastny/et/runner.clj :mkdirp yes
-    (ns jakub-stastny.et.runner
-      "........."
-      (:require [clojure.string :as str]))
-
-    (defn abort [message]
-      (throw (ex-info
-              (str \u001b "[31m" "Error: " \u001b "[0m" message)
-              {:babashka/exit 1})))
-
-    (def built-in-tasks
-      {:tasks #(println "Task: tasks")
-       :help #(println "Task: help")})
-
-    (defn built-in-task [i]
-      (cond
-        (some #(= i %) ["-T" "--tasks"])
-        {:name :tasks :fn (built-in-tasks :tasks)}
-
-        true
-        {:name :help :fn (built-in-tasks :help)}))
-
-  ;; (defn show-task-in-ns [namespace]
-  ;;   (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
-  ;;   (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
-
-  ;; (defn show-tasks-in-ns [namespaces]
-  ;;   (doseq [namespace namespaces] (show-task-in-ns namespace)))
-  ;; (defn show-all []
-  ;;   (println "Show all ..."))
-
-    (defn args-to-tasks [args]
-      (reduce
-       (fn [acc i]
-         (cond
-           ;; First argument starting with a dash (-T, -h etc).
-           (and (empty? acc) (re-matches #"-{1,2}\w+" i))
-           (conj acc {:task (built-in-task i)})
-
-           (and
-            (re-find #"\.org$" i)
-            ;; -T is followed by an org file, not a task name.
-            (not (= (get-in (last acc) [:task :name]) :tasks)))
-           (conj acc {:path i :args [] :task {}})
-
-           (and
-            (nil? ((last acc) :task-name))
-            ;; -T is followed by an org file, not a task name.
-            (not (= (get-in (last acc) [:task :name]) :tasks)))
-           (conj (butlast acc)
-                 (assoc-in (last acc) [:task-name] i))
-
-           true
-           (conj (butlast acc)
-                 (update-in (last acc) [:args] #(conj % i)))))
-       []
-       args))
-
-    (def default-config
-      ; clj -M -m jakub-stastny.et.runner et-examples.org run a b c
-      ; ({:path "et-examples.org", :args ["a" "b" "c"], :task-name "run"})
-
-      ; clj -M -m jakub-stastny.et.runner -T
-      ; :defs [{:task {:fn jakub-stastny.et.runner/built-in-tasks/tasks]}}]
-
-      ; clj -M -m jakub-stastny.et.runner -T et-examples.org
-      ; :defs ({:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__149 0x3b0ca5e1 "jakub_stastny.et.runner$fn__149@3b0ca5e1"]}, :args ("et-examples.org")})
-      {:args-to-tasks args-to-tasks})
-
-    (defn run-task [task]
-      (println (str "~ Running task " (prn-str task)))
-      (cond
-        ;; Built-in task.
-        (get-in task [:task :fn])
-        ((get-in task [:task :fn]))
-
-        ;; Org-defined task.
-        (and (task :path) (task :name))
-        (et.org/run-task (task :path) (task :name))
-
-        ;; Should never get here.
-        true
-        (abort "Nope")))
-
-    ;; TODO: spec: validate keys of config.
-    (defn run [custom-config args]
-      (let [config (conj default-config custom-config)]
-        (let [defs ((config :args-to-tasks) args)]
-          (doseq [def defs] (run-task def)))))
-
-    ;; DEBUG.
-    (defn -main [& args] (run {} args))
+#+begin_src sh
+  clj -M -m jakub-stastny.et.runner et-examples.org run a b c
+  clj -M -m jakub-stastny.et.runner -T
+  clj -M -m jakub-stastny.et.runner -T et-examples.org
 #+end_src
 
-#+begin_src clojure :tangle src/jakub_stastny/et/parser.clj :mkdirp yes
+#+begin_src clojure :tangle src/jakub_stastny/et/runner.clj :mkdirp yes
+  (ns jakub-stastny.et.runner
+    "........."
+    (:require [clojure.string :as str]
+              [jakub-stastny.et.org :as org]))
 
+  (defn abort [message]
+    (throw (ex-info
+            (str \u001b "[31m" "Error: " \u001b "[0m" message)
+            {:babashka/exit 1})))
 
-;; (defn exec [tasks task-name]
-;;   (let [task (first (filter #(= task-name (:name %)) tasks))]
-;;     (if task
-;;       (let [shebang (if ((task :opts) :shebang)
-;;                       (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
-;;                       [(task :lang)])
-;;             script-name (str "/tmp/" (task :name) "." (task :lang))
-;;             command (conj shebang script-name)]
-;;         (prn (task :opts)) (println)    ; ----------------------
-;;         (spit script-name (str/join "\n" (task :lines)))
-;;         (println (str "~ Running task " task-name " ... " command))
-;;         (shell command))
-;;       (abort (str "No such task: " task-name "\nTasks in this namespace: ....")))))
+  (def built-in-tasks
+    {:tasks #(println "TODO: Implement built-in task :tasks")
+     :help #(println "TODO: Implement built-in task :help")})
 
-;;    (defn run [fully-qualified-task-name]
-;;      (let [namespace (first (str/split fully-qualified-task-name #"/"))
-;;            task-name (last (str/split fully-qualified-task-name #"/"))
-;;            lines (get-lines-or-abort namespace)
-;;            tasks (filter-tasks namespace)]
-;;        (exec tasks task-name)))
-;;            (run a)))
-  (defn convert-ns-to-path [namespace]
-    (when (or (re-find #"[/:]" namespace))
-      (throw (Exception. "Namespace uses . rather than /")))
-    (str (str/replace namespace #"\." "/") ".org"))
+  (defn built-in-task [i]
+    (cond
+      (some #(= i %) ["-T" "--tasks"])
+      {:name :tasks :fn (built-in-tasks :tasks)}
 
-  (defn get-tasks [lines]
-    (map #(str/replace % #"^#\+name:\s*" "") (filter #(re-find #"^#\+name:" %) lines)))
+      true
+      {:name :help :fn (built-in-tasks :help)}))
 
-  (defn get-lines-or-abort [namespace]
-    (let [path (convert-ns-to-path namespace)]
-      (if (.exists (io/as-file path))
-      (str/split (slurp path) #"\n")
-      (abort (str "No such file: " path)))))
+    ;; (defn show-task-in-ns [namespace]
+    ;;   (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
+    ;;   (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
 
-  (declare parse-examples)                ; Just reorganise the code.
-  (defn filter-tasks [namespace]
-    (filter (fn [task]
-              (= (symbol "yes") ((task :opts) :task)))
-    (parse-examples (get-lines-or-abort namespace))))
+    ;; (defn show-tasks-in-ns [namespaces]
+    ;;   (doseq [namespace namespaces] (show-task-in-ns namespace)))
+    ;; (defn show-all []
+    ;;   (println "Show all ..."))
 
-  (defn parse-var [line]
-  (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
+  (defn args-to-tasks [args]
+    (reduce
+     (fn [acc i]
+       (cond
+         ;; First argument starting with a dash (-T, -h etc).
+         (and (empty? acc) (re-matches #"-{1,2}\w+" i))
+         (conj acc {:task (built-in-task i)})
 
-  (defn babel-to-map [string]
-    (edn/read-string (str "{" string "}")))
+         (and
+          (re-find #"\.org$" i)
+          ;; -T is followed by an org file, not a task name.
+          (not (= (get-in (last acc) [:task :name]) :tasks)))
+         (conj acc {:path i :args [] :task {}})
+
+         (and
+          (nil? ((last acc) :task-name))
+          ;; -T is followed by an org file, not a task name.
+          (not (= (get-in (last acc) [:task :name]) :tasks)))
+         (conj (butlast acc)
+               (assoc-in (last acc) [:task-name] i))
+
+         true
+         (conj (butlast acc)
+               (update-in (last acc) [:args] #(conj % i)))))
+     []
+     args))
+
+  (def default-config
+    {:args-to-tasks args-to-tasks})
+
+  (defn run-task [task]
+    (println (str "~ Running task " (prn-str task)))
+    (cond
+      ;; Built-in task.
+      (get-in task [:task :fn])
+      ((get-in task [:task :fn]))
+
+      ;; Org-defined task.
+      (and (task :path) (task :task-name))
+      (org/run-task (task :path) (task :task-name))
+
+      ;; Should never get here.
+      true
+      (abort "Nope")))
+
+  ;; TODO: spec: validate keys of config.
+  (defn run
+    "....."
+    ([args] (run {} args))
+
+    ([custom-config args]
+     (let [config (conj default-config custom-config)]
+       (let [defs ((config :args-to-tasks) args)]
+         (doseq [def defs] (run-task def))))))
+
+  ;; DEBUG.
+  (defn -main [& args] (run args))
+#+end_src
+
+#+begin_src clojure :tangle src/jakub_stastny/et/org.clj :mkdirp yes
+  (ns jakub-stastny.et.org
+    "...."
+    (:require [clojure.string :as str]
+              [jakub-stastny.et.parser :as parser]))
+
+  (defn run-task [org-file-path task-name]
+    (prn :ofp org-file-path :tn task-name)
+    )
+
+  ;; (defn exec [tasks task-name]
+  ;;   (let [task (first (filter #(= task-name (:name %)) tasks))]
+  ;;     (if task
+  ;;       (let [shebang (if ((task :opts) :shebang)
+  ;;                       (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
+  ;;                       [(task :lang)])
+  ;;             script-name (str "/tmp/" (task :name) "." (task :lang))
+  ;;             command (conj shebang script-name)]
+  ;;         (prn (task :opts)) (println)    ; ----------------------
+  ;;         (spit script-name (str/join "\n" (task :lines)))
+  ;;         (println (str "~ Running task " task-name " ... " command))
+  ;;         (shell command))
+  ;;       (abort (str "No such task: " task-name "\nTasks in this namespace: ....")))))
+
+  ;;    (defn run [fully-qualified-task-name]
+  ;;      (let [namespace (first (str/split fully-qualified-task-name #"/"))
+  ;;            task-name (last (str/split fully-qualified-task-name #"/"))
+  ;;            lines (get-lines-or-abort namespace)
+  ;;            tasks (filter-tasks namespace)]
+  ;;        (exec tasks task-name)))
+  ;;            (run a)))
+  ;; (defn convert-ns-to-path [namespace]
+  ;;   (when (or (re-find #"[/:]" namespace))
+  ;;     (throw (Exception. "Namespace uses . rather than /")))
+  ;;   (str (str/replace namespace #"\." "/") ".org"))
+
+  ;; (defn get-tasks [lines]
+  ;;     (map #(str/replace % #"^#\+name:\s*" "") (filter #(re-find #"^#\+name:" %) lines)))
+
+  ;; (defn get-lines-or-abort [namespace]
+  ;;     (let [path (convert-ns-to-path namespace)]
+  ;;     (if (.exists (io/as-file path))
+  ;;     (str/split (slurp path) #"\n")
+  ;;     (abort (str "No such file: " path)))))
+
+  ;; (declare parse-examples)                ; Just reorganise the code.
+  ;; (defn filter-tasks [namespace]
+  ;;     (filter (fn [task]
+  ;;             (= (symbol "yes") ((task :opts) :task)))
+  ;;     (parse-examples (get-lines-or-abort namespace))))
 
   ;; (prn (babel-to-map ""))
   ;; (prn (babel-to-map ":tangle test.clj"))
@@ -183,45 +186,62 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
   ;; (prn (babel-to-map ":task yes :shebang \"#!/usr/bin/env clojure -M\""))
   ;; (println)
   ;; (System/exit 1)
+#+end_src
+
+#+begin_src clojure :tangle src/jakub_stastny/et/parser.clj :mkdirp yes
+  (ns jakub-stastny.et.parser
+    "...."
+    (:require [clojure.string :as str]
+              [clojure.edn :as edn]))
+
+  (defn parse-var [line]
+  (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
+
+  (defn babel-to-map [string]
+      (edn/read-string (str "{" string "}")))
 
   (defn parse-examples [lines]
-    (let [update-last-task (fn [tasks update-fn]
-                             (conj (vec (butlast tasks)) (conj (last tasks) (update-fn (last tasks)))))]
+    (let [update-last-task
+          (fn [tasks update-fn]
+            (conj
+             (vec (butlast tasks))
+             (conj (last tasks) (update-fn (last tasks)))))]
 
       (first
-       (reduce (fn [[tasks status] line]
-                 ;; (prn {:t tasks :s status :l line}) ; --------------
-                 (cond
-                   ;; Read name.
-                   (re-find #"^\s*#\+(?i)name:" line)
-                   [(conj tasks {:name (parse-var line)}) :named]
+       (reduce
+        (fn [[tasks status] line]
+          ;; (prn {:t tasks :s status :l line}) ; --------------
+          (cond
+            ;; Read name.
+            (re-find #"^\s*#\+(?i)name:" line)
+            [(conj tasks {:name (parse-var line)}) :named]
 
-                   ;; Read block options.
-                   (and (re-find #"^\s*#\+(?i)begin_src" line)
-                        (= status :named))
-                   [(update-last-task
-                     tasks
-                     (fn [task]
-                       (let [raw-opts (str/split (parse-var line) #"\s+")
-                             lang (first raw-opts)
-                             opts (babel-to-map (str/join " " (rest raw-opts)))]
-                         {:lines [] :lang lang :opts opts})))
-                    :reading]
+            ;; Read block options.
+            (and (re-find #"^\s*#\+(?i)begin_src" line)
+                 (= status :named))
+            [(update-last-task
+              tasks
+              (fn [task]
+                (let [raw-opts (str/split (parse-var line) #"\s+")
+                      lang (first raw-opts)
+                      opts (babel-to-map (str/join " " (rest raw-opts)))]
+                  {:lines [] :lang lang :opts opts})))
+             :reading]
 
-                   ;; Stop reading block body.
-                   ;; We do need this line even though it does the same
-                   ;; as the default cond so the end_src line gets skipped.
-                   (re-find #"^\s*#\+(?i)end_src" line)
-                   [tasks nil]
+            ;; Stop reading block body.
+            ;; We do need this line even though it does the same
+            ;; as the default cond so the end_src line gets skipped.
+            (re-find #"^\s*#\+(?i)end_src" line)
+            [tasks nil]
 
-                   ;; Read body.
-                   (= status :reading)
-                   [(update-last-task
-                     tasks
-                     (fn [task] {:lines (vec (conj (:lines task) line))}))
-                    :reading]
+            ;; Read body.
+            (= status :reading)
+            [(update-last-task
+              tasks
+              (fn [task] {:lines (vec (conj (:lines task) line))}))
+             :reading]
 
-                   :default [tasks nil]))
-               [[] nil]
-               lines))))
+            :default [tasks nil]))
+        [[] nil]
+        lines))))
 #+end_src
