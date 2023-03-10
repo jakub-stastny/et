@@ -154,7 +154,7 @@ change vector for list in iterations
                        [shebang ""]
                        (map
                         (fn [line]
-                          (str/replace line indent "")) lines))))))
+                          (str/replace line indent "")) (conj lines "")))))))
   (def exts
     {:clojure "clj"})
 
