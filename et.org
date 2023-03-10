@@ -12,7 +12,52 @@ Indentation, extensions, default run opts {clojure: "-M" OR default to babashka}
 change vector for list in iterations
 
 #+begin_src clojure :tangle deps.edn
-  {:paths ["src"]}
+  {:paths ["src"]
+   :aliases
+   ;; Run with clj -T:build (jar|uber|clean)
+   {:build {:deps {io.github.clojure/tools.build
+                   {:git/tag "v0.9.4" :git/sha "76b78fe"}}
+            :ns-default build}}}
+#+end_src
+
+#+begin_src clojure :tangle build.clj
+  (ns build
+    (:require [clojure.tools.build.api :as b]))
+
+  (def lib 'jakub-stastny/et)
+  ;; (def version (format "1.2.%s" (b/git-count-revs nil)))
+  (def version "0.0.1")
+  (def class-dir "target/classes")
+  (def basis (b/create-basis {:project "deps.edn"}))
+  (def jar-file (format "target/%s-%s.jar" (name lib) version))
+  (def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))
+
+  (defn clean [_]
+    (b/delete {:path "target"}))
+
+  (defn jar [_]
+    (b/write-pom {:class-dir class-dir
+                  :lib lib
+                  :version version
+                  :basis basis
+                  :src-dirs ["src"]})
+    (b/copy-dir {:src-dirs ["src"]
+                 :target-dir class-dir})
+    (b/jar {:class-dir class-dir
+            :jar-file jar-file}))
+
+  ;; clj -T:build uber
+  (defn uber [_]
+    (clean nil)
+    (b/copy-dir {:src-dirs ["src" "resources"]
+                 :target-dir class-dir})
+    (b/compile-clj {:basis basis
+                    :src-dirs ["src"]
+                    :class-dir class-dir})
+    (b/uber {:class-dir class-dir
+             :uber-file uber-file
+             :basis basis
+             :main 'jakub-stastny.et.runner}))
 #+end_src
 
 * Runner
@@ -37,6 +82,7 @@ change vector for list in iterations
 #+begin_src clojure :tangle src/jakub_stastny/et/runner.clj :mkdirp yes
   (ns jakub-stastny.et.runner
     "........."
+    (:gen-class)
     (:require [clojure.string :as str]
               [jakub-stastny.et.org :as org]))
 
@@ -123,7 +169,7 @@ change vector for list in iterations
        (let [defs ((config :args-to-tasks) args)]
          (doseq [def defs] (run-task def config))))))
 
-  ;; DEBUG.
+  ; Main entry point if the default runner is used.
   (defn -main [& args] (run args))
 #+end_src
 
@@ -144,7 +190,6 @@ change vector for list in iterations
       (parser/parse-examples (str/split (slurp path) #"\n"))
       (println "ERR")))
 
-  ;; Chmod +x
   (defn write-script-2
     "...."
     [script-name command lines]
@@ -153,10 +198,11 @@ change vector for list in iterations
       (spit script-name
             (str/join "\n"
                       (apply conj
-                       [shebang ""]
-                       (map
-                        (fn [line]
-                          (str/replace line indent "")) (conj lines "")))))))
+                             [shebang ""]
+                             (map
+                              (fn [line]
+                                (str/replace line indent "")) (conj lines "")))))
+      (sh "chmod" "+x" script-name)))
 
   (defn get-ext
     "..."
