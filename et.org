@@ -62,7 +62,7 @@ change vector for list in iterations
 
 #+name: deploy
 #+begin_src sh :task yes :doc "...."
-  scp target/et-*-standalone.jar home:/bm/www/jar/
+  scp target/et-*-standalone.jar home:/bm/www/jar/et.jar
 #+end_src
 
 * Runner
@@ -89,6 +89,7 @@ change vector for list in iterations
     "........."
     (:gen-class)
     (:require [clojure.string :as str]
+              [clojure.java.shell]
               [jakub-stastny.et.org :as org]))
 
   (defn abort [message]
@@ -147,7 +148,8 @@ change vector for list in iterations
   (def default-config
     {:args-to-tasks args-to-tasks
      :exts {:clojure "clj"}
-     :cmds {:clojure "bb"}})
+     :cmds {:clojure "bb"}
+     :exec-fn clojure.java.shell/sh})
 
   (defn run-task [task config]
     (println (str "~ Task definition " (pr-str task)))
@@ -185,7 +187,7 @@ change vector for list in iterations
     "...."
     (:require [clojure.string :as str]
               [clojure.java.io :as io]
-              [clojure.java.shell :refer [sh]]
+              [clojure.java.shell :refer [sh]] ; chmod +x
               [jakub-stastny.et.parser :as parser]))
 
   (defn load-tasks
@@ -231,8 +233,11 @@ change vector for list in iterations
     "..."
     [task config]
     (println (str "~ Running task " (task :name) " " (pr-str (task :opts))))
-    (let [command (write-script task config) res (apply sh command)]
+    (let [exec-fn (config :exec-fn)
+          command (write-script task config)
+          res (apply exec-fn command)]
       (println)
+      ;; With exec it'll never run so no prob.
       ;; (prn command) (prn res) (println)
       (if (= (res :exit) 0)
         (println (str/trim (res :out)))
