@@ -3,19 +3,16 @@
 
 * ET (Emacs tasks)
 
-TODO: Make an independent project.
+et -T file.org
 
-et -T
-et -T my.namespace ; my/namespace.org
-
-et my.namespace Run task "main".
+et file.org Run task "main".
 et my.namespace/task-name Run task "task-name" from my/namespace.org.
 
+Indentation, extensions, default run opts {clojure: "-M" OR default to babashka} .... make this for opts.
+change vector for list in iterations
+
 #+begin_src clojure :tangle deps.edn
-  {:paths ["src"]
-   :aliases
-   {:run
-    {:exec-fn jakub-stastny.et.runner/custom-runner}}}
+  {:paths ["src"]}
 #+end_src
 
 * Runner
@@ -128,6 +125,8 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
   (defn -main [& args] (run args))
 #+end_src
 
+*** TODO Don't require :task yes if has :doc
+
 #+begin_src clojure :tangle src/jakub_stastny/et/org.clj :mkdirp yes
   (ns jakub-stastny.et.org
     "...."
@@ -143,20 +142,54 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
       (parser/parse-examples (str/split (slurp path) #"\n"))
       (println "ERR")))
 
-  (defn exec-task [task]
-    (let [shebang (if ((task :opts) :shebang)
-                    (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
-                    [(task :lang)])
-          script-name (str "/tmp/" (task :name) "." (task :lang))
-          command (conj shebang script-name)]
-      (spit script-name (str/join "\n" (task :lines)))
-      (println (str "~ Running task " (pr-str task)))
-      (let [res (apply sh command)]
-        (println)
-        (if (= (res :exit) 0)
-          (println (str/trim (res :out)))
-          (println (str/trim (res :err))))
-        (System/exit (res :exit)))))
+  ;; Chmod +x
+  (defn write-script-2
+    "...."
+    [script-name command lines]
+    (let [shebang (str "#!/usr/bin/env " command)
+          indent (re-find #"^ *" (first lines))]
+      (spit script-name
+            (str/join "\n"
+                      (apply conj
+                       [shebang ""]
+                       (map
+                        (fn [line]
+                          (str/replace line indent "")) lines))))))
+  (def exts
+    {:clojure "clj"})
+
+  (def commands
+    {:clojure "clojure -M"})
+
+  (defn get-ext
+    "..."
+    [lang] (or (get exts (keyword lang)) lang))
+
+  (defn get-command
+    "..."
+    [lang] (or (get commands (keyword lang)) lang))
+
+  (defn write-script
+    "....."
+    [{:keys [name lang lines opts]}]
+    (let [shebang (if (opts :shebang)
+                    (str/split (str/replace (opts :shebang) #"#!" "") #"\s+")
+                    (str/split (get-command lang) #"\s+"))
+          script-name (str "/tmp/" name "." (get-ext lang))]
+      (write-script-2 script-name (str/join " " shebang) lines)
+      (conj shebang script-name)))
+
+  (defn exec-task
+    "..."
+    [task]
+    (println (str "~ Running task " (task :name) " " (pr-str (task :opts))))
+    (let [command (write-script task) res (apply sh command)]
+      (println)
+      ;; (prn command) (prn res) (println)
+      (if (= (res :exit) 0)
+        (println (str/trim (res :out)))
+        (println (str/trim (res :err))))
+      (System/exit (res :exit))))
 
   (defn run-task
     "..."
