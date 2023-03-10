@@ -100,7 +100,7 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
     {:args-to-tasks args-to-tasks})
 
   (defn run-task [task]
-    (println (str "~ Running task " (prn-str task)))
+    (println (str "~ Task definition " (pr-str task)))
     (cond
       ;; Built-in task.
       (get-in task [:task :fn])
@@ -108,7 +108,7 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
 
       ;; Org-defined task.
       (and (task :path) (task :task-name))
-      (org/run-task (task :path) (task :task-name))
+      (org/run-task task)
 
       ;; Should never get here.
       true
@@ -132,25 +132,48 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
   (ns jakub-stastny.et.org
     "...."
     (:require [clojure.string :as str]
+              [clojure.java.io :as io]
+              [clojure.java.shell :refer [sh]]
               [jakub-stastny.et.parser :as parser]))
 
-  (defn run-task [org-file-path task-name]
-    (prn :ofp org-file-path :tn task-name)
-    )
+  (defn load-tasks
+    "..."
+    [path]
+    (if (.exists (io/as-file path))
+      (parser/parse-examples (str/split (slurp path) #"\n"))
+      (println "ERR")))
 
-  ;; (defn exec [tasks task-name]
-  ;;   (let [task (first (filter #(= task-name (:name %)) tasks))]
-  ;;     (if task
-  ;;       (let [shebang (if ((task :opts) :shebang)
-  ;;                       (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
-  ;;                       [(task :lang)])
-  ;;             script-name (str "/tmp/" (task :name) "." (task :lang))
-  ;;             command (conj shebang script-name)]
-  ;;         (prn (task :opts)) (println)    ; ----------------------
-  ;;         (spit script-name (str/join "\n" (task :lines)))
-  ;;         (println (str "~ Running task " task-name " ... " command))
-  ;;         (shell command))
-  ;;       (abort (str "No such task: " task-name "\nTasks in this namespace: ....")))))
+  (defn exec-task [task]
+    (let [shebang (if ((task :opts) :shebang)
+                    (str/split (str/replace ((task :opts) :shebang) #"#!" "") #"\s+")
+                    [(task :lang)])
+          script-name (str "/tmp/" (task :name) "." (task :lang))
+          command (conj shebang script-name)]
+      (spit script-name (str/join "\n" (task :lines)))
+      (println (str "~ Running task " (pr-str task)))
+      (let [res (apply sh command)]
+        (println)
+        (if (= (res :exit) 0)
+          (println (str/trim (res :out)))
+          (println (str/trim (res :err))))
+        (System/exit (res :exit)))))
+
+  (defn run-task
+    "..."
+    [task-def]
+    (let [examples (load-tasks (task-def :path))
+          tasks (filter #(= ((% :opts) :task) (symbol "yes")) examples)
+          task (first (filter #(= (task-def :task-name) (% :name)) tasks))]
+      (if task
+        (exec-task task)
+        (println "NO SUCH"))))
+        ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
+
+  ;; (defn filter-tasks [namespace]
+  ;;     (filter (fn [task]
+  ;;             (= (symbol "yes") ((task :opts) :task)))
+  ;;     (parse-examples (get-lines-or-abort namespace))))
+
 
   ;;    (defn run [fully-qualified-task-name]
   ;;      (let [namespace (first (str/split fully-qualified-task-name #"/"))
@@ -163,21 +186,6 @@ et my.namespace/task-name Run task "task-name" from my/namespace.org.
   ;;   (when (or (re-find #"[/:]" namespace))
   ;;     (throw (Exception. "Namespace uses . rather than /")))
   ;;   (str (str/replace namespace #"\." "/") ".org"))
-
-  ;; (defn get-tasks [lines]
-  ;;     (map #(str/replace % #"^#\+name:\s*" "") (filter #(re-find #"^#\+name:" %) lines)))
-
-  ;; (defn get-lines-or-abort [namespace]
-  ;;     (let [path (convert-ns-to-path namespace)]
-  ;;     (if (.exists (io/as-file path))
-  ;;     (str/split (slurp path) #"\n")
-  ;;     (abort (str "No such file: " path)))))
-
-  ;; (declare parse-examples)                ; Just reorganise the code.
-  ;; (defn filter-tasks [namespace]
-  ;;     (filter (fn [task]
-  ;;             (= (symbol "yes") ((task :opts) :task)))
-  ;;     (parse-examples (get-lines-or-abort namespace))))
 
   ;; (prn (babel-to-map ""))
   ;; (prn (babel-to-map ":tangle test.clj"))
