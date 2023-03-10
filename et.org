@@ -60,6 +60,11 @@ change vector for list in iterations
              :main 'jakub-stastny.et.runner}))
 #+end_src
 
+#+name: deploy
+#+begin_src sh :task yes :doc "...."
+  scp target/et-*-standalone.jar home:/bm/www/jar/
+#+end_src
+
 * Runner
 ** Usage
 #+begin_src clojure
@@ -242,8 +247,8 @@ change vector for list in iterations
           task (first (filter #(= (task-def :task-name) (% :name)) tasks))]
       (if task
         (exec-task task config)
-        (println "NO SUCH"))))
-        ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
+        (println (str "No such task " (task-def :task-name) "\n\nAvailable tasks: " (pr-str tasks))))))
+  ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
 
   ;; (defn filter-tasks [namespace]
   ;;     (filter (fn [task]
