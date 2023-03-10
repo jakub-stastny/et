@@ -94,9 +94,11 @@ change vector for list in iterations
      args))
 
   (def default-config
-    {:args-to-tasks args-to-tasks})
+    {:args-to-tasks args-to-tasks
+     :exts {:clojure "clj"}
+     :cmds {:clojure "bb"}})
 
-  (defn run-task [task]
+  (defn run-task [task config]
     (println (str "~ Task definition " (pr-str task)))
     (cond
       ;; Built-in task.
@@ -105,7 +107,7 @@ change vector for list in iterations
 
       ;; Org-defined task.
       (and (task :path) (task :task-name))
-      (org/run-task task)
+      (org/run-task task config)
 
       ;; Should never get here.
       true
@@ -119,7 +121,7 @@ change vector for list in iterations
     ([custom-config args]
      (let [config (conj default-config custom-config)]
        (let [defs ((config :args-to-tasks) args)]
-         (doseq [def defs] (run-task def))))))
+         (doseq [def defs] (run-task def config))))))
 
   ;; DEBUG.
   (defn -main [& args] (run args))
@@ -155,35 +157,30 @@ change vector for list in iterations
                        (map
                         (fn [line]
                           (str/replace line indent "")) (conj lines "")))))))
-  (def exts
-    {:clojure "clj"})
-
-  (def commands
-    {:clojure "clojure -M"})
 
   (defn get-ext
     "..."
-    [lang] (or (get exts (keyword lang)) lang))
+    [exts lang] (or (get exts (keyword lang)) lang))
 
-  (defn get-command
+  (defn get-cmd
     "..."
-    [lang] (or (get commands (keyword lang)) lang))
+    [cmds lang] (or (get cmds (keyword lang)) lang))
 
   (defn write-script
     "....."
-    [{:keys [name lang lines opts]}]
+    [{:keys [name lang lines opts]} {:keys [exts cmds]}]
     (let [shebang (if (opts :shebang)
                     (str/split (str/replace (opts :shebang) #"#!" "") #"\s+")
-                    (str/split (get-command lang) #"\s+"))
-          script-name (str "/tmp/" name "." (get-ext lang))]
+                    (str/split (get-cmd cmds lang) #"\s+"))
+          script-name (str "/tmp/" name "." (get-ext exts lang))]
       (write-script-2 script-name (str/join " " shebang) lines)
       (conj shebang script-name)))
 
   (defn exec-task
     "..."
-    [task]
+    [task config]
     (println (str "~ Running task " (task :name) " " (pr-str (task :opts))))
-    (let [command (write-script task) res (apply sh command)]
+    (let [command (write-script task config) res (apply sh command)]
       (println)
       ;; (prn command) (prn res) (println)
       (if (= (res :exit) 0)
@@ -193,12 +190,12 @@ change vector for list in iterations
 
   (defn run-task
     "..."
-    [task-def]
+    [task-def config]
     (let [examples (load-tasks (task-def :path))
           tasks (filter #(= ((% :opts) :task) (symbol "yes")) examples)
           task (first (filter #(= (task-def :task-name) (% :name)) tasks))]
       (if task
-        (exec-task task)
+        (exec-task task config)
         (println "NO SUCH"))))
         ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
 
