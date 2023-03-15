@@ -10,3 +10,6 @@
 #+begin_src sh :task yes :doc "...."
   scp target/et.jar home:/bm/www/jar/et.jar
 #+end_src
+
+[[./build.org][build]]
+- Here's the [[./export.org][publishing]] chapter.
