@@ -168,19 +168,24 @@
       true
       ((built-ins/get-task :help))))
 
+  (defmacro catch-errors
+    [body]
+     `(try ~body
+        (catch Exception e#
+          (abort "args-to-task: "
+                 (ex-message e#) "\n"
+                 (pr-str (ex-data e#))))))
+
   (defn run
-    "Main entry fn for a custom runner.
+      "Main entry fn for a custom runner.
      Takes command-line `custom-config` that it merges
      into the default one and command-line `args`"
-    ([args] (run {} args))
+      ([args] (run {} args))
 
-    ([custom-config args]
-     (let [config (conj default-config custom-config)]
-       (let [defs
-             (try ((config :args-to-tasks) args)
-                  (catch Exception e
-                    (abort "args-to-task" e)))]
-         (doseq [def defs] (run-task def config))))))
+      ([custom-config args]
+       (let [config (conj default-config custom-config)]
+         (let [defs (catch-errors ((config :args-to-tasks) args))]
+           (doseq [def defs] (run-task def config))))))
 
   (defn -main
     "This is the main entry for the default runner.
