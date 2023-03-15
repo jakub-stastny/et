@@ -1,13 +1,24 @@
 #+TITLE: Emacs tasks (ET)
 #+SETUPFILE: setupfile.org
 
-* TODO Installation
-- Babashka with ~bbin~?
+* Installation
+** TODO GraalVM-compiled binary
+Note that this way you can only use the default runner.
 
-** Development version (JAR)
+Check out this [[https://maksimrv.medium.com/compile-clojure-to-native-binary-using-graalvm-b31d1cc9ec76][article]].
+
 #+begin_src sh
-  wget https://github.com/jakub-stastny/et/raw/doc/target/et.jar
+  wget https://github.com/jakub-stastny/et/raw/doc/downloads/et
 #+end_src
+
+** Java JAR
+Note that this way you can only use the default runner.
+
+#+begin_src sh
+  wget https://github.com/jakub-stastny/et/raw/doc/downloads/et.jar
+#+end_src
+
+** TODO Babashka with [[https://github.com/babashka/bbin][bbin]]
 
 ** TODO Upload to Clojars
 - Add badge to the README & index.
@@ -96,7 +107,7 @@ Let's say our code is in Clojure, but we really want to use [[https://babashka.o
 :
 : Finally some parenthesis!
 
-*** TODO Consider supporting header arguments
+*** Note on header arguments
 At the moment ET doesn't really parse Org Mode intelligently, it only scans for the code blocks. Hence it doesn't support:
 
 - Global header args using ~#+PROPERTY: header-args :shebang "..."~.
@@ -136,5 +147,8 @@ Instead of using ~:task yes~ we can use ~:doc "Task help"~
 #+RESULTS:
 : ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("chapters/index.org")}
 : TODO: Implement built-in task :tasks
+
+* TODO Directives
+- No noweb.
 
 - *Next chapter:* [[./custom-runner.org][writing a custom runner]].

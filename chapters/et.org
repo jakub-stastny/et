@@ -1,5 +1,10 @@
 * Implementation
 
+* TODO Implementations
+- Conj task tdef
+- <<FILE>> PWD…noweb or custom?
+- /tmp/et.<basename>.<task-file>.<task> such as et.bm-core.chapters.dev.main.build.sh.
+
 #+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
   (ns jakub-stastny.et.runner
     "........."
@@ -8,10 +13,27 @@
               [clojure.java.shell]
               [jakub-stastny.et.org :as org]))
 
+  ; TODO: CLJ-version
   (defn abort [message]
     (throw (ex-info
             (str \u001b "[31m" "Error: " \u001b "[0m" message)
             {:babashka/exit 1})))
+
+  (def colours {:red 31 :green 32 :yellow 33
+                :blue 34 :purple 35 :cyan 36 :grey 37})
+
+  ; https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
+  (def font-effects {:normal 0 :bold 1})
+
+  (defn colour
+    "Wraps text in ANSI colour escape sequence"
+    ([c text]
+     (colour c :normal text))
+
+    ([c font-effect text]
+     (let [colour-code (colours c)
+           font-effect-code (font-effects font-effect)]
+       (str "\033[" font-effect-code ";" colour-code "m" text "\033[0m"))))
 
   (defn built-in-task--tasks
     ""
@@ -78,8 +100,13 @@
      :cmds {:clojure "clojure -M"} ; -M -m to run -main OR bb
      :exec-fn clojure.java.shell/sh})
 
+  (defn echo [& chunks]
+    (println (apply str "~ " chunks)))
+
   (defn run-task [task config]
-    (println (str "~ Task definition " (pr-str task)))
+    ;; (colour :red "string")
+    ;; (println (str "~ Task definition " (pr-str task)))
+    (echo "Task definition " (pr-str task))
     (cond
       ;; Built-in task.
       (get-in task [:task :fn])

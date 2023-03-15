@@ -1,6 +1,19 @@
 #+TITLE: Emacs tasks development
 #+SETUPFILE: setupfile.org
 
+* TODO Tests
+- Test against bb, clj & java (test output)
+- Unit tests
+
+* TODO Release
+- Versions 2023-03-01, publish doc and src, update README link. Keep resetting docs/src to the last release.
+- Rel branch: merge dev for every release.
+- Bb process exec.
+- GH CI to push doc n src
+
+* TODO Dev
+- RPM emacs project root etc.
+
 ** ZSH
 
 - Function ~save-function-list~ comes from [[https://github.com/jakub-stastny/dotfiles/blob/master/.zsh/shared.env.zsh][~/zsh/shared.env.zsh]].
