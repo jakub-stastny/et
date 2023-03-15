@@ -7,13 +7,31 @@ Placeholder files, already plugged into the export pipeline.
 
 #+begin_src css :tangle src/assets/styles.css :mkdirp yes
   .highlight { background: gold; }
+
+  ul {
+    padding-left: 1em;
+    list-style: none;
+  }
+
+  ul li::before {
+    content: "\21FE";
+    color: darkgreen;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -0.5em;
+    font-size: 14pt;
+  }
 #+end_src
 
 #+begin_src js :tangle src/assets/script.js :mkdirp yes
   const $ = document.querySelector.bind(document)
   const $$ = document.querySelectorAll.bind(document)
 
-  console.log("~ Ready.")
+  $$("[class^='section-number-']").forEach((section) => {
+    const linkTarget = section.parentNode.id.match(/^org/) ? section.innerText : section.parentNode.id
+    section.innerHTML = `<a href="#${linkTarget}">§<a name="${linkTarget}"></a></a>`
+  })
 #+end_src
 
 ** TODO Add clickable §
@@ -56,10 +74,11 @@ Only run this once.
 
   (setq org-publish-project-alist
         '(
-          ("et" :components ("et.org" "et.assets"))
+          ("et"
+           :components ("et.org" "et.assets" "et.downloads"))
           ("et.org"
            :base-directory "."
-           :publishing-directory "target/doc"
+           :publishing-directory "doc"
            :base-extension "org"
            :exclude "setupfile\\|README.org"
            :recursive f
@@ -68,9 +87,14 @@ Only run this once.
            :auto-preamble f)
           ("et.assets"
            :base-directory "src/assets"
-           :publishing-directory "target/doc/assets"
+           :publishing-directory "doc/assets"
            :base-extension "css\\|js"
-           :org-html-doctype "html5"      ; check works
+           :recursive f
+           :publishing-function org-publish-attachment)
+          ("et.downloads"
+           :base-directory "target"
+           :publishing-directory "doc/downloads"
+           ;; :base-extension "css\\|js"
            :recursive f
            :publishing-function org-publish-attachment)))
 
@@ -91,8 +115,8 @@ Only run this once.
   # Run: java -jar target/et.jar export.org republish
   #      bb -cp src -m jakub-stastny.et.runner export.org republish
   #      clojure -M -m jakub-stastny.et.runner export.org republish
-  rm -rf output/doc ~/.org-timestamps
-  java -jar target/et.jar export.org publish
+  rm -rf doc ~/.org-timestamps
+  bb -cp src -m jakub-stastny.et.runner export.org publish
 #+end_src
 
 
@@ -114,8 +138,8 @@ Only run this once.
   git stash pop
 #+end_src
 
-TODO: move .org -> chapters
-
-git checkout --orphan src
-git rm --cached $(git status | grep "new file:" | awk '{ print $3 }')
-git commit --allow-empty -m "Initial empty commit"
+#+begin_src sh
+  git checkout --orphan src
+  git rm --cached $(git status | grep "new file:" | awk '{ print $3 }')
+  git commit --allow-empty -m "Initial empty commit"
+#+end_src
