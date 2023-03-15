@@ -32,17 +32,8 @@
        text)))
 
   (defn abort [& chunks]
-    ;; (throw (ex-info
-    ;;         (apply str (colour :red "Error: ") chunks)
-    ;;         {:babashka/exit 1}))
     (apply str (colour :red "Error: ") chunks)
     (System/exit 1))
-
-  ;; (defmacro catch-bb-exit [& exprs])
-  ;; If in BB, return exprs and do nothing.
-  ;; If in CLJ, wrap in try/catch, where:
-  ;;   - if has :babashka/exit, print & System/exit 1.
-  ;    - otherwise re-raise.
 
   (defn puts [& chunks]
     (println (apply str chunks)))
@@ -83,7 +74,7 @@
 
   (defn- make-built-in-task
     "Wrap fn as a task." [name]
-    {:name name :fn (built-in-tasks name)})
+    {:task-name name :fn (built-in-tasks name)})
 
   (defn get-task
     "Get a built-in task. Defaults to the help task."
@@ -105,13 +96,14 @@
        (cond
          ;; First argument starting with a dash (-T, -h etc).
          (and (empty? acc) (re-matches #"-{1,2}\w+" i))
-         (conj acc {:task (built-ins/get-task i)})
+         (conj acc (built-ins/get-task i))
 
          (and
           (re-find #"\.org$" i)
           ;; -T is followed by an org file, not a task name.
-          (not (= (get-in (last acc) [:task :name]) :tasks)))
-         (conj acc {:path i :args [] :task {}})
+          ;; (not (= (get-in (last acc) [:task :name]) :tasks))
+          (not (= ((last acc) :task-name) :tasks)))
+         (conj acc {:path i :args []})
 
          (and
           (nil? ((last acc) :task-name))
@@ -130,6 +122,13 @@
     "..."
     [example]
     (or (example :task) (example :doc)))
+
+  (def default-config
+    {:args-to-tasks args-to-tasks
+     :task? task?
+     :exts {:clojure "clj" :emacs-lisp "el"}
+     :cmds {:clojure "clojure -M"}        ; -M -m to run -main OR bb
+     :exec-fn clojure.java.shell/sh}) ; Or bb.shell https://github.com/babashka/process
 #+end_src
 
 *** TODO spec: validate keys of config (run)
@@ -146,35 +145,39 @@
               [jakub-stastny.et.built-ins :as built-ins]
               [jakub-stastny.et.org :as org]))
 
-  (def ^:private default-config
-    {:args-to-tasks config/args-to-tasks
-     :task? config/task?
-     :exts {:clojure "clj" :emacs-lisp "el"}
-     :cmds {:clojure "clojure -M"}        ; -M -m to run -main OR bb
-     :exec-fn clojure.java.shell/sh}) ; Or bb.shell https://github.com/babashka/process
+  (defmulti exec-task
+    "Docstring"
+    (fn [task _]
+      (cond
+        (contains? task :fn) :built-in
+        (and (contains? task :path) (contains? task :task-name)) :custom
+        true :error)))
 
-  (defn- run-task [task config]
-    (info "Task definition " (pr-str task))
-    (cond
-      ;; Built-in task.
-      (get-in task [:task :fn])
-      ((get-in task [:task :fn]) (task :args))
+  (defmethod exec-task :built-in [task _]
+    ((task :fn) (task :args)))
 
-      ;; Org-defined task.
-      (and (task :path) (task :task-name))
-      (org/run-task task config)
+  (defmethod exec-task :custom [task config]
+    (org/run-task task config))
 
-      ;; Should never get here.
-      true
-      ((built-ins/get-task :help))))
+  ; TODO: Allow overriding built-in tasks in config.
+  (defmethod exec-task :error [task _]
+    ;; (throw (ex-info "Don't know how to handle task" {:task task}))
+    ((built-ins/get-task :help) :fn))
+
+  ;; Wrapper
+  (defn run-task
+    "...."
+    [task config]
+    (info "Running task " (pr-str task))
+    (exec-task task config))
 
   (defmacro catch-errors
     [body]
-     `(try ~body
-        (catch Exception e#
-          (abort "args-to-task: "
-                 (ex-message e#) "\n"
-                 (pr-str (ex-data e#))))))
+    `(try ~body
+          (catch Exception e#
+            (abort "args-to-task: "
+                   (ex-message e#) "\n"
+                   (pr-str (ex-data e#))))))
 
   (defn run
       "Main entry fn for a custom runner.
@@ -183,7 +186,7 @@
       ([args] (run {} args))
 
       ([custom-config args]
-       (let [config (conj default-config custom-config)]
+       (let [config (conj config/default-config custom-config)]
          (let [defs (catch-errors ((config :args-to-tasks) args))]
            (doseq [def defs] (run-task def config))))))
 
