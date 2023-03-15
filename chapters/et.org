@@ -60,6 +60,12 @@
 
   (defmethod pr-task :error [task]
     (prn :error task))
+
+  (defn throw-user-error
+    "..."
+    [message]
+    (throw (ex-info message {:type :user-error})))
+
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
@@ -197,7 +203,7 @@
     [error]
     (let [info (ex-data error)]
       (if (= (info :type) :user-error)
-        (abort (ex-message error))
+        (abort (str (ex-message error) "."))
         (throw error))))
 
   (defmacro abort-on-error
@@ -237,7 +243,7 @@
     [path]
     (if (.exists (io/as-file path)) ; Replace by fs/exists from bb.
       (parser/parse-examples (str/split (slurp path) #"\n"))
-      (throw (ex-info (str "File " path "doesn't exist") {:type :user-error}))))
+      (throw-user-error (str "File " path " doesn't exist"))))
 
   (defn write-script-2
     "...."
