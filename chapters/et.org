@@ -31,11 +31,18 @@
          (str "\033[" font-effect-code ";" colour-code "m" text "\033[0m"))
        text)))
 
-  ; TODO: CLJ-version
   (defn abort [& chunks]
-    (throw (ex-info
-            (str (colour :red "Error: ") (str chunks))
-            {:babashka/exit 1})))
+    ;; (throw (ex-info
+    ;;         (apply str (colour :red "Error: ") chunks)
+    ;;         {:babashka/exit 1}))
+    (apply str (colour :red "Error: ") chunks)
+    (System/exit 1))
+
+  ;; (defmacro catch-bb-exit [& exprs])
+  ;; If in BB, return exprs and do nothing.
+  ;; If in CLJ, wrap in try/catch, where:
+  ;;   - if has :babashka/exit, print & System/exit 1.
+  ;    - otherwise re-raise.
 
   (defn puts [& chunks]
     (println (apply str chunks)))
@@ -44,16 +51,10 @@
     (apply puts (colour :white :bold "~ ") chunks))
 #+end_src
 
-#+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
-  (ns jakub-stastny.et.runner
-    "........."
-    (:gen-class)
-    (:require [clojure.string :as str]
-              [clojure.java.shell]
-              [jakub-stastny.et.utils :refer :all]
-              [jakub-stastny.et.org :as org]))
+#+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
+  (ns jakub-stastny.et.built-ins)
 
-  (defn built-in-task--tasks
+  (defn tasks
     ""
     [args]
     (puts "\n" (colour :blue :bold "Available tasks"))
@@ -67,23 +68,16 @@
                   (apply str (repeat (- 12 (count name)) " "))
                   (opts :doc) "."))))))
 
-  (defn built-in-task--help
+  (defn help
     ""
     [& args]
     (puts "\n" (colour :green :bold "Help:"))
     (puts "-T|--tasks task-file.org           # Show documented tasks in given task files")
     (puts "task-file.org task-name arg1 arg2  # Run task-name from task-file.org with arguments arg1 arg2"))
+#+end_src
 
-  (def ^:private built-in-tasks
-    {:tasks built-in-task--tasks :help built-in-task--help})
-
-  (defn built-in-task [i]
-    (cond
-      (some #(= i %) ["-T" "--tasks"])
-      {:name :tasks :fn (built-in-tasks :tasks)}
-
-      true
-      {:name :help :fn (built-in-tasks :help)}))
+#+begin_src clojure :tangle ../src/jakub_stastny/et/config.clj :mkdirp yes
+  (ns jakub-stastny.et.config)
 
   (defn args-to-tasks [args]
     (reduce
@@ -116,15 +110,41 @@
     "..."
     [example]
     (or (example :task) (example :doc)))
+#+end_src
 
-  (def default-config
-    {:args-to-tasks args-to-tasks
+*** TODO spec: validate keys of config (run)
+
+#+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
+  (ns jakub-stastny.et.runner
+    "Main namespace. Provides the default runner as well as the `run`
+    fn for creating custom runners with their own custom config."
+    (:gen-class)
+    (:require [clojure.string :as str]
+              [clojure.java.shell]
+              [jakub-stastny.et.utils :refer :all]
+              [jakub-stastny.et.built-ins :as built-ins]
+              [jakub-stastny.et.config :as config]
+              [jakub-stastny.et.org :as org]))
+
+  (def ^:private built-in-tasks
+    {:tasks built-ins/tasks :help built-ins/help})
+
+  (defn built-in-task [i]
+    (cond
+      (some #(= i %) ["-T" "--tasks"])
+      {:name :tasks :fn (built-in-tasks :tasks)}
+
+      true
+      {:name :help :fn (built-in-tasks :help)}))
+
+  (def ^:private default-config
+    {:args-to-tasks config/args-to-tasks
+     :task? config/task?
      :exts {:clojure "clj" :emacs-lisp "el"}
-     :cmds {:clojure "clojure -M"} ; -M -m to run -main OR bb
-     :exec-fn clojure.java.shell/sh})
+     :cmds {:clojure "clojure -M"}        ; -M -m to run -main OR bb
+     :exec-fn clojure.java.shell/sh}) ; Or bb.shell https://github.com/babashka/process
 
-  (defn run-task [task config]
-    ;; (puts "~ Task definition " (pr-str task))
+  (defn- run-task [task config]
     (info "Task definition " (pr-str task))
     (cond
       ;; Built-in task.
@@ -139,9 +159,10 @@
       true
       ((built-in-tasks :help))))
 
-  ;; TODO: spec: validate keys of config.
   (defn run
-    "....."
+    "Main entry fn for a custom runner.
+     Takes command-line `custom-config` that it merges
+     into the default one and command-line `args`"
     ([args] (run {} args))
 
     ([custom-config args]
@@ -152,8 +173,10 @@
                     (abort "args-to-task" e)))]
          (doseq [def defs] (run-task def config))))))
 
-  ; Main entry point if the default runner is used.
-  (defn -main [& args] (run args))
+  (defn -main
+    "This is the main entry for the default runner.
+     Write a custom runner if you want to customise the config."
+    [& args] (run args))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/org.clj :mkdirp yes
