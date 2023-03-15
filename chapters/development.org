@@ -1,0 +1,42 @@
+#+TITLE: Emacs tasks development
+#+SETUPFILE: setupfile.org
+
+** ZSH
+
+- Function ~save-function-list~ comes from [[https://github.com/jakub-stastny/dotfiles/blob/master/.zsh/shared.env.zsh][~/zsh/shared.env.zsh]].
+- File [[https://github.com/jakub-stastny/dotfiles/blob/master/.zsh/environments/basic.zsh][~/zsh/environments/basic.zsh]]
+
+#+begin_src shell :tangle ../.env/zsh.zsh :mkdirp yes
+  save-function-list
+
+  load ~/.zsh/environments/basic.zsh
+
+  alias emacs="emacs --load $PWD/.env/emacs.el"
+  alias et="bb -cp src -m jakub-stastny.et.runner"
+
+  report-custom-functions
+#+end_src
+
+** Emacs
+*** Setup
+
+/With this setup files get tangled automatically on save./
+
+#+begin_src elisp :tangle ../.env/emacs.el :mkdirp yes
+  (add-to-list 'load-path (expand-file-name "~/.zsh/environments/elisp"))
+
+  ;; (load-theme 'tsdh-light)
+
+  (load "literate-programming")
+#+end_src
+
+
+* Hosting
+
+#+name: upload
+#+begin_src sh :task yes :doc "...."
+  scp target/et.jar home:/bm/www/jar/et.jar
+#+end_src
+
+[[./build.org][build]]
+- Here's the [[./export.org][publishing]] chapter.

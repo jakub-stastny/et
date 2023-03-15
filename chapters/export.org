@@ -98,6 +98,7 @@ Only run this once.
 
 * Regenerate the documentation
 
+** TODO: move files from target to the root
 #+name: update-docs
 #+begin_src sh :task yes
   bb -cp src -m jakub-stastny.et.runner build.org uber || exit 1

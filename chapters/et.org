@@ -1,6 +1,6 @@
 * Implementation
 
-#+begin_src clojure :tangle src/jakub_stastny/et/runner.clj :mkdirp yes
+#+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
   (ns jakub-stastny.et.runner
     "........."
     (:gen-class)
@@ -110,7 +110,7 @@
   (defn -main [& args] (run args))
 #+end_src
 
-#+begin_src clojure :tangle src/jakub_stastny/et/org.clj :mkdirp yes
+#+begin_src clojure :tangle ../src/jakub_stastny/et/org.clj :mkdirp yes
   (ns jakub-stastny.et.org
     "...."
     (:require [clojure.string :as str]
@@ -213,7 +213,7 @@
   ;; (System/exit 1)
 #+end_src
 
-#+begin_src clojure :tangle src/jakub_stastny/et/parser.clj :mkdirp yes
+#+begin_src clojure :tangle ../src/jakub_stastny/et/parser.clj :mkdirp yes
   (ns jakub-stastny.et.parser
     "...."
     (:require [clojure.string :as str]
