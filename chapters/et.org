@@ -4,6 +4,7 @@
 - Conj task tdef
 - <<FILE>> PWD…noweb or custom?
 - /tmp/et.<basename>.<task-file>.<task> such as et.bm-core.chapters.dev.main.build.sh.
+- Load babashka.fs (exist) etc in CLJ?
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
   (ns jakub-stastny.et.runner
@@ -12,12 +13,6 @@
     (:require [clojure.string :as str]
               [clojure.java.shell]
               [jakub-stastny.et.org :as org]))
-
-  ; TODO: CLJ-version
-  (defn abort [message]
-    (throw (ex-info
-            (str \u001b "[31m" "Error: " \u001b "[0m" message)
-            {:babashka/exit 1})))
 
   (def colours {:red 31 :green 32 :yellow 33
                 :blue 34 :purple 35 :cyan 36 :grey 37})
@@ -35,11 +30,22 @@
            font-effect-code (font-effects font-effect)]
        (str "\033[" font-effect-code ";" colour-code "m" text "\033[0m"))))
 
+  ; TODO: CLJ-version
+  (defn abort [message]
+    (throw (ex-info
+            (str (colour :red "Error: ") message)
+            {:babashka/exit 1})))
+
   (defn built-in-task--tasks
     ""
-    [& args]
-    (prn args)
-    )
+    [args]
+    (println)
+    (println (colour :blue :bold "Available tasks"))
+    (doseq [path args]
+      (println (str "Namespace " (colour :cyan path) ":"))
+      (doseq [{:keys [name opts]} (org/load-tasks path)]
+        (if (opts :doc)                     ; Ignore private tasks.
+          (println (colour :yellow name) " ... " (opts :doc))))))
 
   (def built-in-tasks
     {:tasks built-in-task--tasks
@@ -110,7 +116,7 @@
     (cond
       ;; Built-in task.
       (get-in task [:task :fn])
-      ((get-in task [:task :fn]))
+      ((get-in task [:task :fn]) (task :args))
 
       ;; Org-defined task.
       (and (task :path) (task :task-name))
@@ -150,7 +156,7 @@
     [path]
     (if (.exists (io/as-file path))
       (parser/parse-examples (str/split (slurp path) #"\n"))
-      (println "ERR")))
+      (println "ERR"))) ; TODO: Custom exc class, catch all in runner (sideeffect).
 
   (defn write-script-2
     "...."
