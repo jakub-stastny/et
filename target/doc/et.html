@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2023-03-14 Tue 20:57 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>&lrm;</title>
+<meta name="author" content="Jakub Šťastný" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org1f9d250">1. Implementation</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1f9d250" class="outline-2">
+<h2 id="org1f9d250"><span class="section-number-2">1.</span> Implementation</h2>
+<div class="outline-text-2" id="text-1">
+<div class="org-src-container">
+<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.runner</span>
+  <span class="org-doc">"........."</span>
+  (<span class="org-clojure-keyword">:gen-class</span>)
+  (<span class="org-clojure-keyword">:require</span> [clojure.string <span class="org-clojure-keyword">:as</span> str]
+            [clojure.java.shell]
+            [jakub-stastny.et.org <span class="org-clojure-keyword">:as</span> org]))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">abort</span> [message]
+  (<span class="org-keyword">throw</span> (ex-info
+          (str <span class="org-clojure-character">\u001b</span> <span class="org-string">"[31m"</span> <span class="org-string">"Error: "</span> <span class="org-clojure-character">\u001b</span> <span class="org-string">"[0m"</span> message)
+          {<span class="org-clojure-keyword">:</span><span class="org-type">babashka</span><span class="org-default">/</span><span class="org-clojure-keyword">exit</span> 1})))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">built-in-task--tasks</span>
+  <span class="org-doc">""</span>
+  [&amp; args]
+  (prn args)
+  )
+
+(<span class="org-keyword">def</span> <span class="org-variable-name">built-in-tasks</span>
+  {<span class="org-clojure-keyword">:tasks</span> built-in-task--tasks
+   <span class="org-clojure-keyword">:help</span> #(println <span class="org-string">"TODO: Implement built-in task :help"</span>)})
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">built-in-task</span> [i]
+  (<span class="org-keyword">cond</span>
+    (some #(= i <span class="org-variable-name">%</span>) [<span class="org-string">"-T"</span> <span class="org-string">"--tasks"</span>])
+    {<span class="org-clojure-keyword">:name</span> <span class="org-clojure-keyword">:tasks</span> <span class="org-clojure-keyword">:fn</span> (built-in-tasks <span class="org-clojure-keyword">:tasks</span>)}
+
+    <span class="org-constant">true</span>
+    {<span class="org-clojure-keyword">:name</span> <span class="org-clojure-keyword">:help</span> <span class="org-clojure-keyword">:fn</span> (built-in-tasks <span class="org-clojure-keyword">:help</span>)}))
+
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">(defn show-task-in-ns [namespace]</span>
+  <span class="org-comment-delimiter">;;   </span><span class="org-comment">(prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))</span>
+  <span class="org-comment-delimiter">;;   </span><span class="org-comment">(println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))</span>
+
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">(defn show-tasks-in-ns [namespaces]</span>
+  <span class="org-comment-delimiter">;;   </span><span class="org-comment">(doseq [namespace namespaces] (show-task-in-ns namespace)))</span>
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">(defn show-all []</span>
+  <span class="org-comment-delimiter">;;   </span><span class="org-comment">(println "Show all ..."))</span>
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">args-to-tasks</span> [args]
+  (reduce
+   (<span class="org-keyword">fn</span> [acc i]
+     (<span class="org-keyword">cond</span>
+       <span class="org-comment-delimiter">;; </span><span class="org-comment">First argument starting with a dash (-T, -h etc).</span>
+       (<span class="org-keyword">and</span> (empty? acc) (re-matches #<span class="org-string">"-{1,2}</span><span class="org-string"><span class="org-bold">\w</span></span><span class="org-string">+"</span> i))
+       (conj acc {<span class="org-clojure-keyword">:task</span> (built-in-task i)})
+
+       (<span class="org-keyword">and</span>
+        (re-find #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\.</span></span><span class="org-string">org$"</span> i)
+        <span class="org-comment-delimiter">;; </span><span class="org-comment">-T is followed by an org file, not a task name.</span>
+        (not (= (get-in (last acc) [<span class="org-clojure-keyword">:task</span> <span class="org-clojure-keyword">:name</span>]) <span class="org-clojure-keyword">:tasks</span>)))
+       (conj acc {<span class="org-clojure-keyword">:path</span> i <span class="org-clojure-keyword">:args</span> [] <span class="org-clojure-keyword">:task</span> {}})
+
+       (<span class="org-keyword">and</span>
+        (nil? ((last acc) <span class="org-clojure-keyword">:task-name</span>))
+        <span class="org-comment-delimiter">;; </span><span class="org-comment">-T is followed by an org file, not a task name.</span>
+        (not (= (get-in (last acc) [<span class="org-clojure-keyword">:task</span> <span class="org-clojure-keyword">:name</span>]) <span class="org-clojure-keyword">:tasks</span>)))
+       (conj (butlast acc)
+             (assoc-in (last acc) [<span class="org-clojure-keyword">:task-name</span>] i))
+
+       <span class="org-constant">true</span>
+       (conj (butlast acc)
+             (update-in (last acc) [<span class="org-clojure-keyword">:args</span>] #(conj <span class="org-variable-name">%</span> i)))))
+   []
+   args))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">task?</span> <span class="org-comment">; TODO: Use it.</span>
+  <span class="org-doc">"..."</span>
+  [example]
+  (<span class="org-keyword">or</span> (example <span class="org-clojure-keyword">:task</span>) (example <span class="org-clojure-keyword">:doc</span>)))
+
+(<span class="org-keyword">def</span> <span class="org-variable-name">default-config</span>
+  {<span class="org-clojure-keyword">:args-to-tasks</span> args-to-tasks
+   <span class="org-clojure-keyword">:exts</span> {<span class="org-clojure-keyword">:clojure</span> <span class="org-string">"clj"</span> <span class="org-clojure-keyword">:emacs-lisp</span> <span class="org-string">"el"</span>}
+   <span class="org-clojure-keyword">:cmds</span> {<span class="org-clojure-keyword">:clojure</span> <span class="org-string">"clojure -M"</span>} <span class="org-comment">; -M -m to run -main OR bb</span>
+   <span class="org-clojure-keyword">:exec-fn</span> <span class="org-type">clojure.java.shell</span>/sh})
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">run-task</span> [task config]
+  (println (str <span class="org-string">"~ Task definition "</span> (pr-str task)))
+  (<span class="org-keyword">cond</span>
+    <span class="org-comment-delimiter">;; </span><span class="org-comment">Built-in task.</span>
+    (get-in task [<span class="org-clojure-keyword">:task</span> <span class="org-clojure-keyword">:fn</span>])
+    ((get-in task [<span class="org-clojure-keyword">:task</span> <span class="org-clojure-keyword">:fn</span>]))
+
+    <span class="org-comment-delimiter">;; </span><span class="org-comment">Org-defined task.</span>
+    (<span class="org-keyword">and</span> (task <span class="org-clojure-keyword">:path</span>) (task <span class="org-clojure-keyword">:task-name</span>))
+    (<span class="org-type">org</span>/run-task task config)
+
+    <span class="org-comment-delimiter">;; </span><span class="org-comment">Should never get here.</span>
+    <span class="org-constant">true</span>
+    (abort <span class="org-string">"Nope"</span>)))
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">TODO: spec: validate keys of config.</span>
+(<span class="org-keyword">defn</span> <span class="org-function-name">run</span>
+  <span class="org-doc">"....."</span>
+  ([args] (run {} args))
+
+  ([custom-config args]
+   (<span class="org-keyword">let</span> [config (conj default-config custom-config)]
+     (<span class="org-keyword">let</span> [defs
+           (<span class="org-keyword">try</span> ((config <span class="org-clojure-keyword">:args-to-tasks</span>) args)
+                (<span class="org-keyword">catch</span> Exception e
+                  (println <span class="org-string">"E"</span>)))]
+       (<span class="org-keyword">doseq</span> [def defs] (run-task def config))))))
+
+<span class="org-comment-delimiter">; </span><span class="org-comment">Main entry point if the default runner is used.</span>
+(<span class="org-keyword">defn</span> <span class="org-function-name">-main</span> [&amp; args] (run args))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.org</span>
+  <span class="org-doc">"...."</span>
+  (<span class="org-clojure-keyword">:require</span> [clojure.string <span class="org-clojure-keyword">:as</span> str]
+            [clojure.java.io <span class="org-clojure-keyword">:as</span> io]
+            [clojure.java.shell <span class="org-clojure-keyword">:refer</span> [sh]] <span class="org-comment">; chmod +x</span>
+            [jakub-stastny.et.parser <span class="org-clojure-keyword">:as</span> parser]))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">load-tasks</span>
+  <span class="org-doc">"..."</span>
+  [path]
+  (<span class="org-keyword">if</span> (.exists (<span class="org-type">io</span>/as-file path))
+    (<span class="org-type">parser</span>/parse-examples (<span class="org-type">str</span>/split (slurp path) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span>))
+    (println <span class="org-string">"ERR"</span>)))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">write-script-2</span>
+  <span class="org-doc">"...."</span>
+  [script-name command lines]
+  (<span class="org-keyword">let</span> [shebang (str <span class="org-string">"#!/usr/bin/env "</span> command)
+        indent (re-find #<span class="org-string">"^ *"</span> (first lines))]
+    (spit script-name
+          (<span class="org-type">str</span>/join <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span>
+                    (apply conj
+                           [shebang <span class="org-string">""</span>]
+                           (map
+                            (<span class="org-keyword">fn</span> [line]
+                              (<span class="org-type">str</span>/replace line indent <span class="org-string">""</span>)) (conj lines <span class="org-string">""</span>)))))
+    (sh <span class="org-string">"chmod"</span> <span class="org-string">"+x"</span> script-name)))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">get-ext</span>
+  <span class="org-doc">"..."</span>
+  [exts lang] (<span class="org-keyword">or</span> (get exts (keyword lang)) lang))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">get-cmd</span>
+  <span class="org-doc">"..."</span>
+  [cmds lang] (<span class="org-keyword">or</span> (get cmds (keyword lang)) lang))
+
+<span class="org-comment-delimiter">; </span><span class="org-comment">TODO: don't rewrite if same.</span>
+(<span class="org-keyword">defn</span> <span class="org-function-name">write-script</span>
+  <span class="org-doc">"....."</span>
+  [{<span class="org-clojure-keyword">:keys</span> [name lang lines opts]} {<span class="org-clojure-keyword">:keys</span> [exts cmds]}]
+  (<span class="org-keyword">let</span> [shebang (<span class="org-keyword">if</span> (opts <span class="org-clojure-keyword">:shebang</span>)
+                  (<span class="org-type">str</span>/split (<span class="org-type">str</span>/replace (opts <span class="org-clojure-keyword">:shebang</span>) #<span class="org-string">"#!"</span> <span class="org-string">""</span>) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>)
+                  (<span class="org-type">str</span>/split (get-cmd cmds lang) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>))
+        script-name (str <span class="org-string">"/tmp/"</span> name <span class="org-string">"."</span> (get-ext exts lang))]
+    (write-script-2 script-name (<span class="org-type">str</span>/join <span class="org-string">" "</span> shebang) lines)
+
+    (conj shebang script-name)))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">exec-task</span>
+  <span class="org-doc">"..."</span>
+  [task task-def config]
+  (println (str <span class="org-string">"~ Running task "</span> (task <span class="org-clojure-keyword">:name</span>) <span class="org-string">" "</span> (pr-str (task <span class="org-clojure-keyword">:opts</span>))))
+  (<span class="org-keyword">let</span> [exec-fn (config <span class="org-clojure-keyword">:exec-fn</span>)
+        base-command (write-script task config)
+        command (apply conj base-command (task-def <span class="org-clojure-keyword">:args</span>)) <span class="org-comment">; args are in tdef, not task.</span>
+        res (apply exec-fn command)]
+    (println)
+    <span class="org-comment-delimiter">;; </span><span class="org-comment">With exec it'll never run so no prob.</span>
+    <span class="org-comment-delimiter">;; </span><span class="org-comment">(prn command) (prn res) (println)</span>
+    (<span class="org-keyword">if</span> (= (res <span class="org-clojure-keyword">:exit</span>) 0)
+      (println (<span class="org-type">str</span>/trim (res <span class="org-clojure-keyword">:out</span>)))
+      (println (<span class="org-type">str</span>/trim (res <span class="org-clojure-keyword">:err</span>))))
+    (<span class="org-type">System</span>/exit (res <span class="org-clojure-keyword">:exit</span>))))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">run-task</span>
+  <span class="org-doc">"..."</span>
+  [task-def config]
+  (<span class="org-keyword">let</span> [examples (load-tasks (task-def <span class="org-clojure-keyword">:path</span>))
+        tasks (filter #(= ((<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:opts</span>) <span class="org-clojure-keyword">:task</span>) (symbol <span class="org-string">"yes"</span>)) examples)
+        task (first (filter #(= (task-def <span class="org-clojure-keyword">:task-name</span>) (<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:name</span>)) tasks))]
+    (<span class="org-keyword">if</span> task
+      (exec-task task task-def config)
+      (println (str <span class="org-string">"No such task "</span> (task-def <span class="org-clojure-keyword">:task-name</span>) <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n\n</span></span><span class="org-string">Available tasks: "</span> (pr-str tasks))))))
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(abort (str "No such task: " task-name "\nTasks in this namespace: ...."))</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(defn filter-tasks [namespace]</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(filter (fn [task]</span>
+<span class="org-comment-delimiter">;;             </span><span class="org-comment">(= (symbol "yes") ((task :opts) :task)))</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(parse-examples (get-lines-or-abort namespace))))</span>
+
+
+<span class="org-comment-delimiter">;;    </span><span class="org-comment">(defn run [fully-qualified-task-name]</span>
+<span class="org-comment-delimiter">;;      </span><span class="org-comment">(let [namespace (first (str/split fully-qualified-task-name #"/"))</span>
+<span class="org-comment-delimiter">;;            </span><span class="org-comment">task-name (last (str/split fully-qualified-task-name #"/"))</span>
+<span class="org-comment-delimiter">;;            </span><span class="org-comment">lines (get-lines-or-abort namespace)</span>
+<span class="org-comment-delimiter">;;            </span><span class="org-comment">tasks (filter-tasks namespace)]</span>
+<span class="org-comment-delimiter">;;        </span><span class="org-comment">(exec tasks task-name)))</span>
+<span class="org-comment-delimiter">;;            </span><span class="org-comment">(run a)))</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(defn convert-ns-to-path [namespace]</span>
+<span class="org-comment-delimiter">;;   </span><span class="org-comment">(when (or (re-find #"[/:]" namespace))</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(throw (Exception. "Namespace uses . rather than /")))</span>
+<span class="org-comment-delimiter">;;   </span><span class="org-comment">(str (str/replace namespace #"\." "/") ".org"))</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ""))</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":tangle test.clj"))</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":tangle \"test.clj\""))</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":shebang \"#!/usr/bin/env clojure -M\""))</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":task yes :shebang \"#!/usr/bin/env clojure -M\""))</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(println)</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(System/exit 1)</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.parser</span>
+  <span class="org-doc">"...."</span>
+  (<span class="org-clojure-keyword">:require</span> [clojure.string <span class="org-clojure-keyword">:as</span> str]
+            [clojure.edn <span class="org-clojure-keyword">:as</span> edn]))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">parse-var</span> [line]
+(<span class="org-type">str</span>/trim (<span class="org-type">str</span>/replace line #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+\w</span></span><span class="org-string">+:?</span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">.*</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">$"</span> <span class="org-string">"$1"</span>)))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">babel-to-map</span> [string]
+    (<span class="org-type">edn</span>/read-string (str <span class="org-string">"{"</span> string <span class="org-string">"}"</span>)))
+
+(<span class="org-keyword">defn</span> <span class="org-function-name">parse-examples</span> [lines]
+  (<span class="org-keyword">let</span> [update-last-task
+        (<span class="org-keyword">fn</span> [tasks update-fn]
+          (conj
+           (vec (butlast tasks))
+           (conj (last tasks) (update-fn (last tasks)))))]
+
+    (first
+     (reduce
+      (<span class="org-keyword">fn</span> [[tasks status] line]
+        <span class="org-comment-delimiter">;; </span><span class="org-comment">(prn {:t tasks :s status :l line}) ; --------------</span>
+        (<span class="org-keyword">cond</span>
+          <span class="org-comment-delimiter">;; </span><span class="org-comment">Read name.</span>
+          (re-find #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">?i</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">name:"</span> line)
+          [(conj tasks {<span class="org-clojure-keyword">:name</span> (parse-var line)}) <span class="org-clojure-keyword">:named</span>]
+
+          <span class="org-comment-delimiter">;; </span><span class="org-comment">Read block options.</span>
+          (<span class="org-keyword">and</span> (re-find #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">?i</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">begin_src"</span> line)
+               (= status <span class="org-clojure-keyword">:named</span>))
+          [(update-last-task
+            tasks
+            (<span class="org-keyword">fn</span> [task]
+              (<span class="org-keyword">let</span> [raw-opts (<span class="org-type">str</span>/split (parse-var line) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>)
+                    lang (first raw-opts)
+                    opts (babel-to-map (<span class="org-type">str</span>/join <span class="org-string">" "</span> (rest raw-opts)))]
+                {<span class="org-clojure-keyword">:lines</span> [] <span class="org-clojure-keyword">:lang</span> lang <span class="org-clojure-keyword">:opts</span> opts})))
+           <span class="org-clojure-keyword">:reading</span>]
+
+          <span class="org-comment-delimiter">;; </span><span class="org-comment">Stop reading block body.</span>
+          <span class="org-comment-delimiter">;; </span><span class="org-comment">We do need this line even though it does the same</span>
+          <span class="org-comment-delimiter">;; </span><span class="org-comment">as the default cond so the end_src line gets skipped.</span>
+          (re-find #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">?i</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">end_src"</span> line)
+          [tasks <span class="org-constant">nil</span>]
+
+          <span class="org-comment-delimiter">;; </span><span class="org-comment">Read body.</span>
+          (= status <span class="org-clojure-keyword">:reading</span>)
+          [(update-last-task
+            tasks
+            (<span class="org-keyword">fn</span> [task] {<span class="org-clojure-keyword">:lines</span> (vec (conj (<span class="org-clojure-keyword">:lines</span> task) line))}))
+           <span class="org-clojure-keyword">:reading</span>]
+
+          <span class="org-clojure-keyword">:default</span> [tasks <span class="org-constant">nil</span>]))
+      [[] <span class="org-constant">nil</span>]
+      lines))))
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Jakub Šťastný</p>
+<p class="date">Created: 2023-03-14 Tue 20:57</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
