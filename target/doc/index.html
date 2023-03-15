@@ -4,7 +4,7 @@
 <!-- 2023-03-14 Tue 21:02 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Orgmode publish</title>
+<title>Emacs tasks (ET)</title>
 <meta name="author" content="Jakub Šťastný" />
 <meta name="generator" content="Org Mode" />
 <style>
@@ -197,138 +197,175 @@
 </head>
 <body>
 <div id="content" class="content">
-<h1 class="title">Orgmode publish</h1>
+<h1 class="title">Emacs tasks (ET)</h1>
 
-<div id="outline-container-org27e224f" class="outline-2">
-<h2 id="org27e224f"><span class="section-number-2">1.</span> Custom CSS &amp; JS</h2>
+<div id="outline-container-org7ab07ae" class="outline-2">
+<h2 id="org7ab07ae"><span class="section-number-2">1.</span> <span class="todo TODO">TODO</span> Installation</h2>
 <div class="outline-text-2" id="text-1">
-<p>
-Placeholder files, already plugged into the export pipeline.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-css"><span class="org-css-selector">.highlight </span>{ <span class="org-css-property">background</span>: <span class="custom">gold</span>; }
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-js"><span class="org-keyword">const</span> <span class="org-variable-name">$</span> = document.querySelector.bind(document)
-<span class="org-keyword">const</span> <span class="org-variable-name">$$</span> = document.querySelectorAll.bind(document)
-
-console.log(<span class="org-string">"~ Ready."</span>)
-</pre>
-</div>
-</div>
-
-<div id="outline-container-orgce00d1e" class="outline-3">
-<h3 id="orgce00d1e"><span class="section-number-3">1.1.</span> <span class="todo TODO">TODO</span> Add clickable §</h3>
-</div>
-</div>
-
-<div id="outline-container-orgfbbac5d" class="outline-2">
-<h2 id="orgfbbac5d"><span class="section-number-2">2.</span> Export</h2>
-<div class="outline-text-2" id="text-2">
-</div>
-<div id="outline-container-org3f26819" class="outline-3">
-<h3 id="org3f26819"><span class="section-number-3">2.1.</span> Install dependencies</h3>
-<div class="outline-text-3" id="text-2-1">
-<p>
-Only run this once.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp" id="org9e00fc7"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org install</span>
-<span class="org-comment-delimiter">;      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org install</span>
-<span class="org-comment-delimiter">;      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org install</span>
-
-(package-initialize)
-
-(add-to-list 'package-archives
-             '(<span class="org-string">"melpa"</span> . <span class="org-string">"http://melpa.org/packages/"</span>))
-(add-to-list 'package-archives
-             '(<span class="org-string">"org"</span> . <span class="org-string">"http://orgmode.org/elpa/"</span>))
-
-(package-refresh-contents)
-
-(<span class="org-keyword">dolist</span> (pkg '(htmlize css-mode ruby-mode clojure-mode))
-  (package-install pkg))
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org7582d15" class="outline-3">
-<h3 id="org7582d15"><span class="section-number-3">2.2.</span> Publishing script</h3>
-<div class="outline-text-3" id="text-2-2">
-<div class="org-src-container">
-<pre class="src src-emacs-lisp" id="org6190b8f"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org publish</span>
-<span class="org-comment-delimiter">;      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org publish</span>
-<span class="org-comment-delimiter">;      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org publish</span>
-
-<span class="org-comment-delimiter">;; </span><span class="org-comment">Set up load paths.</span>
-(package-initialize)
-
-(<span class="org-keyword">require</span> '<span class="org-constant">ox-publish</span>)
-
-(<span class="org-keyword">setq</span> org-publish-project-alist
-      '(
-        (<span class="org-string">"et"</span> <span class="org-builtin">:components</span> (<span class="org-string">"et.org"</span> <span class="org-string">"et.assets"</span>))
-        (<span class="org-string">"et.org"</span>
-         <span class="org-builtin">:base-directory</span> <span class="org-string">"."</span>
-         <span class="org-builtin">:publishing-directory</span> <span class="org-string">"target/doc"</span>
-         <span class="org-builtin">:base-extension</span> <span class="org-string">"org"</span>
-         <span class="org-builtin">:exclude</span> <span class="org-string">"setupfile.org"</span>
-         <span class="org-builtin">:recursive</span> f
-         <span class="org-builtin">:publishing-function</span> org-html-publish-to-html
-         <span class="org-builtin">:headline-levels</span> 4
-         <span class="org-builtin">:auto-preamble</span> f)
-        (<span class="org-string">"et.assets"</span>
-         <span class="org-builtin">:base-directory</span> <span class="org-string">"src/assets"</span>
-         <span class="org-builtin">:publishing-directory</span> <span class="org-string">"target/doc/assets"</span>
-         <span class="org-builtin">:base-extension</span> <span class="org-string">"css</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">js"</span>
-         <span class="org-builtin">:org-html-doctype</span> <span class="org-string">"html5"</span>      <span class="org-comment-delimiter">; </span><span class="org-comment">check works</span>
-         <span class="org-builtin">:recursive</span> f
-         <span class="org-builtin">:publishing-function</span> org-publish-attachment)))
-
-<span class="org-comment-delimiter">;; </span><span class="org-comment">Set a theme that looks well when exported into HTML.</span>
-(load-theme 'tsdh-light)
-
-<span class="org-comment-delimiter">;; </span><span class="org-comment">Publish.</span>
-(<span class="org-keyword">setq</span> org-html-htmlize-output-type 'css)
-
-(org-mode)
-(org-publish-project <span class="org-string">"et"</span>)
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org51dcfbc" class="outline-3">
-<h3 id="org51dcfbc"><span class="section-number-3">2.3.</span> Export by-passing Org Mode cache</h3>
-<div class="outline-text-3" id="text-2-3">
-<div class="org-src-container">
-<pre class="src src-sh" id="orge192d03"><span class="org-comment-delimiter"># </span><span class="org-comment">Run: java -jar target/et.jar export.org republish</span>
-<span class="org-comment-delimiter">#      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org republish</span>
-<span class="org-comment-delimiter">#      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org republish</span>
-rm -rf output/doc ~/.org-timestamps
-java -jar target/et.jar export.org publish
-</pre>
-</div>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org7706bd4" class="outline-2">
-<h2 id="org7706bd4"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Host the documentation &amp; point README to it</h2>
-<div class="outline-text-2" id="text-3">
 <ul class="org-ul">
-<li>Where to host it?</li>
+<li>Where to host the jar? My server? GH releases? How does that work?</li>
+<li>Clojars with <code>-X:et</code>?</li>
+<li>Babashka with <code>bbin</code>?</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb4051ed" class="outline-2">
-<h2 id="orgb4051ed"><span class="section-number-2">4.</span> Development</h2>
+<div id="outline-container-org509a8c5" class="outline-2">
+<h2 id="org509a8c5"><span class="section-number-2">2.</span> About</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+ET is a simple build tool like <code>make</code>, but for literate programming environments.
+</p>
+
+<p>
+It allows you to run tasks defined in code blocks in org-mode files, such as this README.org.
+</p>
+
+<p>
+Let's define a task:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span class="org-org-meta-line">#+name: demo1</span>
+<span class="org-org-block-begin-line">#+begin_src sh :task yes</span>
+<span class="org-org-block">  </span><span class="org-org-block"><span class="org-builtin">echo</span></span><span class="org-org-block"> </span><span class="org-org-block"><span class="org-string">"Hey there literates!"</span></span>
+<span class="org-org-block-end-line">#+end_src</span>
+</pre>
+</div>
+
+<p>
+And now let's run it:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">java -jar target/et.jar README.org demo1
+</pre>
+</div>
+
+<pre class="example">
+~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo1"}
+~ Running task demo1 {:task yes}
+
+Hey there literates!
+</pre>
+</div>
+
+<div id="outline-container-orga04a81b" class="outline-3">
+<h3 id="orga04a81b"><span class="section-number-3">2.1.</span> Command-line arguments</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Let's try another example, this time in Ruby:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span class="org-org-meta-line">#+name: demo2</span>
+<span class="org-org-block-begin-line">#+begin_src ruby :task yes</span>
+<span class="org-org-block">  </span><span class="org-org-block"><span class="org-type">ARGV</span></span><span class="org-org-block">.each { |name| </span><span class="org-org-block"><span class="org-builtin">puts</span></span><span class="org-org-block"> </span><span class="org-org-block"><span class="org-string">"Hey there </span></span><span class="org-org-block"><span class="org-variable-name">#{name}</span></span><span class="org-org-block"><span class="org-string">!"</span></span><span class="org-org-block"> }</span>
+<span class="org-org-block-end-line">#+end_src</span>
+</pre>
+</div>
+
+<p>
+Let's run it, passing it random arguments:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh">java -jar target/et.jar README.org demo2 Petr Pavel Jakub
+</pre>
+</div>
+
+<pre class="example">
+~ Task definition {:path "README.org", :args ["Petr" "Pavel" "Jakub"], :task {}, :task-name "demo2"}
+~ Running task demo2 {:task yes, :shebang "#!/usr/bin/env ruby"}
+
+Hey there Petr!
+Hey there Pavel!
+Hey there Jakub!
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org3dff5ff" class="outline-3">
+<h3 id="org3dff5ff"><span class="section-number-3">2.2.</span> Custom shebang</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+Let's say our code is in Clojure, but we really want to use <a href="https://babashka.org/">babashka</a> to run it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span class="org-org-meta-line">#+name: demo3</span>
+<span class="org-org-block-begin-line">#+begin_src clojure :task yes :shebang "#!/usr/bin/env bb"</span>
+<span class="org-org-block">  (println </span><span class="org-org-block"><span class="org-string">"Finally some parenthesis!"</span></span><span class="org-org-block">)</span>
+<span class="org-org-block-end-line">#+end_src</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">java -jar target/et.jar README.org demo3
+</pre>
+</div>
+
+<pre class="example">
+~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo3"}
+~ Running task demo3 {:task yes, :shebang "#!/usr/bin/env bb", :exports none}
+
+Finally some parenthesis!
+</pre>
+</div>
+
+<div id="outline-container-org60a892f" class="outline-4">
+<h4 id="org60a892f"><span class="section-number-4">2.2.1.</span> <span class="todo TODO">TODO</span> Consider supporting header arguments</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<p>
+At the moment ET doesn't really parse Org Mode intelligently, it only scans for the code blocks. Hence it doesn't support:
+</p>
+
+<ul class="org-ul">
+<li>Global header args using <code>#+PROPERTY: header-args :shebang "..."</code>.</li>
+<li>Per-section header args using <code>:PROPERTIES:</code> such as with <code>:header-args: :shebang "..."</code>.</li>
+</ul>
+
+<p>
+<a href="https://orgmode.org/manual/Using-Header-Arguments.html">Org Mode manual on header arguments</a>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org556ac94" class="outline-3">
+<h3 id="org556ac94"><span class="section-number-3">2.3.</span> Documentation and the <code>-T</code> argument</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Instead of using <code>:task yes</code> we can use <code>:doc "Task help"</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-org"><span class="org-org-meta-line">#+name: demo4</span>
+<span class="org-org-block-begin-line">#+begin_src sh :doc "Fourth demo"</span>
+<span class="org-org-block">  </span><span class="org-org-block"><span class="org-builtin">echo</span></span><span class="org-org-block"> </span><span class="org-org-block"><span class="org-string">"This is the fourth demo"</span></span>
+<span class="org-org-block-end-line">#+end_src</span>
+
+<span class="org-org-meta-line">#+name: demo5</span>
+<span class="org-org-block-begin-line">#+begin_src sh :doc "Fifth demo"</span>
+<span class="org-org-block">  </span><span class="org-org-block"><span class="org-builtin">echo</span></span><span class="org-org-block"> </span><span class="org-org-block"><span class="org-string">"This is the fifth demo"</span></span>
+<span class="org-org-block-end-line">#+end_src</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sh">java -jar target/et.jar -T README.org
+</pre>
+</div>
+
+<pre class="example">
+~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("README.org")}
+TODO: Implement built-in task :tasks
+</pre>
+
+
+<ul class="org-ul">
+<li><b>Next chapter:</b> <a href="./custom-runner.html">writing a custom runner</a>.</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </body>
