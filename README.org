@@ -1,22 +1,22 @@
 #+TITLE: Emacs tasks (ET)
 #+SETUPFILE: ../setupfile.org
 
-* TODO Use it for this very file as well
-* TODO Add et alias
-clojure -M -m jakub-stastny.et.runner et.org *args
+* TODO About
 
-* TODO Describe how to use PROPERTIES to override shebang (say to bb)
-
+* Implementation
 #+begin_src clojure :tangle deps.edn
+  ; deps.edn
   {:paths ["src"]
-   :aliases
-   {:build {:deps {io.github.clojure/tools.build
-                   {:git/tag "v0.9.4" :git/sha "76b78fe"}}
-            :ns-default build}}}
+   :aliases {:build
+             {:deps {io.github.clojure/tools.build
+                     {:git/tag "v0.9.4" :git/sha "76b78fe"}}
+              :ns-default build}}}
 #+end_src
 
 #+name: build
 #+begin_src sh :task yes :doc "...."
+  # clojure -M -m jakub-stastny.et.runner README.org build
+  # java -jar target/et.jar README.org build
   clojure -T:build uber
 #+end_src
 
@@ -327,3 +327,9 @@ clojure -M -m jakub-stastny.et.runner et.org *args
         [[] nil]
         lines))))
 #+end_src
+
+* TODO Set up dev environment
+- Add ~et~ alias: ~clojure -M -m jakub-stastny.et.runner et.org *args~.
+
+* TODO Documentation
+- Describe how to use PROPERTIES to override shebang (say to bb)
