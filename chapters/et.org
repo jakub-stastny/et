@@ -34,8 +34,11 @@
             (str (colour :red "Error: ") message)
             {:babashka/exit 1})))
 
+  (defn puts [& chunks]
+    (println (apply str chunks)))
+
   (defn info [& chunks]
-    (println (apply str (colour :white :bold "~ ") chunks)))
+    (apply puts (colour :white :bold "~ ") chunks))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
@@ -50,13 +53,22 @@
   (defn built-in-task--tasks
     ""
     [args]
-    (println)
-    (println (colour :blue :bold "Available tasks"))
+    (puts)
+    (puts (colour :blue :bold "Available tasks"))
     (doseq [path args]
-      (println (str "Namespace " (colour :cyan path) ":"))
+      (puts)
+      (puts "Namespace " (colour :cyan path) ":")
       (doseq [{:keys [name opts]} (org/load-tasks path)]
         (if (opts :doc)
-          (println (colour :yellow name) " ... " (opts :doc))))))
+          (puts (colour :yellow name)
+                (apply str (repeat (- 12 (count name)) " "))
+                (opts :doc) ".")))))
+
+  (defn built-in-task--help
+    ""
+    [args]
+    (println)
+    )
 
   (def built-in-tasks
     {:tasks built-in-task--tasks
