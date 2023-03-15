@@ -32,7 +32,7 @@
        text)))
 
   (defn abort [& chunks]
-    (apply str (colour :red "Error: ") chunks)
+    (println (apply str (colour :red "Error: ") chunks))
     (System/exit 1))
 
   (defn puts [& chunks]
@@ -189,8 +189,8 @@
 
   (defn handle-att-error [error]
     (abort "args-to-task: "         ; TODO: make the label customisable.
-           (ex-message e#) "\n"
-           (pr-str (ex-data e#))))
+           (ex-message error) "\n"
+           (pr-str (ex-data error))))
 
   (defn handle-user-error
     "Abort on user error, re-throw otherwise."
@@ -201,8 +201,8 @@
         (throw error))))
 
   (defmacro abort-on-error
-    [handler body]     ; TODO: add handler -> handle-error or handle-user-error etc
-    `(try ~body (catch Exception e# (handle-error e#))))
+    [handler body]
+    `(try ~body (catch Exception e# (~handler e#))))
 
   (defn run
     "Main entry fn for a custom runner.
