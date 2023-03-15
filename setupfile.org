@@ -1,0 +1,6 @@
+#+HTML_DOCTYPE: html5
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="assets/styles.css"/>
+#+HTML_HEAD: <script type="module" src="assets/script.js"></script>
+#+OPTIONS: toc:nil html-postamble:nil
+#+MACRO: highlight @@html:<span class="highlight">$1</span>@@

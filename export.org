@@ -1,0 +1,86 @@
+#+TITLE: Orgmode publish
+#+SETUPFILE: setupfile.org
+
+* Custom CSS & JS
+
+Placeholder files, already plugged into the export pipeline.
+
+#+begin_src css :tangle src/assets/styles.css :mkdirp yes
+  .highlight { background: gold; }
+#+end_src
+
+#+begin_src js :tangle src/assets/script.js :mkdirp yes
+  const $ = document.querySelector.bind(document)
+  const $$ = document.querySelectorAll.bind(document)
+
+  console.log("~ Ready.")
+#+end_src
+
+*
+#+name: install
+#+begin_src emacs-lisp :task yes :doc "Install dependencies required for export" :shebang "#!/usr/bin/env emacs --script"
+  ; Run in shell: et export:install
+
+  (package-initialize)
+
+  (add-to-list 'package-archives
+               '("melpa" . "http://melpa.org/packages/"))
+  (add-to-list 'package-archives
+               '("org" . "http://orgmode.org/elpa/"))
+
+  (package-refresh-contents)
+
+  (dolist (pkg '(htmlize css-mode ruby-mode clojure-mode))
+    (package-install pkg))
+#+end_src
+
+* Export
+** Publishing script
+
+#+name: publish
+#+begin_src emacs-lisp :task yes :doc "Export documentation" :shebang "#!/usr/bin/env emacs --script"
+  ; Run: java -jar target/et.jar export.org publish
+
+  ;; Set up load paths.
+  (package-initialize)
+
+  (require 'ox-publish)
+
+  (setq org-publish-project-alist
+        '(
+          ("et" :components ("et.org" "et.assets"))
+          ("et.org"
+           :base-directory "."
+           :publishing-directory "target/doc"
+           :base-extension "org"
+           :exclude "setupfile.org"
+           :recursive f
+           :publishing-function org-html-publish-to-html
+           :headline-levels 4
+           :auto-preamble f)
+          ("et.assets"
+           :base-directory "src/assets"
+           :publishing-directory "target/doc/assets"
+           :base-extension "css\\|js"
+           :org-html-doctype "html5"      ; check works
+           :recursive f
+           :publishing-function org-publish-attachment)))
+
+  ;; Set a theme that looks well when exported into HTML.
+  (load-theme 'tsdh-light)
+
+  ;; Publish.
+  (setq org-html-htmlize-output-type 'css)
+
+  (org-mode)
+  (org-publish-project "et")
+#+end_src
+
+** Export by-passing Org Mode cache
+
+#+name: republish
+#+begin_src sh :task yes :doc "Re-publish, bypassing the cache"
+  # Run: java -jar target/et.jar export.org republish
+  rm -rf output/doc ~/.org-timestamps
+  java -jar target/et.jar export.org publish
+#+end_src
