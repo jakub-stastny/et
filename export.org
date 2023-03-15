@@ -100,12 +100,15 @@ Only run this once.
 
 #+name: update-docs
 #+begin_src sh :task yes
-  bb -cp src -m jakub-stastny.et.runner build.org uber
-  bb -cp src -m jakub-stastny.et.runner export.org republish
+  bb -cp src -m jakub-stastny.et.runner build.org uber || exit 1
+  bb -cp src -m jakub-stastny.et.runner export.org republish || exit 1
+  mv target target.regenerated
   git stash
-  git co doc
+  git checkout doc || exit 1
+  rm -rf target
+  mv target.regenerated target
   git add target
   git commit -m "Update docs"
-  git co dev
+  git checkout dev
   git stash pop
 #+end_src
