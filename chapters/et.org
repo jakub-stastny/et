@@ -145,13 +145,15 @@
               [jakub-stastny.et.built-ins :as built-ins]
               [jakub-stastny.et.org :as org]))
 
+  (defn- task-type [task]
+    (cond
+      (contains? task :fn) :built-in
+      (and (contains? task :path) (contains? task :task-name)) :custom
+      true :error))
+
   (defmulti exec-task
     "Docstring"
-    (fn [task _]
-      (cond
-        (contains? task :fn) :built-in
-        (and (contains? task :path) (contains? task :task-name)) :custom
-        true :error)))
+    (fn [task _] (task-type task)))
 
   (defmethod exec-task :built-in [task _]
     ((task :fn) (task :args)))
@@ -164,13 +166,26 @@
     ;; (throw (ex-info "Don't know how to handle task" {:task task}))
     ((built-ins/get-task :help) :fn))
 
+  (defmulti pr-task "Print task" task-type)
+
+  (defmethod pr-task :built-in [task]
+    (let [base-str (str "built-in task " (colour :yellow (name (task :task-name))))]
+      (if (empty? (task :args))
+        base-str
+        (str base-str " and args " (colour :cyan (str (task :args)))))))
+
+  (defmethod pr-task :custom [task]
+    (prn :custom task))
+
+  (defmethod pr-task :error [task]
+    (prn :error task))
+
   ;; Wrapper
   (defn run-task
     "...."
     [task config]
-    (info "Running task " (pr-str task))
+    (info "Running " (pr-task task))
     (exec-task task config))
-
   (defmacro catch-errors
     [body]
     `(try ~body
