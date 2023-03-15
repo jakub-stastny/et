@@ -16,10 +16,17 @@ Placeholder files, already plugged into the export pipeline.
   console.log("~ Ready.")
 #+end_src
 
-*
+** TODO Add clickable §
+
+* Export
+** Install dependencies
+Only run this once.
+
 #+name: install
 #+begin_src emacs-lisp :task yes :doc "Install dependencies required for export" :shebang "#!/usr/bin/env emacs --script"
-  ; Run in shell: et export:install
+  ; Run: java -jar target/et.jar export.org install
+  ;      bb -cp src -m jakub-stastny.et.runner export.org install
+  ;      clojure -M -m jakub-stastny.et.runner export.org install
 
   (package-initialize)
 
@@ -34,12 +41,13 @@ Placeholder files, already plugged into the export pipeline.
     (package-install pkg))
 #+end_src
 
-* Export
 ** Publishing script
 
 #+name: publish
 #+begin_src emacs-lisp :task yes :doc "Export documentation" :shebang "#!/usr/bin/env emacs --script"
   ; Run: java -jar target/et.jar export.org publish
+  ;      bb -cp src -m jakub-stastny.et.runner export.org publish
+  ;      clojure -M -m jakub-stastny.et.runner export.org publish
 
   ;; Set up load paths.
   (package-initialize)
@@ -81,6 +89,8 @@ Placeholder files, already plugged into the export pipeline.
 #+name: republish
 #+begin_src sh :task yes :doc "Re-publish, bypassing the cache"
   # Run: java -jar target/et.jar export.org republish
+  #      bb -cp src -m jakub-stastny.et.runner export.org republish
+  #      clojure -M -m jakub-stastny.et.runner export.org republish
   rm -rf output/doc ~/.org-timestamps
   java -jar target/et.jar export.org publish
 #+end_src

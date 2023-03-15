@@ -53,8 +53,31 @@ Code blocks can be written in any language, so by extension ET supports any lang
 :
 : Hello literate Rubyists!
 
+** Command-line arguments
 
-* Implementation
+#+begin_src org
+  ,#+name: demo3
+  ,#+begin_src ruby :task yes :shebang "#!/usr/bin/env ruby"
+    puts "Hello literate Rubyists!"
+  ,#+end_src
+#+end_src
+
+#+name: demo3
+#+begin_src ruby :task yes :shebang "#!/usr/bin/env ruby"
+  ARGV.each { |name| puts "Hey there #{name}!" }
+#+end_src
+
+#+begin_src sh :results verbatim :exports results
+  java -jar target/et.jar README.org demo3 Petr Pavel Jakub
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:path "README.org", :args ["Petr" "Pavel" "Jakub"], :task {}, :task-name "demo3"}
+: ~ Running task demo3 {:task yes, :shebang "#!/usr/bin/env ruby"}
+:
+:
+
+* Custom runner
 
 * Runner
 ** Usage
@@ -75,7 +98,6 @@ Code blocks can be written in any language, so by extension ET supports any lang
   clj -M -m jakub-stastny.et.runner -T et-examples.org
 #+end_src
 
-
 * Hosting
 
 #+name: upload
@@ -83,11 +105,13 @@ Code blocks can be written in any language, so by extension ET supports any lang
   scp target/et.jar home:/bm/www/jar/et.jar
 #+end_src
 
-* TODO Set up dev environment
-- Add ~et~ alias: ~clojure -M -m jakub-stastny.et.runner et.org *args~.
-
 * TODO Documentation
 - Describe how to use PROPERTIES to override shebang (say to bb)
 
 * TODO This will only look good in org-mode-generated docs.
 Add generated README.html and hope GH picks it before README.org.
+
+* Development
+
+- Here's the [[./development.org][development]] chapter.
+- Here's the [[./export.org][publishing]] chapter.

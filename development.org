@@ -1,0 +1,5 @@
+#+TITLE: Emacs tasks development
+#+SETUPFILE: setupfile.org
+
+* TODO Set up dev environment
+- Add ~et~ alias: ~clojure -M -m jakub-stastny.et.runner et.org *args~.

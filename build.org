@@ -25,3 +25,13 @@
     (b/uber {:class-dir class-dir :uber-file uber-file
              :basis basis :main 'jakub-stastny.et.runner}))
 #+end_src
+
+** AOT compilation
+
+#+name: uber
+#+begin_src sh :task yes :doc "...."
+  # java -jar target/et.jar build.org uber
+  # bb -cp src -m jakub-stastny.et.runner build.org uber
+  # clojure -M -m jakub-stastny.et.runner build.org uber
+  clojure -T:build uber
+#+end_src
