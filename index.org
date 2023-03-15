@@ -2,9 +2,16 @@
 #+SETUPFILE: setupfile.org
 
 * TODO Installation
-- Where to host the jar? My server? GH releases? How does that work?
-- Clojars with ~-X:et~?
 - Babashka with ~bbin~?
+
+** Development version (JAR)
+#+begin_src sh
+  wget https://github.com/jakub-stastny/et/raw/doc/target/et.jar
+#+end_src
+
+** TODO Upload to Clojars
+- Add badge to the README & index.
+- Clojars with ~-X:et~?
 
 * About
 ET is a simple build tool like ~make~, but for literate programming environments.
