@@ -1,6 +1,9 @@
 #+TITLE: Emacs tasks (ET)
 #+SETUPFILE: setupfile.org
 
+* About
+ET is a simple build tool like ~make~, but for literate programming environments.
+
 * Installation
 ** TODO GraalVM-compiled binary
 Note that this way you can only use the default runner.
@@ -18,15 +21,15 @@ Note that this way you can only use the default runner.
   wget https://github.com/jakub-stastny/et/raw/doc/downloads/et.jar
 #+end_src
 
-** TODO Babashka with [[https://github.com/babashka/bbin][bbin]]
+** Babashka with [[https://github.com/babashka/bbin][bbin]]
+- Get SHA of the latest commit on the [[https://github.com/jakub-stastny/et/tree/src][src branch]]: ~git rev-parse origin/src~
+- Run ~bbin install git@github.com:jakub-stastny/et.git --as et --git/sha <SHA>~
 
 ** TODO Upload to Clojars
 - Add badge to the README & index.
 - Clojars with ~-X:et~?
 
-* About
-ET is a simple build tool like ~make~, but for literate programming environments.
-
+* Usage
 It allows you to run tasks defined in code blocks in org-mode files, such as this chapters/index.org.
 
 Let's define a task:
