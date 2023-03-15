@@ -52,32 +52,52 @@
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
-  (ns jakub-stastny.et.built-ins)
+  (ns jakub-stastny.et.built-ins
+    "Built-in tasks."
+    (:require [jakub-stastny.et.org :as org]
+              [jakub-stastny.et.utils :refer :all]))
 
   (defn tasks
-    ""
-    [args]
+    "Built-in task to show all tasks in given paths."
+    [paths]
     (puts "\n" (colour :blue :bold "Available tasks"))
-    (doseq [path args]
+    (doseq [path paths]
       (let [tasks (filter (fn [task] (get-in task [:opts :doc])) (org/load-tasks path))]
         (when-not (empty? tasks)
-          (puts)
-          (puts "Namespace " (colour :cyan path) ":")
+          (puts "\nNamespace " (colour :cyan path) ":")
           (doseq [{:keys [name opts]} tasks]
             (puts (colour :yellow name)
                   (apply str (repeat (- 12 (count name)) " "))
                   (opts :doc) "."))))))
 
   (defn help
-    ""
+    "Built-in task to show help.
+     Unlike other tasks can take 0 arguments."
     [& args]
     (puts "\n" (colour :green :bold "Help:"))
     (puts "-T|--tasks task-file.org           # Show documented tasks in given task files")
     (puts "task-file.org task-name arg1 arg2  # Run task-name from task-file.org with arguments arg1 arg2"))
+
+  (def ^:private built-in-tasks
+    {:tasks tasks :help help})
+
+  (defn- make-built-in-task
+    "Wrap fn as a task." [name]
+    {:name name :fn (built-in-tasks name)})
+
+  (defn get-task
+    "Get a built-in task. Defaults to the help task."
+    [arg] (cond
+            (some #(= arg %) ["-T" "--tasks" :tasks])
+            (make-built-in-task :tasks)
+
+            (some #(= arg %) ["-h" "-H" "--help" :help])
+            (make-built-in-task :help)))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/config.clj :mkdirp yes
-  (ns jakub-stastny.et.config)
+  (ns jakub-stastny.et.config
+    (:require [jakub-stastny.et.built-ins :as built-ins]))
 
   (defn args-to-tasks [args]
     (reduce
@@ -85,7 +105,7 @@
        (cond
          ;; First argument starting with a dash (-T, -h etc).
          (and (empty? acc) (re-matches #"-{1,2}\w+" i))
-         (conj acc {:task (built-in-task i)})
+         (conj acc {:task (built-ins/get-task i)})
 
          (and
           (re-find #"\.org$" i)
@@ -122,20 +142,9 @@
     (:require [clojure.string :as str]
               [clojure.java.shell]
               [jakub-stastny.et.utils :refer :all]
-              [jakub-stastny.et.built-ins :as built-ins]
               [jakub-stastny.et.config :as config]
+              [jakub-stastny.et.built-ins :as built-ins]
               [jakub-stastny.et.org :as org]))
-
-  (def ^:private built-in-tasks
-    {:tasks built-ins/tasks :help built-ins/help})
-
-  (defn built-in-task [i]
-    (cond
-      (some #(= i %) ["-T" "--tasks"])
-      {:name :tasks :fn (built-in-tasks :tasks)}
-
-      true
-      {:name :help :fn (built-in-tasks :help)}))
 
   (def ^:private default-config
     {:args-to-tasks config/args-to-tasks
@@ -157,7 +166,7 @@
 
       ;; Should never get here.
       true
-      ((built-in-tasks :help))))
+      ((built-ins/get-task :help))))
 
   (defn run
     "Main entry fn for a custom runner.
