@@ -92,7 +92,7 @@ At the moment ET doesn't really parse Org Mode intelligently, it only scans for 
 
 [[https://orgmode.org/manual/Using-Header-Arguments.html][Org Mode manual on header arguments]]
 
-** Documentation
+** Documentation and the ~-T~ argument
 Instead of using ~:task yes~ we can use ~:doc "Task help"~
 
 #+begin_src org
@@ -124,31 +124,6 @@ Instead of using ~:task yes~ we can use ~:doc "Task help"~
 #+RESULTS:
 : ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("README.org")}
 : TODO: Implement built-in task :tasks
-
-* Custom runner
-The default runner is simple enough, but you might want a custom one.
-
-** Basic structure
-#+begin_src clojure
-  (ns runner (:require [jakub-stastny.et.runner :refer [run]]))
-
-  ; Put your overrides here.
-  (def config {})
-
-  (defn -main [& args] (run config args))
-#+end_src
-
-* Hosting
-
-#+name: upload
-#+begin_src sh :task yes :doc "...."
-  scp target/et.jar home:/bm/www/jar/et.jar
-#+end_src
-
-* TODO This will only look good in org-mode-generated docs.
-Add generated README.html and hope GH picks it before README.org.
-
-* Development
 
 - Here's the [[./development.org][development]] chapter.
 - Here's the [[./export.org][publishing]] chapter.

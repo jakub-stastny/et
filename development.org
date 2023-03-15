@@ -3,3 +3,10 @@
 
 * TODO Set up dev environment
 - Add ~et~ alias: ~clojure -M -m jakub-stastny.et.runner et.org *args~.
+
+* Hosting
+
+#+name: upload
+#+begin_src sh :task yes :doc "...."
+  scp target/et.jar home:/bm/www/jar/et.jar
+#+end_src

@@ -13,8 +13,14 @@
             (str \u001b "[31m" "Error: " \u001b "[0m" message)
             {:babashka/exit 1})))
 
+  (defn built-in-task--tasks
+    ""
+    [& args]
+    (prn args)
+    )
+
   (def built-in-tasks
-    {:tasks #(println "TODO: Implement built-in task :tasks")
+    {:tasks built-in-task--tasks
      :help #(println "TODO: Implement built-in task :help")})
 
   (defn built-in-task [i]

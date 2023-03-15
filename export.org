@@ -94,3 +94,8 @@ Only run this once.
   rm -rf output/doc ~/.org-timestamps
   java -jar target/et.jar export.org publish
 #+end_src
+
+* TODO Host the documentation & point README to it
+- Where to host it?
+
+* Development
