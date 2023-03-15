@@ -112,3 +112,9 @@ Only run this once.
   git checkout dev
   git stash pop
 #+end_src
+
+TODO: move .org -> chapters
+
+git checkout --orphan src
+git rm --cached $(git status | grep "new file:" | awk '{ print $3 }')
+git commit --allow-empty -m "Initial empty commit"
