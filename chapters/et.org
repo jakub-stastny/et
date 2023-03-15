@@ -40,6 +40,26 @@
 
   (defn info [& chunks]
     (apply puts (colour :white :bold "~ ") chunks))
+
+  (defn- task-type [task]
+    (cond
+      (contains? task :fn) :built-in
+      (and (contains? task :path) (contains? task :task-name)) :custom
+      true :error))
+
+  (defmulti pr-task "Print task" task-type)
+
+  (defmethod pr-task :built-in [task]
+    (let [base-str (str "built-in task " (colour :yellow (name (task :task-name))))]
+      (if (empty? (task :args))
+        base-str
+        (str base-str " and args " (colour :cyan (str (task :args)))))))
+
+  (defmethod pr-task :custom [task]
+    (prn :custom task))
+
+  (defmethod pr-task :error [task]
+    (prn :error task))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
@@ -132,6 +152,7 @@
 #+end_src
 
 *** TODO spec: validate keys of config (run)
+*** TODO Allow overriding built-in tasks in config
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
   (ns jakub-stastny.et.runner
@@ -145,12 +166,6 @@
               [jakub-stastny.et.built-ins :as built-ins]
               [jakub-stastny.et.org :as org]))
 
-  (defn- task-type [task]
-    (cond
-      (contains? task :fn) :built-in
-      (and (contains? task :path) (contains? task :task-name)) :custom
-      true :error))
-
   (defmulti exec-task
     "Docstring"
     (fn [task _] (task-type task)))
@@ -161,24 +176,9 @@
   (defmethod exec-task :custom [task config]
     (org/run-task task config))
 
-  ; TODO: Allow overriding built-in tasks in config.
   (defmethod exec-task :error [task _]
     ;; (throw (ex-info "Don't know how to handle task" {:task task}))
     ((built-ins/get-task :help) :fn))
-
-  (defmulti pr-task "Print task" task-type)
-
-  (defmethod pr-task :built-in [task]
-    (let [base-str (str "built-in task " (colour :yellow (name (task :task-name))))]
-      (if (empty? (task :args))
-        base-str
-        (str base-str " and args " (colour :cyan (str (task :args)))))))
-
-  (defmethod pr-task :custom [task]
-    (prn :custom task))
-
-  (defmethod pr-task :error [task]
-    (prn :error task))
 
   ;; Wrapper
   (defn run-task
@@ -186,24 +186,36 @@
     [task config]
     (info "Running " (pr-task task))
     (exec-task task config))
-  (defmacro catch-errors
-    [body]
-    `(try ~body
-          (catch Exception e#
-            (abort "args-to-task: "
-                   (ex-message e#) "\n"
-                   (pr-str (ex-data e#))))))
+
+  (defn handle-att-error [error]
+    (abort "args-to-task: "         ; TODO: make the label customisable.
+           (ex-message e#) "\n"
+           (pr-str (ex-data e#))))
+
+  (defn handle-user-error
+    "Abort on user error, re-throw otherwise."
+    [error]
+    (let [info (ex-data error)]
+      (if (= (info :type) :user-error)
+        (abort (ex-message error))
+        (throw error))))
+
+  (defmacro abort-on-error
+    [handler body]     ; TODO: add handler -> handle-error or handle-user-error etc
+    `(try ~body (catch Exception e# (handle-error e#))))
 
   (defn run
-      "Main entry fn for a custom runner.
+    "Main entry fn for a custom runner.
      Takes command-line `custom-config` that it merges
-     into the default one and command-line `args`"
-      ([args] (run {} args))
+     into the default one and command-line `args`."
+    ([args] (run {} args))
 
-      ([custom-config args]
-       (let [config (conj config/default-config custom-config)]
-         (let [defs (catch-errors ((config :args-to-tasks) args))]
-           (doseq [def defs] (run-task def config))))))
+    ([custom-config args]
+     (abort-on-error
+      handle-user-error
+      (let [config (conj config/default-config custom-config)]
+        (let [defs (abort-on-error handle-att-error ((config :args-to-tasks) args))]
+          (doseq [def defs] (run-task def config)))))))
 
   (defn -main
     "This is the main entry for the default runner.
@@ -223,9 +235,9 @@
   (defn load-tasks
     "..."
     [path]
-    (if (.exists (io/as-file path))
+    (if (.exists (io/as-file path)) ; Replace by fs/exists from bb.
       (parser/parse-examples (str/split (slurp path) #"\n"))
-      (puts "ERR: load-tasks"))) ; TODO: Custom exc class, catch all in runner (sideeffect).
+      (throw (ex-info (str "File " path "doesn't exist") {:type :user-error}))))
 
   (defn write-script-2
     "...."
@@ -268,6 +280,7 @@
     "..."
     [task task-def config]
     (info "Running task " (task :name) " " (pr-str (task :opts)))
+    (info "Running task " (pr-task task))
     (let [exec-fn (config :exec-fn)
           base-command (write-script task config)
           command (apply conj base-command (task-def :args))]
