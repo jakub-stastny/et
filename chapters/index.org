@@ -47,7 +47,7 @@ Let's define a task:
 #+end_src
 
 And now let's run it:
-#+begin_src sh :results verbatim :exports both
+#+begin_src sh :results verbatim :exports both :dir ..
   et target/et.jar chapters/index.org demo1
 #+end_src
 
@@ -73,7 +73,7 @@ Let's try another example, this time in Ruby:
 #+end_src
 
 Let's run it, passing it random arguments:
-#+begin_src sh :results verbatim :exports both
+#+begin_src sh :results verbatim :exports both :dir ..
   et target/et.jar chapters/index.org demo2 Petr Pavel Jakub
 #+end_src
 
@@ -100,7 +100,7 @@ Let's say our code is in Clojure, but we really want to use [[https://babashka.o
   (println "Finally some parenthesis!")
 #+end_src
 
-#+begin_src sh :results verbatim :exports both
+#+begin_src sh :results verbatim :exports both :dir ..
   et target/et.jar chapters/index.org demo3
 #+end_src
 
