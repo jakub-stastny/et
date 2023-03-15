@@ -3,8 +3,6 @@
 
 * Custom CSS & JS
 
-Placeholder files, already plugged into the export pipeline.
-
 #+begin_src css :tangle src/assets/styles.css :mkdirp yes
   .highlight { background: gold; }
 
@@ -33,8 +31,6 @@ Placeholder files, already plugged into the export pipeline.
     section.innerHTML = `<a href="#${linkTarget}">§<a name="${linkTarget}"></a></a>`
   })
 #+end_src
-
-** TODO Add clickable §
 
 * Export
 ** Install dependencies
@@ -116,7 +112,7 @@ Only run this once.
   #      bb -cp src -m jakub-stastny.et.runner export.org republish
   #      clojure -M -m jakub-stastny.et.runner export.org republish
   rm -rf doc ~/.org-timestamps
-  bb -cp src -m jakub-stastny.et.runner export.org publish
+  bb -cp src -m jakub-stastny.et.runner chapters/export.org publish
 #+end_src
 
 
@@ -125,8 +121,8 @@ Only run this once.
 ** TODO: move files from target to the root
 #+name: update-docs
 #+begin_src sh :task yes
-  bb -cp src -m jakub-stastny.et.runner build.org uber || exit 1
-  bb -cp src -m jakub-stastny.et.runner export.org republish || exit 1
+  bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || exit 1
+  bb -cp src -m jakub-stastny.et.runner chapters/export.org republish || exit 1
   mv target target.regenerated
   git stash
   git checkout doc || exit 1

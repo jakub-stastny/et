@@ -1,24 +1,22 @@
 * Implementation
 
-* TODO Implementations
+* TODO Implementation
 - Conj task tdef
 - <<FILE>> PWD…noweb or custom?
-- /tmp/et.<basename>.<task-file>.<task> such as et.bm-core.chapters.dev.main.build.sh.
+- /tmp/et.<basename>.<task-file>.<task> such as bm-core.chapters.dev.main.build.sh.
+- (str/join "/" (xdg-cache-home) "et")
+- XDG_CACHE_HOME
 - Load babashka.fs (exist) etc in CLJ?
+- #?@(:bb "Babashka!" :clj "CLJ!)
 
-#+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
-  (ns jakub-stastny.et.runner
-    "........."
-    (:gen-class)
-    (:require [clojure.string :as str]
-              [clojure.java.shell]
-              [jakub-stastny.et.org :as org]))
+#+begin_src clojure :tangle ../src/jakub_stastny/et/utils.clj :mkdirp yes
+  (ns jakub-stastny.et.utils)
 
-  (def colours {:red 31 :green 32 :yellow 33
-                :blue 34 :purple 35 :cyan 36 :grey 37})
+  (def ^:private colours {:red 31 :green 32 :yellow 33
+                          :blue 34 :purple 35 :cyan 36 :grey 37})
 
   ; https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
-  (def font-effects {:normal 0 :bold 1})
+  (def ^:private font-effects {:normal 0 :bold 1})
 
   (defn colour
     "Wraps text in ANSI colour escape sequence"
@@ -36,6 +34,19 @@
             (str (colour :red "Error: ") message)
             {:babashka/exit 1})))
 
+  (defn info [& chunks]
+    (println (apply str (colour :white :bold "~ ") chunks)))
+#+end_src
+
+#+begin_src clojure :tangle ../src/jakub_stastny/et/runner.clj :mkdirp yes
+  (ns jakub-stastny.et.runner
+    "........."
+    (:gen-class)
+    (:require [clojure.string :as str]
+              [clojure.java.shell]
+              [jakub-stastny.et.utils :refer :all]
+              [jakub-stastny.et.org :as org]))
+
   (defn built-in-task--tasks
     ""
     [args]
@@ -44,7 +55,7 @@
     (doseq [path args]
       (println (str "Namespace " (colour :cyan path) ":"))
       (doseq [{:keys [name opts]} (org/load-tasks path)]
-        (if (opts :doc)                     ; Ignore private tasks.
+        (if (opts :doc)
           (println (colour :yellow name) " ... " (opts :doc))))))
 
   (def built-in-tasks
@@ -58,15 +69,6 @@
 
       true
       {:name :help :fn (built-in-tasks :help)}))
-
-    ;; (defn show-task-in-ns [namespace]
-    ;;   (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
-    ;;   (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
-
-    ;; (defn show-tasks-in-ns [namespaces]
-    ;;   (doseq [namespace namespaces] (show-task-in-ns namespace)))
-    ;; (defn show-all []
-    ;;   (println "Show all ..."))
 
   (defn args-to-tasks [args]
     (reduce
@@ -106,13 +108,10 @@
      :cmds {:clojure "clojure -M"} ; -M -m to run -main OR bb
      :exec-fn clojure.java.shell/sh})
 
-  (defn echo [& chunks]
-    (println (apply str "~ " chunks)))
-
   (defn run-task [task config]
     ;; (colour :red "string")
     ;; (println (str "~ Task definition " (pr-str task)))
-    (echo "Task definition " (pr-str task))
+    (info "Task definition " (pr-str task))
     (cond
       ;; Built-in task.
       (get-in task [:task :fn])

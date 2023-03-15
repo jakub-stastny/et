@@ -27,7 +27,7 @@ Note that this way you can only use the default runner.
 
 ** TODO Upload to Clojars
 - Add badge to the README & index.
-- Clojars with ~-X:et~?
+- Would this only be for custom runners or is there a way to proxy via ~clj~? Maybe ~-X:et "a b c d"~, although that's inconvenient.
 
 * Usage
 It allows you to run tasks defined in code blocks in org-mode files, such as this chapters/index.org.
