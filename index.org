@@ -1,0 +1,133 @@
+#+TITLE: Emacs tasks (ET)
+#+SETUPFILE: setupfile.org
+
+* TODO Installation
+- Where to host the jar? My server? GH releases? How does that work?
+- Clojars with ~-X:et~?
+- Babashka with ~bbin~?
+
+* About
+ET is a simple build tool like ~make~, but for literate programming environments.
+
+It allows you to run tasks defined in code blocks in org-mode files, such as this README.org.
+
+Let's define a task:
+
+#+begin_src org
+  ,#+name: demo1
+  ,#+begin_src sh :task yes
+    echo "Hey there literates!"
+  ,#+end_src
+#+end_src
+
+#+name: demo1
+#+begin_src sh :task yes :exports none
+  echo "Hey there literates!"
+#+end_src
+
+And now let's run it:
+#+begin_src sh :results verbatim :exports both
+  java -jar target/et.jar README.org demo1
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo1"}
+: ~ Running task demo1 {:task yes}
+:
+: Hey there literates!
+
+** Command-line arguments
+Let's try another example, this time in Ruby:
+
+#+begin_src org
+  ,#+name: demo2
+  ,#+begin_src ruby :task yes
+    ARGV.each { |name| puts "Hey there #{name}!" }
+  ,#+end_src
+#+end_src
+
+#+name: demo2
+#+begin_src ruby :task yes :exports none
+  ARGV.each { |name| puts "Hey there #{name}!" }
+#+end_src
+
+Let's run it, passing it random arguments:
+#+begin_src sh :results verbatim :exports both
+  java -jar target/et.jar README.org demo2 Petr Pavel Jakub
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:path "README.org", :args ["Petr" "Pavel" "Jakub"], :task {}, :task-name "demo2"}
+: ~ Running task demo2 {:task yes, :shebang "#!/usr/bin/env ruby"}
+:
+: Hey there Petr!
+: Hey there Pavel!
+: Hey there Jakub!
+
+** Custom shebang
+Let's say our code is in Clojure, but we really want to use [[https://babashka.org/][babashka]] to run it:
+
+#+begin_src org
+  ,#+name: demo3
+  ,#+begin_src clojure :task yes :shebang "#!/usr/bin/env bb"
+    (println "Finally some parenthesis!")
+  ,#+end_src
+#+end_src
+
+#+name: demo3
+#+begin_src clojure :task yes :shebang "#!/usr/bin/env bb" :exports none
+  (println "Finally some parenthesis!")
+#+end_src
+
+#+begin_src sh :results verbatim :exports both
+  java -jar target/et.jar README.org demo3
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo3"}
+: ~ Running task demo3 {:task yes, :shebang "#!/usr/bin/env bb", :exports none}
+:
+: Finally some parenthesis!
+
+*** TODO Consider supporting header arguments
+At the moment ET doesn't really parse Org Mode intelligently, it only scans for the code blocks. Hence it doesn't support:
+
+- Global header args using ~#+PROPERTY: header-args :shebang "..."~.
+- Per-section header args using ~:PROPERTIES:~ such as with ~:header-args: :shebang "..."~.
+
+[[https://orgmode.org/manual/Using-Header-Arguments.html][Org Mode manual on header arguments]]
+
+** Documentation and the ~-T~ argument
+Instead of using ~:task yes~ we can use ~:doc "Task help"~
+
+#+begin_src org
+  ,#+name: demo4
+  ,#+begin_src sh :doc "Fourth demo"
+    echo "This is the fourth demo"
+  ,#+end_src
+
+  ,#+name: demo5
+  ,#+begin_src sh :doc "Fifth demo"
+    echo "This is the fifth demo"
+  ,#+end_src
+#+end_src
+
+#+name: demo4
+#+begin_src sh :doc "Fourth demo" :exports none
+  echo "This is the fourth demo"
+#+end_src
+
+#+name: demo5
+#+begin_src sh :doc "Fifth demo" :exports none
+  echo "This is the fifth demo"
+#+end_src
+
+#+begin_src sh :results verbatim :exports both
+   java -jar target/et.jar -T README.org
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("README.org")}
+: TODO: Implement built-in task :tasks
+
+- *Next chapter:* [[./custom-runner.org][writing a custom runner]].
