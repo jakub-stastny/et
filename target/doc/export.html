@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-14 Tue 21:02 -->
+<!-- 2023-03-14 Tue 21:16 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Orgmode publish</title>
@@ -199,8 +199,8 @@
 <div id="content" class="content">
 <h1 class="title">Orgmode publish</h1>
 
-<div id="outline-container-org27e224f" class="outline-2">
-<h2 id="org27e224f"><span class="section-number-2">1.</span> Custom CSS &amp; JS</h2>
+<div id="outline-container-orgeacb176" class="outline-2">
+<h2 id="orgeacb176"><span class="section-number-2">1.</span> Custom CSS &amp; JS</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Placeholder files, already plugged into the export pipeline.
@@ -220,24 +220,24 @@ console.log(<span class="org-string">"~ Ready."</span>)
 </div>
 </div>
 
-<div id="outline-container-orgce00d1e" class="outline-3">
-<h3 id="orgce00d1e"><span class="section-number-3">1.1.</span> <span class="todo TODO">TODO</span> Add clickable §</h3>
+<div id="outline-container-orge1c50ba" class="outline-3">
+<h3 id="orge1c50ba"><span class="section-number-3">1.1.</span> <span class="todo TODO">TODO</span> Add clickable §</h3>
 </div>
 </div>
 
-<div id="outline-container-orgfbbac5d" class="outline-2">
-<h2 id="orgfbbac5d"><span class="section-number-2">2.</span> Export</h2>
+<div id="outline-container-orgc8ad11a" class="outline-2">
+<h2 id="orgc8ad11a"><span class="section-number-2">2.</span> Export</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-org3f26819" class="outline-3">
-<h3 id="org3f26819"><span class="section-number-3">2.1.</span> Install dependencies</h3>
+<div id="outline-container-org286e32c" class="outline-3">
+<h3 id="org286e32c"><span class="section-number-3">2.1.</span> Install dependencies</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 Only run this once.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="org9e00fc7"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org install</span>
+<pre class="src src-emacs-lisp" id="orgd1f776c"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org install</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org install</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org install</span>
 
@@ -257,11 +257,11 @@ Only run this once.
 </div>
 </div>
 
-<div id="outline-container-org7582d15" class="outline-3">
-<h3 id="org7582d15"><span class="section-number-3">2.2.</span> Publishing script</h3>
+<div id="outline-container-orgbe827c3" class="outline-3">
+<h3 id="orgbe827c3"><span class="section-number-3">2.2.</span> Publishing script</h3>
 <div class="outline-text-3" id="text-2-2">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="org6190b8f"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org publish</span>
+<pre class="src src-emacs-lisp" id="org42e85a4"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org publish</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org publish</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org publish</span>
 
@@ -277,7 +277,7 @@ Only run this once.
          <span class="org-builtin">:base-directory</span> <span class="org-string">"."</span>
          <span class="org-builtin">:publishing-directory</span> <span class="org-string">"target/doc"</span>
          <span class="org-builtin">:base-extension</span> <span class="org-string">"org"</span>
-         <span class="org-builtin">:exclude</span> <span class="org-string">"setupfile.org"</span>
+         <span class="org-builtin">:exclude</span> <span class="org-string">"setupfile</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">README.org"</span>
          <span class="org-builtin">:recursive</span> f
          <span class="org-builtin">:publishing-function</span> org-html-publish-to-html
          <span class="org-builtin">:headline-levels</span> 4
@@ -303,11 +303,11 @@ Only run this once.
 </div>
 </div>
 
-<div id="outline-container-org51dcfbc" class="outline-3">
-<h3 id="org51dcfbc"><span class="section-number-3">2.3.</span> Export by-passing Org Mode cache</h3>
+<div id="outline-container-orge714c09" class="outline-3">
+<h3 id="orge714c09"><span class="section-number-3">2.3.</span> Export by-passing Org Mode cache</h3>
 <div class="outline-text-3" id="text-2-3">
 <div class="org-src-container">
-<pre class="src src-sh" id="orge192d03"><span class="org-comment-delimiter"># </span><span class="org-comment">Run: java -jar target/et.jar export.org republish</span>
+<pre class="src src-sh" id="orgd848ef5"><span class="org-comment-delimiter"># </span><span class="org-comment">Run: java -jar target/et.jar export.org republish</span>
 <span class="org-comment-delimiter">#      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org republish</span>
 <span class="org-comment-delimiter">#      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org republish</span>
 rm -rf output/doc ~/.org-timestamps
@@ -318,17 +318,25 @@ java -jar target/et.jar export.org publish
 </div>
 </div>
 
-<div id="outline-container-org7706bd4" class="outline-2">
-<h2 id="org7706bd4"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Host the documentation &amp; point README to it</h2>
-<div class="outline-text-2" id="text-3">
-<ul class="org-ul">
-<li>Where to host it?</li>
-</ul>
-</div>
-</div>
 
-<div id="outline-container-orgb4051ed" class="outline-2">
-<h2 id="orgb4051ed"><span class="section-number-2">4.</span> Development</h2>
+<div id="outline-container-org1cb2b03" class="outline-2">
+<h2 id="org1cb2b03"><span class="section-number-2">3.</span> Regenerate the documentation</h2>
+<div class="outline-text-2" id="text-3">
+<div class="org-src-container">
+<pre class="src src-sh" id="org9d600d2">bb -cp src -m jakub-stastny.et.runner build.org uber || <span class="org-keyword">exit</span> 1
+bb -cp src -m jakub-stastny.et.runner export.org republish || <span class="org-keyword">exit</span> 1
+mv target target.regenerated
+git stash
+git checkout doc || <span class="org-keyword">exit</span> 1
+rm -rf target
+mv target.regenerated target
+git add target
+git commit -m <span class="org-string">"Update docs"</span>
+git checkout dev
+git stash pop
+</pre>
+</div>
+</div>
 </div>
 </div>
 </body>
