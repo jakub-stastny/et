@@ -3,11 +3,12 @@
 * TODO Implementation
 - Conj task tdef
 - <<FILE>> PWD…noweb or custom?
-- /tmp/et.<basename>.<task-file>.<task> such as bm-core.chapters.dev.main.build.sh.
-- (str/join "/" (xdg-cache-home) "et")
-- XDG_CACHE_HOME
-- Load babashka.fs (exist) etc in CLJ?
+
+* TODO Babashka support
+- Use babashka/fs etc in CLJ (deps.edn).
 - #?@(:bb "Babashka!" :clj "CLJ!)
+- XDG_CACHE_HOME: (str/join "/" (xdg-cache-home) "et")
+- et.<basename>.<task-file>.<task> such as bm-core.chapters.dev.main.build.sh.
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/utils.clj :mkdirp yes
   (ns jakub-stastny.et.utils)
@@ -55,8 +56,7 @@
   (defn built-in-task--tasks
     ""
     [args]
-    (puts)
-    (puts (colour :blue :bold "Available tasks"))
+    (puts "\n" (colour :blue :bold "Available tasks"))
     (doseq [path args]
       (let [tasks (filter (fn [task] (get-in task [:opts :doc])) (org/load-tasks path))]
         (when-not (empty? tasks)
@@ -69,13 +69,13 @@
 
   (defn built-in-task--help
     ""
-    [args]
-    (puts)
-    )
+    [& args]
+    (puts "\n" (colour :green :bold "Help:"))
+    (puts "-T|--tasks task-file.org           # Show documented tasks in given task files")
+    (puts "task-file.org task-name arg1 arg2  # Run task-name from task-file.org with arguments arg1 arg2"))
 
-  (def built-in-tasks
-    {:tasks built-in-task--tasks
-     :help #(puts "TODO: Implement built-in task :help")})
+  (def ^:private built-in-tasks
+    {:tasks built-in-task--tasks :help built-in-task--help})
 
   (defn built-in-task [i]
     (cond
@@ -137,7 +137,7 @@
 
       ;; Should never get here.
       true
-      (abort "Nope: run-task")))
+      ((built-in-tasks :help))))
 
   ;; TODO: spec: validate keys of config.
   (defn run
@@ -174,7 +174,7 @@
 
   (defn write-script-2
     "...."
-    [script-name command lines]
+    [script-name command lines task-file-path]
     (let [shebang (str "#!/usr/bin/env " command)
           indent (re-find #"^ *" (first lines))]
       (spit script-name
@@ -182,8 +182,11 @@
                       (apply conj
                              [shebang ""]
                              (map
-                              (fn [line]
-                                (str/replace line indent "")) (conj lines "")))))
+                              (fn [line] (-> line
+                                             (str/replace indent "")
+                                             (str/replace #"\{\{\s*[CP]WD\s*\}\}" (System/getenv "PWD"))
+                                             (str/replace #"\{\{\s*FILE\s*\}\}" task-file-path)))
+                              (conj lines "")))))
       (sh "chmod" "+x" script-name)))
 
   (defn get-ext
@@ -202,25 +205,25 @@
                     (str/split (str/replace (opts :shebang) #"#!" "") #"\s+")
                     (str/split (get-cmd cmds lang) #"\s+"))
           script-path (str "/tmp/" name "." (get-ext exts lang))]
-      (write-script-2 script-path (str/join " " shebang) lines)
+      (write-script-2 script-path (str/join " " shebang) lines "ReplaceMe.org")
 
       (conj shebang script-path)))
 
   (defn exec-task
     "..."
     [task task-def config]
-    (puts "~ Running task " (task :name) " " (pr-str (task :opts)))
+    (info "Running task " (task :name) " " (pr-str (task :opts)))
     (let [exec-fn (config :exec-fn)
           base-command (write-script task config)
-          command (apply conj base-command (task-def :args)) ; args are in tdef, not task.
-          res (apply exec-fn command)]
-      (puts)
+          command (apply conj base-command (task-def :args))]
       ;; With exec it'll never run so no prob.
       ;; (prn command) (prn res) (puts)
-      (if (= (res :exit) 0)
-        (puts (str/trim (res :out)))
-        (puts (str/trim (res :err))))
-      (System/exit (res :exit))))
+      (info "Running " (colour :green "$ ") (colour :blue (str/join " " command)) "\n")
+      (let [res (apply exec-fn command)]
+        (if (= (res :exit) 0)
+          (puts (str/trim (res :out)))
+          (puts (str/trim (res :err))))
+        (System/exit (res :exit)))))
 
   (defn run-task
     "..."
