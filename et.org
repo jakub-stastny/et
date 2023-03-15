@@ -1,23 +1,23 @@
-#+TITLE: ET
+#+TITLE: Emacs tasks (ET)
 #+SETUPFILE: ../setupfile.org
 
-* ET (Emacs tasks)
+* TODO Use it for this very file as well
+* TODO Add et alias
+clojure -M -m jakub-stastny.et.runner et.org *args
 
-et -T file.org
-
-et file.org Run task "main".
-et my.namespace/task-name Run task "task-name" from my/namespace.org.
-
-Indentation, extensions, default run opts {clojure: "-M" OR default to babashka} .... make this for opts.
-change vector for list in iterations
+* TODO Describe how to use PROPERTIES to override shebang (say to bb)
 
 #+begin_src clojure :tangle deps.edn
   {:paths ["src"]
    :aliases
-   ;; Run with clj -T:build (jar|uber|clean)
    {:build {:deps {io.github.clojure/tools.build
                    {:git/tag "v0.9.4" :git/sha "76b78fe"}}
             :ns-default build}}}
+#+end_src
+
+#+name: build
+#+begin_src sh :task yes :doc "...."
+  clojure -T:build uber
 #+end_src
 
 #+begin_src clojure :tangle build.clj
@@ -25,39 +25,18 @@ change vector for list in iterations
     (:require [clojure.tools.build.api :as b]))
 
   (def lib 'jakub-stastny/et)
-  ;; (def version (format "1.2.%s" (b/git-count-revs nil)))
-  (def version "0.0.1")
   (def class-dir "target/classes")
   (def basis (b/create-basis {:project "deps.edn"}))
-  (def jar-file (format "target/%s-%s.jar" (name lib) version))
-  (def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))
+  (def uber-file (format "target/%s.jar" (name lib)))
 
-  (defn clean [_]
-    (b/delete {:path "target"}))
+  (defn clean [_] (b/delete {:path "target"}))
 
-  (defn jar [_]
-    (b/write-pom {:class-dir class-dir
-                  :lib lib
-                  :version version
-                  :basis basis
-                  :src-dirs ["src"]})
-    (b/copy-dir {:src-dirs ["src"]
-                 :target-dir class-dir})
-    (b/jar {:class-dir class-dir
-            :jar-file jar-file}))
-
-  ;; clj -T:build uber
   (defn uber [_]
     (clean nil)
-    (b/copy-dir {:src-dirs ["src" "resources"]
-                 :target-dir class-dir})
-    (b/compile-clj {:basis basis
-                    :src-dirs ["src"]
-                    :class-dir class-dir})
-    (b/uber {:class-dir class-dir
-             :uber-file uber-file
-             :basis basis
-             :main 'jakub-stastny.et.runner}))
+    (b/copy-dir {:src-dirs ["src"] :target-dir class-dir})
+    (b/compile-clj {:basis basis :src-dirs ["src"] :class-dir class-dir})
+    (b/uber {:class-dir class-dir :uber-file uber-file
+             :basis basis :main 'jakub-stastny.et.runner}))
 #+end_src
 
 #+name: deploy
@@ -145,10 +124,15 @@ change vector for list in iterations
      []
      args))
 
+  (defn task? ; TODO: Use it.
+    "..."
+    [example]
+    (or (example :task) (example :doc)))
+
   (def default-config
     {:args-to-tasks args-to-tasks
-     :exts {:clojure "clj"}
-     :cmds {:clojure "bb"}
+     :exts {:clojure "clj" :emacs-lisp "el"}
+     :cmds {:clojure "clojure -M"} ; -M -m to run -main OR bb
      :exec-fn clojure.java.shell/sh})
 
   (defn run-task [task config]
@@ -173,7 +157,10 @@ change vector for list in iterations
 
     ([custom-config args]
      (let [config (conj default-config custom-config)]
-       (let [defs ((config :args-to-tasks) args)]
+       (let [defs
+             (try ((config :args-to-tasks) args)
+                  (catch Exception e
+                    (println "E")))]
          (doseq [def defs] (run-task def config))))))
 
   ; Main entry point if the default runner is used.
@@ -181,6 +168,7 @@ change vector for list in iterations
 #+end_src
 
 *** TODO Don't require :task yes if has :doc
+*** TODO Remove :task yes from the task map once filtered out
 
 #+begin_src clojure :tangle src/jakub_stastny/et/org.clj :mkdirp yes
   (ns jakub-stastny.et.org
