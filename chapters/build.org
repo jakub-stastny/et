@@ -1,5 +1,5 @@
 *** Clojure configuration ~deps.edn~
-#+begin_src clojure :tangle deps.edn
+#+begin_src clojure :tangle ../deps.edn
   {:paths ["src"]
    :aliases {:build
              {:deps {io.github.clojure/tools.build
@@ -7,7 +7,7 @@
               :ns-default build}}}
 #+end_src
 
-#+begin_src clojure :tangle build.clj
+#+begin_src clojure :tangle ../build.clj
   (ns build
     (:require [clojure.tools.build.api :as b]))
 

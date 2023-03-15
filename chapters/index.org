@@ -48,7 +48,7 @@ Let's define a task:
 
 And now let's run it:
 #+begin_src sh :results verbatim :exports both
-  java -jar target/et.jar chapters/index.org demo1
+  et target/et.jar chapters/index.org demo1
 #+end_src
 
 #+RESULTS:
@@ -74,7 +74,7 @@ Let's try another example, this time in Ruby:
 
 Let's run it, passing it random arguments:
 #+begin_src sh :results verbatim :exports both
-  java -jar target/et.jar chapters/index.org demo2 Petr Pavel Jakub
+  et target/et.jar chapters/index.org demo2 Petr Pavel Jakub
 #+end_src
 
 #+RESULTS:
@@ -101,7 +101,7 @@ Let's say our code is in Clojure, but we really want to use [[https://babashka.o
 #+end_src
 
 #+begin_src sh :results verbatim :exports both
-  java -jar target/et.jar chapters/index.org demo3
+  et target/et.jar chapters/index.org demo3
 #+end_src
 
 #+RESULTS:
@@ -143,13 +143,22 @@ Instead of using ~:task yes~ we can use ~:doc "Task help"~
   echo "This is the fifth demo"
 #+end_src
 
-#+begin_src sh :results verbatim :exports both
-   java -jar target/et.jar -T chapters/index.org
+#+begin_src sh :results verbatim :exports both :dir ..
+  java -jar target/et.jar -T chapters/index.org
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("chapters/index.org")}
-: TODO: Implement built-in task :tasks
+: ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$built_in_task__tasks 0x59a67c3a "jakub_stastny.et.runner$built_in_task__tasks@59a67c3a"]}, :args ("chapters/index.org")}
+:
+: Available tasks
+:
+: Namespace chapters/index.org:
+: demo4       Fourth demo.
+: demo5       Fifth demo.
+
+Note that only documented tasks are shown.
+
+The ~-T~ options requires one or more ~.org~ files as an arguments. If you want to see all the tasks from all the namespaces, just use shell globs: ~et -T chapters/*.org~.
 
 * TODO Directives
 - No noweb.

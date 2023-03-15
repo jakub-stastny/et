@@ -24,9 +24,11 @@
      (colour c :normal text))
 
     ([c font-effect text]
-     (let [colour-code (colours c)
-           font-effect-code (font-effects font-effect)]
-       (str "\033[" font-effect-code ";" colour-code "m" text "\033[0m"))))
+     (if (= (System/getenv "TERM") "xterm-256color")
+       (let [colour-code (colours c)
+             font-effect-code (font-effects font-effect)]
+         (str "\033[" font-effect-code ";" colour-code "m" text "\033[0m"))
+       text)))
 
   ; TODO: CLJ-version
   (defn abort [& chunks]
@@ -198,10 +200,10 @@
     (let [shebang (if (opts :shebang)
                     (str/split (str/replace (opts :shebang) #"#!" "") #"\s+")
                     (str/split (get-cmd cmds lang) #"\s+"))
-          script-name (str "/tmp/" name "." (get-ext exts lang))]
-      (write-script-2 script-name (str/join " " shebang) lines)
+          script-path (str "/tmp/" name "." (get-ext exts lang))]
+      (write-script-2 script-path (str/join " " shebang) lines)
 
-      (conj shebang script-name)))
+      (conj shebang script-path)))
 
   (defn exec-task
     "..."
