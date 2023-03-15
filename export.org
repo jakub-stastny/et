@@ -61,7 +61,7 @@ Only run this once.
            :base-directory "."
            :publishing-directory "target/doc"
            :base-extension "org"
-           :exclude "setupfile.org"
+           :exclude "setupfile\\|README.org"
            :recursive f
            :publishing-function org-html-publish-to-html
            :headline-levels 4
@@ -95,7 +95,17 @@ Only run this once.
   java -jar target/et.jar export.org publish
 #+end_src
 
-* TODO Host the documentation & point README to it
-- Where to host it?
 
-* Development
+* Regenerate the documentation
+
+#+name: update-docs
+#+begin_src sh :task yes
+  bb -cp src -m jakub-stastny.et.runner build.org uber
+  bb -cp src -m jakub-stastny.et.runner export.org republish
+  git stash
+  git co doc
+  git add target
+  git commit -m "Update docs"
+  git co dev
+  git stash pop
+#+end_src
