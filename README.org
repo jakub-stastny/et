@@ -7,28 +7,52 @@ ET is a simple build tool like ~make~, but for literate programming environments
 It allows you to run tasks defined in code blocks in org-mode files, such as this README.org. For instance:
 
 #+begin_src org
-  ,#+name: demo
+  ,#+name: demo1
   ,#+begin_src sh :task yes
     echo "Hey there literates!"
   ,#+end_src
 #+end_src
 
-#+name: demo
+#+name: demo1
 #+begin_src sh :task yes
   echo "Hey there literates!"
 #+end_src
 
-Try it out: ~java -jar et.jar README.org demo~.
+#+begin_src sh :results verbatim :exports both
+  java -jar target/et.jar README.org demo1
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo1"}
+: ~ Running task demo1 {:task yes}
+:
+: Hey there literates!
 
 ** Supports any language
 Code blocks can be written in any language, so by extension ET supports any language and allows changing ~shebang~.
 
 #+begin_src org
-  ,#+name: test
-  ,#+begin_src sh :task yes
-    echo "Hey there literates!"
+  ,#+name: demo2
+  ,#+begin_src ruby :task yes :shebang "#!/usr/bin/env ruby"
+    puts "Hello literate Rubyists!"
   ,#+end_src
 #+end_src
+
+#+name: demo2
+#+begin_src ruby :task yes :shebang "#!/usr/bin/env ruby"
+  puts "Hello literate Rubyists!"
+#+end_src
+
+#+begin_src sh :results verbatim :exports both
+  java -jar target/et.jar README.org demo2
+#+end_src
+
+#+RESULTS:
+: ~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo2"}
+: ~ Running task demo2 {:task yes, :shebang "#!/usr/bin/env ruby"}
+:
+: Hello literate Rubyists!
+
 
 * Implementation
 
@@ -363,3 +387,6 @@ Code blocks can be written in any language, so by extension ET supports any lang
 
 * TODO Documentation
 - Describe how to use PROPERTIES to override shebang (say to bb)
+
+* TODO This will only look good in org-mode-generated docs.
+Rename back to et.org, write short README linking the compiled version.
