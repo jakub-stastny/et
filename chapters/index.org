@@ -16,7 +16,7 @@
 * About
 ET is a simple build tool like ~make~, but for literate programming environments.
 
-It allows you to run tasks defined in code blocks in org-mode files, such as this README.org.
+It allows you to run tasks defined in code blocks in org-mode files, such as this chapters/index.org.
 
 Let's define a task:
 
@@ -34,11 +34,11 @@ Let's define a task:
 
 And now let's run it:
 #+begin_src sh :results verbatim :exports both
-  java -jar target/et.jar README.org demo1
+  java -jar target/et.jar chapters/index.org demo1
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo1"}
+: ~ Task definition {:path "chapters/index.org", :args [], :task {}, :task-name "demo1"}
 : ~ Running task demo1 {:task yes}
 :
 : Hey there literates!
@@ -60,11 +60,11 @@ Let's try another example, this time in Ruby:
 
 Let's run it, passing it random arguments:
 #+begin_src sh :results verbatim :exports both
-  java -jar target/et.jar README.org demo2 Petr Pavel Jakub
+  java -jar target/et.jar chapters/index.org demo2 Petr Pavel Jakub
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:path "README.org", :args ["Petr" "Pavel" "Jakub"], :task {}, :task-name "demo2"}
+: ~ Task definition {:path "chapters/index.org", :args ["Petr" "Pavel" "Jakub"], :task {}, :task-name "demo2"}
 : ~ Running task demo2 {:task yes, :shebang "#!/usr/bin/env ruby"}
 :
 : Hey there Petr!
@@ -87,11 +87,11 @@ Let's say our code is in Clojure, but we really want to use [[https://babashka.o
 #+end_src
 
 #+begin_src sh :results verbatim :exports both
-  java -jar target/et.jar README.org demo3
+  java -jar target/et.jar chapters/index.org demo3
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:path "README.org", :args [], :task {}, :task-name "demo3"}
+: ~ Task definition {:path "chapters/index.org", :args [], :task {}, :task-name "demo3"}
 : ~ Running task demo3 {:task yes, :shebang "#!/usr/bin/env bb", :exports none}
 :
 : Finally some parenthesis!
@@ -130,11 +130,11 @@ Instead of using ~:task yes~ we can use ~:doc "Task help"~
 #+end_src
 
 #+begin_src sh :results verbatim :exports both
-   java -jar target/et.jar -T README.org
+   java -jar target/et.jar -T chapters/index.org
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("README.org")}
+: ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$fn__190 0x61edc883 "jakub_stastny.et.runner$fn__190@61edc883"]}, :args ("chapters/index.org")}
 : TODO: Implement built-in task :tasks
 
 - *Next chapter:* [[./custom-runner.org][writing a custom runner]].
