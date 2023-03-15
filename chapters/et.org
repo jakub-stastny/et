@@ -29,9 +29,9 @@
        (str "\033[" font-effect-code ";" colour-code "m" text "\033[0m"))))
 
   ; TODO: CLJ-version
-  (defn abort [message]
+  (defn abort [& chunks]
     (throw (ex-info
-            (str (colour :red "Error: ") message)
+            (str (colour :red "Error: ") (str chunks))
             {:babashka/exit 1})))
 
   (defn puts [& chunks]
@@ -67,12 +67,12 @@
   (defn built-in-task--help
     ""
     [args]
-    (println)
+    (puts)
     )
 
   (def built-in-tasks
     {:tasks built-in-task--tasks
-     :help #(println "TODO: Implement built-in task :help")})
+     :help #(puts "TODO: Implement built-in task :help")})
 
   (defn built-in-task [i]
     (cond
@@ -121,8 +121,7 @@
      :exec-fn clojure.java.shell/sh})
 
   (defn run-task [task config]
-    ;; (colour :red "string")
-    ;; (println (str "~ Task definition " (pr-str task)))
+    ;; (puts "~ Task definition " (pr-str task))
     (info "Task definition " (pr-str task))
     (cond
       ;; Built-in task.
@@ -135,7 +134,7 @@
 
       ;; Should never get here.
       true
-      (abort "Nope")))
+      (abort "Nope: run-task")))
 
   ;; TODO: spec: validate keys of config.
   (defn run
@@ -147,7 +146,7 @@
        (let [defs
              (try ((config :args-to-tasks) args)
                   (catch Exception e
-                    (println "E")))]
+                    (abort "args-to-task" e)))]
          (doseq [def defs] (run-task def config))))))
 
   ; Main entry point if the default runner is used.
@@ -159,6 +158,7 @@
     "...."
     (:require [clojure.string :as str]
               [clojure.java.io :as io]
+              [jakub-stastny.et.utils :refer :all]
               [clojure.java.shell :refer [sh]] ; chmod +x
               [jakub-stastny.et.parser :as parser]))
 
@@ -167,7 +167,7 @@
     [path]
     (if (.exists (io/as-file path))
       (parser/parse-examples (str/split (slurp path) #"\n"))
-      (println "ERR"))) ; TODO: Custom exc class, catch all in runner (sideeffect).
+      (puts "ERR: load-tasks"))) ; TODO: Custom exc class, catch all in runner (sideeffect).
 
   (defn write-script-2
     "...."
@@ -206,17 +206,17 @@
   (defn exec-task
     "..."
     [task task-def config]
-    (println (str "~ Running task " (task :name) " " (pr-str (task :opts))))
+    (puts "~ Running task " (task :name) " " (pr-str (task :opts)))
     (let [exec-fn (config :exec-fn)
           base-command (write-script task config)
           command (apply conj base-command (task-def :args)) ; args are in tdef, not task.
           res (apply exec-fn command)]
-      (println)
+      (puts)
       ;; With exec it'll never run so no prob.
-      ;; (prn command) (prn res) (println)
+      ;; (prn command) (prn res) (puts)
       (if (= (res :exit) 0)
-        (println (str/trim (res :out)))
-        (println (str/trim (res :err))))
+        (puts (str/trim (res :out)))
+        (puts (str/trim (res :err))))
       (System/exit (res :exit))))
 
   (defn run-task
@@ -227,7 +227,7 @@
           task (first (filter #(= (task-def :task-name) (% :name)) tasks))]
       (if task
         (exec-task task task-def config)
-        (println (str "No such task " (task-def :task-name) "\n\nAvailable tasks: " (pr-str tasks))))))
+        (puts "No such task " (task-def :task-name) "\n\nAvailable tasks: " (pr-str tasks)))))
   ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
 
   ;; (defn filter-tasks [namespace]
@@ -253,7 +253,7 @@
   ;; (prn (babel-to-map ":tangle \"test.clj\""))
   ;; (prn (babel-to-map ":shebang \"#!/usr/bin/env clojure -M\""))
   ;; (prn (babel-to-map ":task yes :shebang \"#!/usr/bin/env clojure -M\""))
-  ;; (println)
+  ;; (puts)
   ;; (System/exit 1)
 #+end_src
 
