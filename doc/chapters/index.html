@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-16 Thu 15:37 -->
+<!-- 2023-03-16 Thu 15:43 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs tasks (ET)</title>
@@ -199,8 +199,8 @@
 <div id="content" class="content">
 <h1 class="title">Emacs tasks (ET)</h1>
 
-<div id="outline-container-org21bf308" class="outline-2">
-<h2 id="org21bf308"><span class="section-number-2">1.</span> About</h2>
+<div id="outline-container-orgf276d0b" class="outline-2">
+<h2 id="orgf276d0b"><span class="section-number-2">1.</span> About</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 ET is a simple build tool like <code>make</code>, but for literate programming environments.
@@ -208,12 +208,12 @@ ET is a simple build tool like <code>make</code>, but for literate programming e
 </div>
 </div>
 
-<div id="outline-container-orgad448c3" class="outline-2">
-<h2 id="orgad448c3"><span class="section-number-2">2.</span> Installation</h2>
+<div id="outline-container-org072cd1e" class="outline-2">
+<h2 id="org072cd1e"><span class="section-number-2">2.</span> Installation</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orgbd6d089" class="outline-3">
-<h3 id="orgbd6d089"><span class="section-number-3">2.1.</span> Java JAR</h3>
+<div id="outline-container-orga6f94b7" class="outline-3">
+<h3 id="orga6f94b7"><span class="section-number-3">2.1.</span> Java JAR</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 Note that this way you can only use the default runner.
@@ -226,18 +226,36 @@ Note that this way you can only use the default runner.
 </div>
 </div>
 
-<div id="outline-container-org6a61f6f" class="outline-3">
-<h3 id="org6a61f6f"><span class="section-number-3">2.2.</span> Babashka with <a href="https://github.com/babashka/bbin">bbin</a></h3>
+<div id="outline-container-org84561f9" class="outline-3">
+<h3 id="org84561f9"><span class="section-number-3">2.2.</span> Babashka with <a href="https://github.com/babashka/bbin">bbin</a></h3>
 <div class="outline-text-3" id="text-2-2">
 <ul class="org-ul">
 <li>Get SHA of the latest commit on the <a href="https://github.com/jakub-stastny/et/tree/src">src branch</a>: <code>git rev-parse origin/src</code></li>
 <li>Run <code>bbin install git@github.com:jakub-stastny/et.git --as et --git/sha &lt;SHA&gt;</code></li>
+<li>Make sure you set up your <code>$PATH</code> as documented in <a href="https://github.com/babashka/bbin#installation">bbin installation</a>.</li>
 </ul>
+</div>
+
+<div id="outline-container-org64926d3" class="outline-4">
+<h4 id="org64926d3"><span class="section-number-4">2.2.1.</span> <span class="todo TODO">TODO</span> Make bbin compatible</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<pre class="example" id="org9eb283b">
+et -T test.org
+----- Error --------------------------------------------------------------------
+Type:     java.lang.Exception
+Message:  Could not find namespace: com:jakub-stastny.et.git.
+Location: &lt;expr&gt;:1:10
+
+----- Context ------------------------------------------------------------------
+1: (ns user (:require [com:jakub-stastny.et.git])) (apply com:jakub-stastny.et.git/-main *command-line-args*)
+            ^--- Could not find namespace: com:jakub-stastny.et.git.
+</pre>
+</div>
 </div>
 </div>
 
-<div id="outline-container-orgba0a022" class="outline-3">
-<h3 id="orgba0a022"><span class="section-number-3">2.3.</span> <span class="todo TODO">TODO</span> Upload to Clojars</h3>
+<div id="outline-container-orga465e13" class="outline-3">
+<h3 id="orga465e13"><span class="section-number-3">2.3.</span> <span class="todo TODO">TODO</span> Upload to Clojars</h3>
 <div class="outline-text-3" id="text-2-3">
 <ul class="org-ul">
 <li>Add badge to the README &amp; index.</li>
@@ -247,8 +265,8 @@ Note that this way you can only use the default runner.
 </div>
 </div>
 
-<div id="outline-container-orgd83d71e" class="outline-2">
-<h2 id="orgd83d71e"><span class="section-number-2">3.</span> Usage</h2>
+<div id="outline-container-org23f54e3" class="outline-2">
+<h2 id="org23f54e3"><span class="section-number-2">3.</span> Usage</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 It allows you to run tasks defined in code blocks in org-mode files, such as this chapters/index.org.
@@ -282,8 +300,8 @@ Hey there literates!
 </pre>
 </div>
 
-<div id="outline-container-orga12a724" class="outline-3">
-<h3 id="orga12a724"><span class="section-number-3">3.1.</span> Command-line arguments</h3>
+<div id="outline-container-org3969cb5" class="outline-3">
+<h3 id="org3969cb5"><span class="section-number-3">3.1.</span> Command-line arguments</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Let's try another example, this time in Ruby:
@@ -316,8 +334,8 @@ Hey there Jakub!
 </div>
 </div>
 
-<div id="outline-container-orgcccb17a" class="outline-3">
-<h3 id="orgcccb17a"><span class="section-number-3">3.2.</span> Custom shebang</h3>
+<div id="outline-container-orgda5fe6a" class="outline-3">
+<h3 id="orgda5fe6a"><span class="section-number-3">3.2.</span> Custom shebang</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 Let's say our code is in Clojure, but we really want to use <a href="https://babashka.org/">babashka</a> to run it:
@@ -344,8 +362,8 @@ Finally some parenthesis!
 </pre>
 </div>
 
-<div id="outline-container-org7c58951" class="outline-4">
-<h4 id="org7c58951"><span class="section-number-4">3.2.1.</span> Note on header arguments</h4>
+<div id="outline-container-org4d112f7" class="outline-4">
+<h4 id="org4d112f7"><span class="section-number-4">3.2.1.</span> Note on header arguments</h4>
 <div class="outline-text-4" id="text-3-2-1">
 <p>
 At the moment ET doesn't really parse Org Mode intelligently, it only scans for the code blocks. Hence it doesn't support:
@@ -363,8 +381,8 @@ At the moment ET doesn't really parse Org Mode intelligently, it only scans for 
 </div>
 </div>
 
-<div id="outline-container-orgd05c6d5" class="outline-3">
-<h3 id="orgd05c6d5"><span class="section-number-3">3.3.</span> Documentation and the <code>-T</code> argument</h3>
+<div id="outline-container-org9be38f1" class="outline-3">
+<h3 id="org9be38f1"><span class="section-number-3">3.3.</span> Documentation and the <code>-T</code> argument</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 Instead of using <code>:task yes</code> we can use <code>:doc "Task help"</code>
@@ -410,8 +428,8 @@ The <code>-T</code> options requires one or more <code>.org</code> files as an a
 </div>
 </div>
 
-<div id="outline-container-org60138f9" class="outline-2">
-<h2 id="org60138f9"><span class="section-number-2">4.</span> <span class="todo TODO">TODO</span> Directives</h2>
+<div id="outline-container-orgd28ab67" class="outline-2">
+<h2 id="orgd28ab67"><span class="section-number-2">4.</span> <span class="todo TODO">TODO</span> Directives</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>No noweb.</li>

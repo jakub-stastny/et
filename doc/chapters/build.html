@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-03-16 Thu 15:37 -->
+<!-- 2023-03-16 Thu 15:43 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -200,14 +200,14 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org6471f15">0.1. Clojure configuration <code>deps.edn</code></a></li>
+<li><a href="#org646ffd5">0.1. Clojure configuration <code>deps.edn</code></a></li>
 </ul>
 </li>
-<li><a href="#orgb51e3bd">1. AOT compilation</a></li>
-<li><a href="#org12b4be0">2. <span class="todo TODO">TODO</span> GraalVM-compiled binary</a></div>
+<li><a href="#org3df839c">1. AOT compilation</a></li>
+<li><a href="#orge5dbaef">2. <span class="todo TODO">TODO</span> GraalVM-compiled binary</a></div>
 </div>
-<div id="outline-container-org6471f15" class="outline-3">
-<h3 id="org6471f15"><span class="section-number-3">0.1.</span> Clojure configuration <code>deps.edn</code></h3>
+<div id="outline-container-org646ffd5" class="outline-3">
+<h3 id="org646ffd5"><span class="section-number-3">0.1.</span> Clojure configuration <code>deps.edn</code></h3>
 <div class="outline-text-3" id="text-0-1">
 <div class="org-src-container">
 <pre class="src src-clojure">{<span class="org-clojure-keyword">:paths</span> [<span class="org-string">"src"</span>]
@@ -240,11 +240,11 @@
 </div>
 </div>
 
-<div id="outline-container-orgb51e3bd" class="outline-2">
-<h2 id="orgb51e3bd"><span class="section-number-2">1.</span> AOT compilation</h2>
+<div id="outline-container-org3df839c" class="outline-2">
+<h2 id="org3df839c"><span class="section-number-2">1.</span> AOT compilation</h2>
 <div class="outline-text-2" id="text-1">
 <div class="org-src-container">
-<pre class="src src-sh" id="org2106ffc"><span class="org-comment-delimiter"># </span><span class="org-comment">java -jar target/et.jar build.org uber</span>
+<pre class="src src-sh" id="org574e184"><span class="org-comment-delimiter"># </span><span class="org-comment">java -jar target/et.jar build.org uber</span>
 <span class="org-comment-delimiter"># </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner build.org uber</span>
 <span class="org-comment-delimiter"># </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner build.org uber</span>
 clojure -T:build uber
@@ -253,8 +253,8 @@ clojure -T:build uber
 </div>
 </div>
 
-<div id="outline-container-org12b4be0" class="outline-2">
-<h2 id="org12b4be0"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> GraalVM-compiled binary</h2>
+<div id="outline-container-orge5dbaef" class="outline-2">
+<h2 id="orge5dbaef"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> GraalVM-compiled binary</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Note that this way you can only use the default runner.
@@ -281,7 +281,7 @@ Check out this <a href="https://maksimrv.medium.com/compile-clojure-to-native-bi
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Jakub Šťastný</p>
-<p class="date">Created: 2023-03-16 Thu 15:37</p>
+<p class="date">Created: 2023-03-16 Thu 15:43</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
