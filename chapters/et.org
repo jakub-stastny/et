@@ -89,9 +89,9 @@
       (let [tasks (filter (fn [task] (get-in task [:opts :doc])) (org/load-tasks path))]
         (when-not (empty? tasks)
           (puts "\nNamespace " (colour :cyan path) ":")
-          (doseq [{:keys [name opts]} tasks]
-            (puts (colour :yellow name)
-                  (apply str (repeat (- 12 (count name)) " "))
+          (doseq [{:keys [task-name opts]} tasks]
+            (puts (colour :yellow task-name)
+                  (apply str (repeat (- 12 (count task-name)) " "))
                   (opts :doc) "."))))))
 
   (defn help
@@ -296,13 +296,12 @@
   ; TODO: don't rewrite if same.
   (defn write-script
     "....."
-    [{:keys [name lang lines opts]} {:keys [exts cmds]}]
+    [{:keys [task-name lang lines opts] :as task} {:keys [exts cmds]}]
     (let [shebang (if (opts :shebang)
                     (str/split (str/replace (opts :shebang) #"#!" "") #"\s+")
                     (str/split (get-cmd cmds lang) #"\s+"))
-          script-path (str "/tmp/" name "." (get-ext exts lang))]
+          script-path (str "/tmp/" task-name "." (get-ext exts lang))]
       (write-script-2 script-path (str/join " " shebang) lines "ReplaceMe.org")
-
       (conj shebang script-path)))
 
   (defn exec-task
