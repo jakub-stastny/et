@@ -3,7 +3,7 @@
 
 * Custom CSS & JS
 
-#+begin_src css :tangle src/assets/styles.css :mkdirp yes
+#+begin_src css :tangle ../src/assets/styles.css :mkdirp yes
   .highlight { background: gold; }
 
   ul {
@@ -22,7 +22,7 @@
   }
 #+end_src
 
-#+begin_src js :tangle src/assets/script.js :mkdirp yes
+#+begin_src js :tangle ../src/assets/script.js :mkdirp yes
   const $ = document.querySelector.bind(document)
   const $$ = document.querySelectorAll.bind(document)
 
@@ -121,15 +121,25 @@ Only run this once.
 ** TODO: move files from target to the root
 #+name: update-docs
 #+begin_src sh :task yes
+  # <<<<<<< Updated upstream:chapters/export.org
   bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || exit 1
   bb -cp src -m jakub-stastny.et.runner chapters/export.org republish || exit 1
-  mv target target.regenerated
+  #mv target target.regenerated
+  mv doc doc.regenerated
   git stash
+  echo "~ Switching to doc"
   git checkout doc || exit 1
-  rm -rf target
-  mv target.regenerated target
-  git add target
+  rm -rf doc
+  mv doc.regenerated doc
+  # =======
+  #   bb -cp src -m jakub-stastny.et.runner build.org uber || exit 1
+  #   bb -cp src -m jakub-stastny.et.runner export.org republish || exit 1
+  #   git stash
+  #   git checkout doc || exit 1
+  # >>>>>>> Stashed changes:export.org
+  git add doc
   git commit -m "Update docs"
+  echo "~ Switching back to dev"
   git checkout dev
   git stash pop
 #+end_src
