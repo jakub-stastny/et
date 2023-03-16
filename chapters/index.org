@@ -9,7 +9,7 @@ ET is a simple build tool like ~make~, but for literate programming environments
 Note that this way you can only use the default runner.
 
 #+begin_src sh
-  wget https://github.com/jakub-stastny/et/raw/doc/downloads/et.jar
+  wget https://github.com/jakub-stastny/et/raw/doc/doc/downloads/et.jar
 #+end_src
 
 ** Babashka with [[https://github.com/babashka/bbin][bbin]]
