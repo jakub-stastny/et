@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<!-- 2023-03-16 Thu 15:28 -->
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<!-- 2023-03-16 Thu 15:35 -->
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>&lrm;</title>
+<title>ET: implementation</title>
 <meta name="author" content="Jakub Šťastný" />
 <meta name="generator" content="Org Mode" />
 <style>
@@ -193,44 +191,29 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
+<link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+<link rel="stylesheet" type="text/css" href="assets/styles.css"/>
+<script type="module" src="assets/script.js"></script>
 </head>
 <body>
 <div id="content" class="content">
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
-<ul>
-<li><a href="#org519819f">1. Implementation</a></li>
-<li><a href="#org4e291de">2. <span class="todo TODO">TODO</span> Implementation</a></li>
-<li><a href="#orgbdc0f09">3. <span class="todo TODO">TODO</span> Babashka support</a>
-<ul>
-<li>
-<ul>
-<li><a href="#orga79b0cc">3.0.1. <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</a></li>
-<li><a href="#org3804ec2">3.0.2. <span class="todo TODO">TODO</span> spec: validate keys of config (run)</a></li>
-<li><a href="#org482ee07">3.0.3. <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div id="outline-container-org519819f" class="outline-2">
-<h2 id="org519819f"><span class="section-number-2">1.</span> Implementation</h2>
+<h1 class="title">ET: implementation</h1>
+
+<div id="outline-container-orgc5b853b" class="outline-2">
+<h2 id="orgc5b853b"><span class="section-number-2">1.</span> Implementation</h2>
 </div>
 
-<div id="outline-container-org4e291de" class="outline-2">
-<h2 id="org4e291de"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Implementation</h2>
+<div id="outline-container-org08608d3" class="outline-2">
+<h2 id="org08608d3"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Implementation</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li><a id="orgca3e35f"></a> PWD…noweb or custom?</li>
+<li><a id="org53b94aa"></a> PWD…noweb or custom?</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgbdc0f09" class="outline-2">
-<h2 id="orgbdc0f09"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Babashka support</h2>
+<div id="outline-container-orgdefc8c6" class="outline-2">
+<h2 id="orgdefc8c6"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Babashka support</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li>Use babashka/fs etc in CLJ (deps.edn).</li>
@@ -351,8 +334,8 @@
 </div>
 </div>
 
-<div id="outline-container-orga79b0cc" class="outline-4">
-<h4 id="orga79b0cc"><span class="section-number-4">3.0.1.</span> <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</h4>
+<div id="outline-container-org2a50c80" class="outline-4">
+<h4 id="org2a50c80"><span class="section-number-4">3.0.1.</span> <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <div class="org-src-container">
 <pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.config</span>
@@ -403,11 +386,11 @@
 </div>
 </div>
 
-<div id="outline-container-org3804ec2" class="outline-4">
-<h4 id="org3804ec2"><span class="section-number-4">3.0.2.</span> <span class="todo TODO">TODO</span> spec: validate keys of config (run)</h4>
+<div id="outline-container-org7649fdf" class="outline-4">
+<h4 id="org7649fdf"><span class="section-number-4">3.0.2.</span> <span class="todo TODO">TODO</span> spec: validate keys of config (run)</h4>
 </div>
-<div id="outline-container-org482ee07" class="outline-4">
-<h4 id="org482ee07"><span class="section-number-4">3.0.3.</span> <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</h4>
+<div id="outline-container-orgd8e58a2" class="outline-4">
+<h4 id="orgd8e58a2"><span class="section-number-4">3.0.3.</span> <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <div class="org-src-container">
 <pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.runner</span>
@@ -658,11 +641,16 @@
 </div>
 </div>
 </div>
+
+<div id="outline-container-org51d55bd" class="outline-2">
+<h2 id="org51d55bd"><span class="section-number-2">4.</span> Links</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li><a href="./development.html">Developing ET</a>.</li>
+<li><a href="./export.html">Exporting documentation</a>.</li>
+</ul>
 </div>
-<div id="postamble" class="status">
-<p class="author">Author: Jakub Šťastný</p>
-<p class="date">Created: 2023-03-16 Thu 15:28</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
 </div>
 </body>
 </html>
