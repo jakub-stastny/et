@@ -1,107 +1,79 @@
 (ns jakub-stastny.et.runner
-  "........."
+  "Main namespace. Provides the default runner as well as the `run`
+  fn for creating custom runners with their own custom config."
   (:gen-class)
   (:require [clojure.string :as str]
             [clojure.java.shell]
+            [jakub-stastny.et.utils :refer :all]
+            [jakub-stastny.et.config :as config]
+            [jakub-stastny.et.built-ins :as built-ins]
             [jakub-stastny.et.org :as org]))
 
-(defn abort [message]
-  (throw (ex-info
-          (str \u001b "[31m" "Error: " \u001b "[0m" message)
-          {:babashka/exit 1})))
+(defmulti exec-task
+  "Docstring"
+  (fn [task _] (task-type task)))
 
-(defn built-in-task--tasks
-  ""
-  [& args]
-  (prn args)
-  )
+(defmethod exec-task :built-in [task _]
+  ((task :fn) (task :args)))
 
-(def built-in-tasks
-  {:tasks built-in-task--tasks
-   :help #(println "TODO: Implement built-in task :help")})
+(defmethod exec-task :custom [task config]
+  (org/run-task task config))
 
-(defn built-in-task [i]
-  (cond
-    (some #(= i %) ["-T" "--tasks"])
-    {:name :tasks :fn (built-in-tasks :tasks)}
+(defmethod exec-task :error [task _]
+  ;; (throw (ex-info "Don't know how to handle task" {:task task}))
+  ((built-ins/get-task :help) :fn))
 
-    true
-    {:name :help :fn (built-in-tasks :help)}))
+;; Wrapper
+(defn run-task
+  "...."
+  [task config]
+  (info "Running " (pr-task task) ".")
+  (exec-task task config))
 
-  ;; (defn show-task-in-ns [namespace]
-  ;;   (prn (map (fn [t] {(t :name) ((t :opts) :doc)}) (filter-tasks namespace)))
-  ;;   (println "\nIf you're not seeing some tasks, make sure they have :task yes in their begin_src options."))
+(defn handle-att-error [error]
+  (println (colour :red "Error in args-to-task:")
+           "caused the following error:")
+  (println error)
+  (System/exit 1))
 
-  ;; (defn show-tasks-in-ns [namespaces]
-  ;;   (doseq [namespace namespaces] (show-task-in-ns namespace)))
-  ;; (defn show-all []
-  ;;   (println "Show all ..."))
+(defn handle-user-error
+  "Abort on user error, re-throw otherwise."
+  [error]
+  ;(prn (ex-cause error))
+  (let [info (:or (ex-data error) {})]
+    (if (= (info :type) :user-error)
+      (abort (str (ex-message error) "."))
+      (rethrow error))))
 
-(defn args-to-tasks [args]
-  (reduce
-   (fn [acc i]
-     (cond
-       ;; First argument starting with a dash (-T, -h etc).
-       (and (empty? acc) (re-matches #"-{1,2}\w+" i))
-       (conj acc {:task (built-in-task i)})
+;; ; This is how you wrap exceptions:
+;; (def err (try (/ 1 0) (catch Exception e e)))
+;; (def rer (try (throw (ex-info "rethrown" {:rethrown true} err)) (catch Exception e e)))
+;; (try
+;;   (try (+ 1 nil) (catch Exception e (throw (ex-info "Rethrown" {:rethrown true} e))))
+;;   (catch Exception e
+;;     (prn e)
+;;     ;; (prn (ex-cause e))
+;;     ))
+;; (System/exit 1)
 
-       (and
-        (re-find #"\.org$" i)
-        ;; -T is followed by an org file, not a task name.
-        (not (= (get-in (last acc) [:task :name]) :tasks)))
-       (conj acc {:path i :args [] :task {}})
+(defmacro abort-on-error
+  [handler body]
+  `(try ~body (catch Exception e# (~handler e#))))
 
-       (and
-        (nil? ((last acc) :task-name))
-        ;; -T is followed by an org file, not a task name.
-        (not (= (get-in (last acc) [:task :name]) :tasks)))
-       (conj (butlast acc)
-             (assoc-in (last acc) [:task-name] i))
-
-       true
-       (conj (butlast acc)
-             (update-in (last acc) [:args] #(conj % i)))))
-   []
-   args))
-
-(defn task? ; TODO: Use it.
-  "..."
-  [example]
-  (or (example :task) (example :doc)))
-
-(def default-config
-  {:args-to-tasks args-to-tasks
-   :exts {:clojure "clj" :emacs-lisp "el"}
-   :cmds {:clojure "clojure -M"} ; -M -m to run -main OR bb
-   :exec-fn clojure.java.shell/sh})
-
-(defn run-task [task config]
-  (println (str "~ Task definition " (pr-str task)))
-  (cond
-    ;; Built-in task.
-    (get-in task [:task :fn])
-    ((get-in task [:task :fn]))
-
-    ;; Org-defined task.
-    (and (task :path) (task :task-name))
-    (org/run-task task config)
-
-    ;; Should never get here.
-    true
-    (abort "Nope")))
-
-;; TODO: spec: validate keys of config.
 (defn run
-  "....."
+  "Main entry fn for a custom runner.
+   Takes command-line `custom-config` that it merges
+   into the default one and command-line `args`."
   ([args] (run {} args))
 
   ([custom-config args]
-   (let [config (conj default-config custom-config)]
-     (let [defs
-           (try ((config :args-to-tasks) args)
-                (catch Exception e
-                  (println "E")))]
-       (doseq [def defs] (run-task def config))))))
+   (abort-on-error
+    handle-user-error
+    (let [config (conj config/default-config custom-config)]
+      (let [defs (abort-on-error handle-att-error ((config :args-to-tasks) args))]
+        (doseq [def defs] (run-task def config)))))))
 
-; Main entry point if the default runner is used.
-(defn -main [& args] (run args))
+(defn -main
+  "This is the main entry for the default runner.
+   Write a custom runner if you want to customise the config."
+  [& args] (run args))

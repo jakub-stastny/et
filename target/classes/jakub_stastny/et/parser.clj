@@ -19,11 +19,10 @@
     (first
      (reduce
       (fn [[tasks status] line]
-        ;; (prn {:t tasks :s status :l line}) ; --------------
         (cond
           ;; Read name.
           (re-find #"^\s*#\+(?i)name:" line)
-          [(conj tasks {:name (parse-var line)}) :named]
+          [(conj tasks {:task-name (parse-var line)}) :named]
 
           ;; Read block options.
           (and (re-find #"^\s*#\+(?i)begin_src" line)
