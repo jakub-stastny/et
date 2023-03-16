@@ -125,12 +125,14 @@ Only run this once.
   bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || exit 1
   bb -cp src -m jakub-stastny.et.runner chapters/export.org republish || exit 1
   #mv target target.regenerated
+  mv target target.backup
   mv doc doc.regenerated
   git stash
   echo "~ Switching to doc"
   git checkout doc || exit 1
   rm -rf doc
   mv doc.regenerated doc
+  mv target.backup target
   # =======
   #   bb -cp src -m jakub-stastny.et.runner build.org uber || exit 1
   #   bb -cp src -m jakub-stastny.et.runner export.org republish || exit 1
