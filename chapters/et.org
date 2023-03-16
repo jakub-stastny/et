@@ -42,25 +42,27 @@
     (apply puts (colour :white :bold "~ ") chunks))
 
   (defn task-type [task]
-    (prn :tt task)
     (cond
       (contains? task :fn) :built-in
       (and (contains? task :path) (contains? task :task-name)) :custom
-      true :error))
+      true :invalid))
 
   (defmulti pr-task "Print task" task-type)
 
-  (defmethod pr-task :built-in [task]
-    (let [base-str (str "built-in task " (colour :yellow (name (task :task-name))))]
-      (if (empty? (task :args))
+  (defmethod pr-task :built-in [{:keys [task-name args]}]
+    (let [base-str (str "built-in task " (colour :yellow (name task-name)))]
+      (if (empty? args)
         base-str
-        (str base-str " and args " (colour :cyan (str (task :args)))))))
+        (str base-str " and args " (colour :cyan (str args))))))
 
-  (defmethod pr-task :custom [task]
-    (prn :custom task))
+  (defmethod pr-task :custom [{:keys [task-name path args]}]
+    (let [base-str (str "task " (colour :yellow (name task-name)) " from " (colour :green path))]
+      (if (empty? args)
+        base-str
+        (str base-str " and args " (colour :cyan (str args))))))
 
-  (defmethod pr-task :error [task]
-    (prn :error task))
+  (defmethod pr-task :invalid [{:keys [task-name] :as task}]
+    (str (colour :red "invalid task " task-name ": " (pr-str task))))
 
   (defn throw-user-error
     "..."
@@ -141,7 +143,7 @@
          (and
           (last acc)
           (nil? ((last acc) :task-name))
-          (not (= (get-in (last acc) [:task :name]) :tasks)))
+          (not (= (get-in (last acc) [:task :task-name]) :tasks)))
          (conj (butlast acc)
                (assoc-in (last acc) [:task-name] i))
 
@@ -198,7 +200,7 @@
   (defn run-task
     "...."
     [task config]
-    (info "Running " (pr-task task))
+    (info "Running " (pr-task task) ".")
     (exec-task task config))
 
   (defn handle-att-error [error]
@@ -306,14 +308,12 @@
   (defn exec-task
     "..."
     [task config]
-    (info "Running task " (task :name) " " (pr-str (task :opts)))
-    (info "Running task " (pr-task task))
     (let [exec-fn (config :exec-fn)
           base-command (write-script task config)
           command (apply conj base-command (task :args))]
       ;; With exec it'll never run so no prob.
       ;; (prn command) (prn res) (puts)
-      (info "Running " (colour :green "$ ") (colour :blue (str/join " " command)) "\n")
+      (info "Running " (colour :green "$ ") (colour :purple (str/join " " command)) "\n")
       (let [res (apply exec-fn command)]
         (if (= (res :exit) 0)
           (puts (str/trim (res :out)))
@@ -325,7 +325,7 @@
     [task-def config]
     (let [examples (load-tasks (task-def :path))
           tasks (filter #(= ((% :opts) :task) (symbol "yes")) examples)
-          task (first (filter #(= (task-def :task-name) (% :name)) tasks))]
+          task (first (filter #(= (task-def :task-name) (% :task-name)) tasks))]
       (if task
         (exec-task (conj task-def task) config)
         (puts "No such task " (task-def :task-name) "\n\nAvailable tasks: " (pr-str tasks)))))
@@ -383,7 +383,7 @@
           (cond
             ;; Read name.
             (re-find #"^\s*#\+(?i)name:" line)
-            [(conj tasks {:name (parse-var line)}) :named]
+            [(conj tasks {:task-name (parse-var line)}) :named]
 
             ;; Read block options.
             (and (re-find #"^\s*#\+(?i)begin_src" line)
