@@ -15,6 +15,20 @@ Note that this way you can only use the default runner.
 ** Babashka with [[https://github.com/babashka/bbin][bbin]]
 - Get SHA of the latest commit on the [[https://github.com/jakub-stastny/et/tree/src][src branch]]: ~git rev-parse origin/src~
 - Run ~bbin install git@github.com:jakub-stastny/et.git --as et --git/sha <SHA>~
+- Make sure you set up your ~$PATH~ as documented in [[https://github.com/babashka/bbin#installation][bbin installation]].
+
+*** TODO Make bbin compatible
+#+begin_example
+et -T test.org
+----- Error --------------------------------------------------------------------
+Type:     java.lang.Exception
+Message:  Could not find namespace: com:jakub-stastny.et.git.
+Location: <expr>:1:10
+
+----- Context ------------------------------------------------------------------
+1: (ns user (:require [com:jakub-stastny.et.git])) (apply com:jakub-stastny.et.git/-main *command-line-args*)
+            ^--- Could not find namespace: com:jakub-stastny.et.git.
+#+end_example
 
 ** TODO Upload to Clojars
 - Add badge to the README & index.
