@@ -46,3 +46,5 @@ Check out this [[https://maksimrv.medium.com/compile-clojure-to-native-binary-us
 #+end_src
 
 https://blog.softwaremill.com/graalvm-installation-and-setup-on-macos-294dd1d23ca2
+
+*Next chapter:* [[./build.org][building ET]].
