@@ -13,3 +13,5 @@ The default runner is simple enough, but you might want a custom one.
 
   (defn -main [& args] (run config args))
 #+end_src
+
+*Next chapter:* [[./implementation.org][implementation]].

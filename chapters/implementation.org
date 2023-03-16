@@ -1,7 +1,6 @@
 * Implementation
 
 * TODO Implementation
-- Conj task tdef
 - <<FILE>> PWD…noweb or custom?
 
 * TODO Babashka support

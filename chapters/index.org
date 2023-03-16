@@ -39,12 +39,12 @@ Let's define a task:
 
 And now let's run it:
 #+begin_src sh :results verbatim :exports both :dir ..
-  et target/et.jar chapters/index.org demo1
+  java -jar target/et.jar chapters/index.org demo1
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:path "chapters/index.org", :args [], :task {}, :task-name "demo1"}
-: ~ Running task demo1 {:task yes}
+: ~ Running task demo1 from chapters/index.org.
+: ~ Running $ sh /tmp/demo1.sh
 :
 : Hey there literates!
 
@@ -65,12 +65,12 @@ Let's try another example, this time in Ruby:
 
 Let's run it, passing it random arguments:
 #+begin_src sh :results verbatim :exports both :dir ..
-  et target/et.jar chapters/index.org demo2 Petr Pavel Jakub
+  java -jar target/et.jar chapters/index.org demo2 Petr Pavel Jakub
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:path "chapters/index.org", :args ["Petr" "Pavel" "Jakub"], :task {}, :task-name "demo2"}
-: ~ Running task demo2 {:task yes, :shebang "#!/usr/bin/env ruby"}
+: ~ Running task demo2 from chapters/index.org and args ["Petr" "Pavel" "Jakub"].
+: ~ Running $ ruby /tmp/demo2.ruby Petr Pavel Jakub
 :
 : Hey there Petr!
 : Hey there Pavel!
@@ -92,12 +92,12 @@ Let's say our code is in Clojure, but we really want to use [[https://babashka.o
 #+end_src
 
 #+begin_src sh :results verbatim :exports both :dir ..
-  et target/et.jar chapters/index.org demo3
+  java -jar target/et.jar chapters/index.org demo3
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:path "chapters/index.org", :args [], :task {}, :task-name "demo3"}
-: ~ Running task demo3 {:task yes, :shebang "#!/usr/bin/env bb", :exports none}
+: ~ Running task demo3 from chapters/index.org.
+: ~ Running $ /usr/bin/env bb /tmp/demo3.clj
 :
 : Finally some parenthesis!
 
@@ -139,7 +139,7 @@ Instead of using ~:task yes~ we can use ~:doc "Task help"~
 #+end_src
 
 #+RESULTS:
-: ~ Task definition {:task {:name :tasks, :fn #object[jakub_stastny.et.runner$built_in_task__tasks 0x59a67c3a "jakub_stastny.et.runner$built_in_task__tasks@59a67c3a"]}, :args ("chapters/index.org")}
+: ~ Running built-in task tasks and args ("chapters/index.org").
 :
 : Available tasks
 :
