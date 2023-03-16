@@ -1,4 +1,4 @@
-#+TITLE: ET: implementation
+#+TITLE: ET implementation
 #+SETUPFILE: setupfile.org
 
 * Implementation
