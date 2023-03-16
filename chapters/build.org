@@ -35,3 +35,14 @@
   # clojure -M -m jakub-stastny.et.runner build.org uber
   clojure -T:build uber
 #+end_src
+
+** TODO GraalVM-compiled binary
+Note that this way you can only use the default runner.
+
+Check out this [[https://maksimrv.medium.com/compile-clojure-to-native-binary-using-graalvm-b31d1cc9ec76][article]].
+
+#+begin_src sh
+  wget https://github.com/jakub-stastny/et/raw/doc/downloads/et
+#+end_src
+
+https://blog.softwaremill.com/graalvm-installation-and-setup-on-macos-294dd1d23ca2

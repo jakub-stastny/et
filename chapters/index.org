@@ -5,15 +5,6 @@
 ET is a simple build tool like ~make~, but for literate programming environments.
 
 * Installation
-** TODO GraalVM-compiled binary
-Note that this way you can only use the default runner.
-
-Check out this [[https://maksimrv.medium.com/compile-clojure-to-native-binary-using-graalvm-b31d1cc9ec76][article]].
-
-#+begin_src sh
-  wget https://github.com/jakub-stastny/et/raw/doc/downloads/et
-#+end_src
-
 ** Java JAR
 Note that this way you can only use the default runner.
 
@@ -162,5 +153,6 @@ The ~-T~ options requires one or more ~.org~ files as an arguments. If you want 
 
 * TODO Directives
 - No noweb.
+- PWD/PROJECT_ROOT?, FILE, ET (to expand alias).
 
 - *Next chapter:* [[./custom-runner.org][writing a custom runner]].

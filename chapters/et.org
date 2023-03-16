@@ -41,7 +41,8 @@
   (defn info [& chunks]
     (apply puts (colour :white :bold "~ ") chunks))
 
-  (defn- task-type [task]
+  (defn task-type [task]
+    (prn :tt task)
     (cond
       (contains? task :fn) :built-in
       (and (contains? task :path) (contains? task :task-name)) :custom
@@ -66,6 +67,10 @@
     [message]
     (throw (ex-info message {:type :user-error})))
 
+  (defn rethrow
+    "..."
+    [error]
+    (throw (ex-info (str "rethrow " (ex-message error)) {:rethrown true} error)))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
@@ -112,6 +117,8 @@
             (make-built-in-task :help)))
 #+end_src
 
+*** TODO -v for verbose, shut up otherwise
+
 #+begin_src clojure :tangle ../src/jakub_stastny/et/config.clj :mkdirp yes
   (ns jakub-stastny.et.config
     (:require [jakub-stastny.et.built-ins :as built-ins]))
@@ -124,20 +131,21 @@
          (and (empty? acc) (re-matches #"-{1,2}\w+" i))
          (conj acc (built-ins/get-task i))
 
+         ;; Path name as the first argument (i. e. README.org).
          (and
           (re-find #"\.org$" i)
-          ;; -T is followed by an org file, not a task name.
-          ;; (not (= (get-in (last acc) [:task :name]) :tasks))
-          (not (= ((last acc) :task-name) :tasks)))
+          (nil? (last acc)))
          (conj acc {:path i :args []})
 
+         ;; -T README.org
          (and
+          (last acc)
           (nil? ((last acc) :task-name))
-          ;; -T is followed by an org file, not a task name.
           (not (= (get-in (last acc) [:task :name]) :tasks)))
          (conj (butlast acc)
                (assoc-in (last acc) [:task-name] i))
 
+         ;; Add to args.
          true
          (conj (butlast acc)
                (update-in (last acc) [:args] #(conj % i)))))
@@ -194,17 +202,30 @@
     (exec-task task config))
 
   (defn handle-att-error [error]
-    (abort "args-to-task: "         ; TODO: make the label customisable.
-           (ex-message error) "\n"
-           (pr-str (ex-data error))))
+    (println (colour :red "Error in args-to-task:")
+             "caused the following error:")
+    (println error)
+    (System/exit 1))
 
   (defn handle-user-error
     "Abort on user error, re-throw otherwise."
     [error]
-    (let [info (ex-data error)]
+    ;(prn (ex-cause error))
+    (let [info (:or (ex-data error) {})]
       (if (= (info :type) :user-error)
         (abort (str (ex-message error) "."))
-        (throw error))))
+        (rethrow error))))
+
+  ;; ; This is how you wrap exceptions:
+  ;; (def err (try (/ 1 0) (catch Exception e e)))
+  ;; (def rer (try (throw (ex-info "rethrown" {:rethrown true} err)) (catch Exception e e)))
+  ;; (try
+  ;;   (try (+ 1 nil) (catch Exception e (throw (ex-info "Rethrown" {:rethrown true} e))))
+  ;;   (catch Exception e
+  ;;     (prn e)
+  ;;     ;; (prn (ex-cause e))
+  ;;     ))
+  ;; (System/exit 1)
 
   (defmacro abort-on-error
     [handler body]
@@ -284,12 +305,12 @@
 
   (defn exec-task
     "..."
-    [task task-def config]
+    [task config]
     (info "Running task " (task :name) " " (pr-str (task :opts)))
     (info "Running task " (pr-task task))
     (let [exec-fn (config :exec-fn)
           base-command (write-script task config)
-          command (apply conj base-command (task-def :args))]
+          command (apply conj base-command (task :args))]
       ;; With exec it'll never run so no prob.
       ;; (prn command) (prn res) (puts)
       (info "Running " (colour :green "$ ") (colour :blue (str/join " " command)) "\n")
@@ -306,7 +327,7 @@
           tasks (filter #(= ((% :opts) :task) (symbol "yes")) examples)
           task (first (filter #(= (task-def :task-name) (% :name)) tasks))]
       (if task
-        (exec-task task task-def config)
+        (exec-task (conj task-def task) config)
         (puts "No such task " (task-def :task-name) "\n\nAvailable tasks: " (pr-str tasks)))))
   ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
 
@@ -359,7 +380,6 @@
       (first
        (reduce
         (fn [[tasks status] line]
-          ;; (prn {:t tasks :s status :l line}) ; --------------
           (cond
             ;; Read name.
             (re-find #"^\s*#\+(?i)name:" line)
