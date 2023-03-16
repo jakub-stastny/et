@@ -90,7 +90,7 @@ Only run this once.
           ("et.downloads"
            :base-directory "target"
            :publishing-directory "doc/downloads"
-           ;; :base-extension "css\\|js"
+           :base-extension "jar\\|bin"
            :recursive f
            :publishing-function org-publish-attachment)))
 
@@ -124,21 +124,12 @@ Only run this once.
   # <<<<<<< Updated upstream:chapters/export.org
   bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || exit 1
   bb -cp src -m jakub-stastny.et.runner chapters/export.org republish || exit 1
-  #mv target target.regenerated
-  mv target target.backup
   mv doc doc.regenerated
   git stash
   echo "~ Switching to doc"
   git checkout doc || exit 1
   rm -rf doc
   mv doc.regenerated doc
-  mv target.backup target
-  # =======
-  #   bb -cp src -m jakub-stastny.et.runner build.org uber || exit 1
-  #   bb -cp src -m jakub-stastny.et.runner export.org republish || exit 1
-  #   git stash
-  #   git checkout doc || exit 1
-  # >>>>>>> Stashed changes:export.org
   git add doc
   git commit -m "Update docs"
   echo "~ Switching back to dev"
