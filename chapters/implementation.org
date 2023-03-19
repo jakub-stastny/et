@@ -156,10 +156,10 @@
      []
      args))
 
-  (defn task? ; TODO: Use it.
+  (defn task?
     "..."
     [example]
-    (or (example :task) (example :doc)))
+    (or (= (example :task) (symbol "yes")) ((example :opts) :doc)))
 
   (def default-config
     {:args-to-tasks args-to-tasks
@@ -302,7 +302,7 @@
     (let [shebang (if (opts :shebang)
                     (str/split (str/replace (opts :shebang) #"#!" "") #"\s+")
                     (str/split (get-cmd cmds lang) #"\s+"))
-          script-path (str "/tmp/" task-name "." (get-ext exts lang))]
+          script-path (str "/tmp/" (str/replace task-name #"/" "-") "." (get-ext exts lang))]
       (write-script-2 script-path (str/join " " shebang) lines "ReplaceMe.org")
       (conj shebang script-path)))
 
@@ -325,38 +325,14 @@
     "..."
     [task-def config]
     (let [examples (load-tasks (task-def :path))
-          tasks (filter #(= ((% :opts) :task) (symbol "yes")) examples)
+          tasks (filter #((config :task?) %) examples)
           task (first (filter #(= (task-def :task-name) (% :task-name)) tasks))]
       (if task
         (exec-task (conj task-def task) config)
-        (puts "No such task " (task-def :task-name) "\n\nAvailable tasks: " (pr-str tasks)))))
-  ;; (abort (str "No such task: " task-name "\nTasks in this namespace: ...."))
-
-  ;; (defn filter-tasks [namespace]
-  ;;     (filter (fn [task]
-  ;;             (= (symbol "yes") ((task :opts) :task)))
-  ;;     (parse-examples (get-lines-or-abort namespace))))
-
-
-  ;;    (defn run [fully-qualified-task-name]
-  ;;      (let [namespace (first (str/split fully-qualified-task-name #"/"))
-  ;;            task-name (last (str/split fully-qualified-task-name #"/"))
-  ;;            lines (get-lines-or-abort namespace)
-  ;;            tasks (filter-tasks namespace)]
-  ;;        (exec tasks task-name)))
-  ;;            (run a)))
-  ;; (defn convert-ns-to-path [namespace]
-  ;;   (when (or (re-find #"[/:]" namespace))
-  ;;     (throw (Exception. "Namespace uses . rather than /")))
-  ;;   (str (str/replace namespace #"\." "/") ".org"))
-
-  ;; (prn (babel-to-map ""))
-  ;; (prn (babel-to-map ":tangle test.clj"))
-  ;; (prn (babel-to-map ":tangle \"test.clj\""))
-  ;; (prn (babel-to-map ":shebang \"#!/usr/bin/env clojure -M\""))
-  ;; (prn (babel-to-map ":task yes :shebang \"#!/usr/bin/env clojure -M\""))
-  ;; (puts)
-  ;; (System/exit 1)
+        (abort (colour :red "No such task: ")
+               (task-def :task-name) ".\n\n"
+               (colour :green "Available tasks: ")
+               (str/join ", " (map #(% :task-name) tasks)) "."))))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/parser.clj :mkdirp yes
@@ -366,10 +342,10 @@
               [clojure.edn :as edn]))
 
   (defn parse-var [line]
-  (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
+    (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
 
   (defn babel-to-map [string]
-      (edn/read-string (str "{" string "}")))
+    (edn/read-string (str "{" string "}")))
 
   (defn parse-examples [lines]
     (let [update-last-task
