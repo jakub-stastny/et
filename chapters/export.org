@@ -137,6 +137,8 @@ Only run this once.
   git stash pop
 #+end_src
 
+*** TODO Also regenerate SRC
+
 #+begin_src sh
   git checkout --orphan src
   git rm --cached $(git status | grep "new file:" | awk '{ print $3 }')
