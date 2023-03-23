@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-16 Thu 16:48 -->
+<!-- 2023-03-23 Thu 15:20 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ET implementation</title>
@@ -199,21 +199,21 @@
 <div id="content" class="content">
 <h1 class="title">ET implementation</h1>
 
-<div id="outline-container-org60110db" class="outline-2">
-<h2 id="org60110db"><span class="section-number-2">1.</span> Implementation</h2>
+<div id="outline-container-org1cde897" class="outline-2">
+<h2 id="org1cde897"><span class="section-number-2">1.</span> Implementation</h2>
 </div>
 
-<div id="outline-container-org38ec177" class="outline-2">
-<h2 id="org38ec177"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Implementation</h2>
+<div id="outline-container-org8283a90" class="outline-2">
+<h2 id="org8283a90"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Implementation</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li><a id="org83fc0c6"></a> PWD…noweb or custom?</li>
+<li><a id="org4683bf7"></a> PWD…noweb or custom?</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgcf42135" class="outline-2">
-<h2 id="orgcf42135"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Babashka support</h2>
+<div id="outline-container-org568dcd2" class="outline-2">
+<h2 id="org568dcd2"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Babashka support</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li>Use babashka/fs etc in CLJ (deps.edn).</li>
@@ -334,8 +334,8 @@
 </div>
 </div>
 
-<div id="outline-container-org9465c4d" class="outline-4">
-<h4 id="org9465c4d"><span class="section-number-4">3.0.1.</span> <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</h4>
+<div id="outline-container-org8b244af" class="outline-4">
+<h4 id="org8b244af"><span class="section-number-4">3.0.1.</span> <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <div class="org-src-container">
 <pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.config</span>
@@ -370,10 +370,10 @@
    []
    args))
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">task?</span> <span class="org-comment">; TODO: Use it.</span>
+(<span class="org-keyword">defn</span> <span class="org-function-name">task?</span>
   <span class="org-doc">"..."</span>
   [example]
-  (<span class="org-keyword">or</span> (example <span class="org-clojure-keyword">:task</span>) (example <span class="org-clojure-keyword">:doc</span>)))
+  (<span class="org-keyword">or</span> (= (example <span class="org-clojure-keyword">:task</span>) (symbol <span class="org-string">"yes"</span>)) ((example <span class="org-clojure-keyword">:opts</span>) <span class="org-clojure-keyword">:doc</span>)))
 
 (<span class="org-keyword">def</span> <span class="org-variable-name">default-config</span>
   {<span class="org-clojure-keyword">:args-to-tasks</span> args-to-tasks
@@ -386,11 +386,11 @@
 </div>
 </div>
 
-<div id="outline-container-org4811ab2" class="outline-4">
-<h4 id="org4811ab2"><span class="section-number-4">3.0.2.</span> <span class="todo TODO">TODO</span> spec: validate keys of config (run)</h4>
+<div id="outline-container-orged8f800" class="outline-4">
+<h4 id="orged8f800"><span class="section-number-4">3.0.2.</span> <span class="todo TODO">TODO</span> spec: validate keys of config (run)</h4>
 </div>
-<div id="outline-container-orgccd659f" class="outline-4">
-<h4 id="orgccd659f"><span class="section-number-4">3.0.3.</span> <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</h4>
+<div id="outline-container-orgf37558e" class="outline-4">
+<h4 id="orgf37558e"><span class="section-number-4">3.0.3.</span> <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <div class="org-src-container">
 <pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.runner</span>
@@ -523,7 +523,7 @@
   (<span class="org-keyword">let</span> [shebang (<span class="org-keyword">if</span> (opts <span class="org-clojure-keyword">:shebang</span>)
                   (<span class="org-type">str</span>/split (<span class="org-type">str</span>/replace (opts <span class="org-clojure-keyword">:shebang</span>) #<span class="org-string">"#!"</span> <span class="org-string">""</span>) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>)
                   (<span class="org-type">str</span>/split (get-cmd cmds lang) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>))
-        script-path (str <span class="org-string">"/tmp/"</span> task-name <span class="org-string">"."</span> (get-ext exts lang))]
+        script-path (str <span class="org-string">"/tmp/"</span> (<span class="org-type">str</span>/replace task-name #<span class="org-string">"/"</span> <span class="org-string">"-"</span>) <span class="org-string">"."</span> (get-ext exts lang))]
     (write-script-2 script-path (<span class="org-type">str</span>/join <span class="org-string">" "</span> shebang) lines <span class="org-string">"ReplaceMe.org"</span>)
     (conj shebang script-path)))
 
@@ -546,38 +546,14 @@
   <span class="org-doc">"..."</span>
   [task-def config]
   (<span class="org-keyword">let</span> [examples (load-tasks (task-def <span class="org-clojure-keyword">:path</span>))
-        tasks (filter #(= ((<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:opts</span>) <span class="org-clojure-keyword">:task</span>) (symbol <span class="org-string">"yes"</span>)) examples)
+        tasks (filter #((config <span class="org-clojure-keyword">:task?</span>) <span class="org-variable-name">%</span>) examples)
         task (first (filter #(= (task-def <span class="org-clojure-keyword">:task-name</span>) (<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:task-name</span>)) tasks))]
     (<span class="org-keyword">if</span> task
       (exec-task (conj task-def task) config)
-      (puts <span class="org-string">"No such task "</span> (task-def <span class="org-clojure-keyword">:task-name</span>) <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n\n</span></span><span class="org-string">Available tasks: "</span> (pr-str tasks)))))
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(abort (str "No such task: " task-name "\nTasks in this namespace: ...."))</span>
-
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(defn filter-tasks [namespace]</span>
-<span class="org-comment-delimiter">;;     </span><span class="org-comment">(filter (fn [task]</span>
-<span class="org-comment-delimiter">;;             </span><span class="org-comment">(= (symbol "yes") ((task :opts) :task)))</span>
-<span class="org-comment-delimiter">;;     </span><span class="org-comment">(parse-examples (get-lines-or-abort namespace))))</span>
-
-
-<span class="org-comment-delimiter">;;    </span><span class="org-comment">(defn run [fully-qualified-task-name]</span>
-<span class="org-comment-delimiter">;;      </span><span class="org-comment">(let [namespace (first (str/split fully-qualified-task-name #"/"))</span>
-<span class="org-comment-delimiter">;;            </span><span class="org-comment">task-name (last (str/split fully-qualified-task-name #"/"))</span>
-<span class="org-comment-delimiter">;;            </span><span class="org-comment">lines (get-lines-or-abort namespace)</span>
-<span class="org-comment-delimiter">;;            </span><span class="org-comment">tasks (filter-tasks namespace)]</span>
-<span class="org-comment-delimiter">;;        </span><span class="org-comment">(exec tasks task-name)))</span>
-<span class="org-comment-delimiter">;;            </span><span class="org-comment">(run a)))</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(defn convert-ns-to-path [namespace]</span>
-<span class="org-comment-delimiter">;;   </span><span class="org-comment">(when (or (re-find #"[/:]" namespace))</span>
-<span class="org-comment-delimiter">;;     </span><span class="org-comment">(throw (Exception. "Namespace uses . rather than /")))</span>
-<span class="org-comment-delimiter">;;   </span><span class="org-comment">(str (str/replace namespace #"\." "/") ".org"))</span>
-
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ""))</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":tangle test.clj"))</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":tangle \"test.clj\""))</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":shebang \"#!/usr/bin/env clojure -M\""))</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(prn (babel-to-map ":task yes :shebang \"#!/usr/bin/env clojure -M\""))</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(puts)</span>
-<span class="org-comment-delimiter">;; </span><span class="org-comment">(System/exit 1)</span>
+      (abort (colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"No such task: "</span>)
+             (task-def <span class="org-clojure-keyword">:task-name</span>) <span class="org-string">".</span><span class="org-string"><span class="org-bold">\n\n</span></span><span class="org-string">"</span>
+             (colour <span class="org-clojure-keyword">:green</span> <span class="org-string">"Available tasks: "</span>)
+             (<span class="org-type">str</span>/join <span class="org-string">", "</span> (map #(<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:task-name</span>) tasks)) <span class="org-string">"."</span>))))
 </pre>
 </div>
 
@@ -588,10 +564,10 @@
             [clojure.edn <span class="org-clojure-keyword">:as</span> edn]))
 
 (<span class="org-keyword">defn</span> <span class="org-function-name">parse-var</span> [line]
-(<span class="org-type">str</span>/trim (<span class="org-type">str</span>/replace line #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+\w</span></span><span class="org-string">+:?</span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">.*</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">$"</span> <span class="org-string">"$1"</span>)))
+  (<span class="org-type">str</span>/trim (<span class="org-type">str</span>/replace line #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+\w</span></span><span class="org-string">+:?</span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">.*</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">$"</span> <span class="org-string">"$1"</span>)))
 
 (<span class="org-keyword">defn</span> <span class="org-function-name">babel-to-map</span> [string]
-    (<span class="org-type">edn</span>/read-string (str <span class="org-string">"{"</span> string <span class="org-string">"}"</span>)))
+  (<span class="org-type">edn</span>/read-string (str <span class="org-string">"{"</span> string <span class="org-string">"}"</span>)))
 
 (<span class="org-keyword">defn</span> <span class="org-function-name">parse-examples</span> [lines]
   (<span class="org-keyword">let</span> [update-last-task
@@ -642,8 +618,8 @@
 </div>
 </div>
 
-<div id="outline-container-org4e5eea8" class="outline-2">
-<h2 id="org4e5eea8"><span class="section-number-2">4.</span> Links</h2>
+<div id="outline-container-org54ced4b" class="outline-2">
+<h2 id="org54ced4b"><span class="section-number-2">4.</span> Links</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li><a href="./development.html">Developing ET</a>.</li>
