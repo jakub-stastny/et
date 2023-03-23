@@ -120,7 +120,7 @@ Only run this once.
 
 ** TODO: move files from target to the root
 #+name: update-docs
-#+begin_src sh :task yes
+#+begin_src sh :task yes :doc "Update the doc branch"
   # <<<<<<< Updated upstream:chapters/export.org
   bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || exit 1
   bb -cp src -m jakub-stastny.et.runner chapters/export.org republish || exit 1
