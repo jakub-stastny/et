@@ -374,6 +374,14 @@
                   {:lines [] :lang lang :opts opts})))
              :reading]
 
+            ;; Read block options for an unnamed block.
+            (re-find #"^\s*#\+(?i)begin_src" line)
+            [(conj tasks
+                   (let [raw-opts (str/split (parse-var line) #"\s+")
+                         lang (first raw-opts)
+                         opts (babel-to-map (str/join " " (rest raw-opts)))]
+                     {:lines [] :lang lang :opts opts})) :reading]
+
             ;; Stop reading block body.
             ;; We do need this line even though it does the same
             ;; as the default cond so the end_src line gets skipped.
