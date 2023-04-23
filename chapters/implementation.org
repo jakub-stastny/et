@@ -74,7 +74,10 @@
   (defn rethrow
     "..."
     [error]
-    (throw (ex-info (str "rethrow " (ex-message error)) {:rethrown true} error)))
+    (throw (ex-info
+            (str "rethrow " (ex-message error))
+            (merge {:rethrown true} (ex-data error))
+            error)))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
@@ -267,7 +270,9 @@
     "..."
     [path]
     (if (.exists (io/as-file path)) ; Replace by fs/exists from bb.
-      (parser/parse-examples (str/split (slurp path) #"\n"))
+      (filter (fn [example]
+                (:task-name example))
+              (parser/parse-examples (str/split (slurp path) #"\n")))
       (throw-user-error (str "File " path " doesn't exist"))))
 
   (defn write-script-2
@@ -345,7 +350,10 @@
     (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
 
   (defn babel-to-map [string]
-    (edn/read-string (str "{" string "}")))
+    (try
+      (edn/read-string (str "{" string "}"))
+      (catch Exception e
+        (throw (ex-info "Parse error" {:type :parse-error :data string :error e})))))
 
   (defn parse-examples [lines]
     (let [update-last-task
