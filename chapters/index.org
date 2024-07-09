@@ -35,7 +35,7 @@ Location: <expr>:1:10
 - Would this only be for custom runners or is there a way to proxy via ~clj~? Maybe ~-X:et "a b c d"~, although that's inconvenient.
 
 * Usage
-It allows you to run tasks defined in code blocks in org-mode files, such as this chapters/index.org.
+ET allows you to run any task defined in code blocks in org-mode files, such as this ~chapters/index.org~.
 
 Let's define a task:
 
@@ -48,6 +48,7 @@ Let's define a task:
 
 #+name: demo1
 #+begin_src sh :task yes :exports none
+  # This is so the example actually works, but this block doesn't show in the generated documentation (the one above does).
   echo "Hey there literates!"
 #+end_src
 

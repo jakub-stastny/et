@@ -162,7 +162,8 @@
   (defn task?
     "..."
     [example]
-    (or (= (example :task) (symbol "yes")) ((example :opts) :doc)))
+    (or (= ((example :opts) :task) (symbol "yes"))
+        ((example :opts) :doc)))
 
   (def default-config
     {:args-to-tasks args-to-tasks
@@ -249,7 +250,8 @@
       handle-user-error
       (let [config (conj config/default-config custom-config)]
         (let [defs (abort-on-error handle-att-error ((config :args-to-tasks) args))]
-          (doseq [def defs] (run-task def config)))))))
+          (doseq [def defs]
+            (run-task def config)))))))
 
   (defn -main
     "This is the main entry for the default runner.
