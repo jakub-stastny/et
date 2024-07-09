@@ -1,3 +1,5 @@
 * About
 
 /Unfortunately GH is rather clueless when it comes to displaying properly Org Mode files. Please read the documentation [[https://raw.githack.com/jakub-stastny/et/doc/doc/chapters/index.html][here]]./
+
+Note to myself: if you haven't been working on this project for a while, do yourself a favour and read [[https://raw.githack.com/jakub-stastny/et/doc/doc/chapters/development.html][the bloody dev guide]]. You shall thank yourself for it later.
