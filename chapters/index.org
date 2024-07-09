@@ -48,7 +48,7 @@ Let's define a task:
 
 #+name: demo1
 #+begin_src sh :task yes :exports none
-  # This is so the example actually works, but this block doesn't show in the generated documentation (the one above does).
+  # This will run, but won't be exported to the documentation (the example above will).
   echo "Hey there literates!"
 #+end_src
 
@@ -75,6 +75,7 @@ Let's try another example, this time in Ruby:
 
 #+name: demo2
 #+begin_src ruby :task yes :exports none
+  # This will run, but won't be exported to the documentation (the example above will).
   ARGV.each { |name| puts "Hey there #{name}!" }
 #+end_src
 
@@ -103,6 +104,7 @@ Let's say our code is in Clojure, but we really want to use [[https://babashka.o
 
 #+name: demo3
 #+begin_src clojure :task yes :shebang "#!/usr/bin/env bb" :exports none
+  ; This will run, but won't be exported to the documentation (the example above will).
   (println "Finally some parenthesis!")
 #+end_src
 
@@ -141,11 +143,13 @@ Instead of using ~:task yes~ we can use ~:doc "Task help"~
 
 #+name: demo4
 #+begin_src sh :doc "Fourth demo" :exports none
+  # This will run, but won't be exported to the documentation (the example above will).
   echo "This is the fourth demo"
 #+end_src
 
 #+name: demo5
 #+begin_src sh :doc "Fifth demo" :exports none
+  # This will run, but won't be exported to the documentation (the example above will).
   echo "This is the fifth demo"
 #+end_src
 

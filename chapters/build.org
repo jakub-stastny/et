@@ -7,7 +7,15 @@
    :aliases {:build
              {:deps {io.github.clojure/tools.build
                      {:git/tag "v0.9.4" :git/sha "76b78fe"}}
-              :ns-default build}}}
+              :ns-default build}
+
+              :test
+              {:extra-paths ["test" "integration"]
+               :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
+                            io.github.cognitect-labs/test-runner
+                            {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+               :main-opts ["-m" "cognitect.test-runner" "-d" "integration"]}}}
+
 #+end_src
 
 #+begin_src clojure :tangle ../build.clj
