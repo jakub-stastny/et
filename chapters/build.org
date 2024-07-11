@@ -4,11 +4,10 @@
 *** Clojure configuration ~deps.edn~
 #+begin_src clojure :tangle ../deps.edn
   {:paths ["src"]
-   :deps {org.clojure/clojure {:mvn/version "1.10.3"}}
+   :deps {org.clojure/clojure {:mvn/version "1.11.3"}}
    :aliases
    {:build
-    ; Shouldn't it be extra-deps?
-    {:deps {io.github.clojure/tools.build {:git/tag "v0.9.4" :git/sha "76b78fe"}}
+    {:extra-deps {io.github.clojure/tools.build {:mvn/version "0.10.4"}}
      :ns-default build}
 
     :tangler
@@ -16,7 +15,7 @@
 
     :test
     {:extra-paths ["test"]
-     :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
+     :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}
                   io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
                   babashka/process {:mvn/version "0.5.22"}}
      :main-opts ["-m" "cognitect.test-runner"]}}}

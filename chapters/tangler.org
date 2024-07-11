@@ -3,7 +3,7 @@
 - Allow for ENV vars etc.
 
 Run:
-- ~bb -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
+- ~bb -cp src -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
 - ~clojure -M -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
 
 #+begin_src clojure :tangle ../src/jakub_stastny/tangler/core.clj :mkdirp yes
