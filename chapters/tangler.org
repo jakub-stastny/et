@@ -38,6 +38,7 @@ Run:
       blocks))
 
   (defn write-block [output-dir block]
+    (prn :o output-dir :b block) ;;;;; Continue here.
     (let [file (io/file output-dir (str "tangled." (:lang block)))]
       (spit file (:code block) :append true)))
 
