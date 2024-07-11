@@ -28,13 +28,13 @@
   {:paths ["src" "test"]
    :deps {org.babashka/cli {:mvn/version "0.8.59"}}
    :tasks
-   {:tangle
+   {tangle
     {:doc "Run the tangler script"
-     :task (shell {:dir "src" :cmd "bb -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx"})}
+     :task (shell {:cmd "bb -cp src -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx"})}
 
-    :test
+    test
     {:doc "Run the tests"
-     :task (shell {:dir "test" :cmd "bb -m cognitect.test-runner"})}}}
+     :task (shell {:cmd "bb -m cognitect.test-runner"})}}} ; :dir "test"
 #+end_src
 
 #+begin_src clojure :tangle ../build.clj
