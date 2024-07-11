@@ -1,5 +1,7 @@
 * Tangler
-- This will be a standalone project, but for now it'll be part of ET, just so I can use it to tangle files on the CI without having to install Emacs.
+** TODO Consider extracting out
+- Be careful, don't just assume it's like in Ruby, maybe there could be a natural way of having 3 packages in one project in Clojure.
+- As these are developed together, it's convenient to keep them in the same repo.
 
 ** Run
 - ~bb run tangle~
@@ -41,7 +43,7 @@
 **** TODO ~jakub-stastny.tangler.extensions.env-vars~ extension
 - Allows configuration of the pattern & replace, such as: ~/<%= \$(HOME) %>/~, ~ENV[$1]~.
 
-**** TODO Consider the followings
+**** TODO Consider the following
 - Support code evaluation.
 
 #+begin_src clojure :tangle ../src/jakub_stastny/tangler/core.clj :mkdirp yes

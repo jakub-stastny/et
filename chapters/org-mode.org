@@ -6,6 +6,26 @@
 - As these are developed together, it's convenient to keep them in the same repo.
 
 ** TODO Tests
+#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
+  (ns jakub-stastny.org-mode.parser-test
+    (:require [clojure.test :refer :all]
+              [jakub-stastny.org-mode.parser :refer :all]))
+
+  (deftest test-extract-code-blocks
+    (is (= (extract-code-blocks ["#+BEGIN_SRC clojure"
+                                 "(println \"Hello, World!\")"
+                                 "#+END_SRC"])
+           {:blocks [{:lang "clojure"
+                      :code ["(println \"Hello, World!\")"]}]})))
+
+  (deftest test-format-blocks
+    (is (= (format-blocks [{:lang "clojure"
+                            :code ["(println \"Hello, World!\")"]}])
+           [{:lang "clojure"
+             :code "(println \"Hello, World!\")"}])))
+
+  (run-tests)
+#+end_src
 
 #+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
 #+end_src
