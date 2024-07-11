@@ -82,6 +82,7 @@ Run: ~bb -cp "$(clojure -Spath -Mtest)" run-tests.bb~
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v2
         with:
+          distribution: temurin
           java-version: ${{ matrix.java }}
 
       - name: Install Clojure CLI
@@ -96,10 +97,10 @@ Run: ~bb -cp "$(clojure -Spath -Mtest)" run-tests.bb~
           tar -xzf babashka-0.8.158-linux-amd64.tar.gz
           sudo mv bb /usr/local/bin/bb
 
-      - name: Run unit tests
+      - name: Run tests in JVM
         run: clojure -M:test
 
-      - name: Run integration tests
+      - name: Run tests in Babashka
         run: bb -cp "$(clojure -Spath -Mtest)" run-tests.bb
 #+end_src
 
