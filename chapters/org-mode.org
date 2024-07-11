@@ -1,12 +1,17 @@
 * Org-mode parser
 - This is the key part for both ET and the tangler, so it has to be implemented first.
 
-** TODO Consider extracting out
-- Be careful, don't just assume it's like in Ruby, maybe there could be a natural way of having 3 packages in one project in Clojure.
-- As these are developed together, it's convenient to keep them in the same repo.
+** Tests
+#+begin_src org :name example-1
+  ,* Title
+  Lorem ipsum
 
-** TODO Tests
-#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
+  ,#+begin_src clojure
+    (+ 1 2)
+  ,#+end_src
+#+end_src
+
+#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes :noweb yes
   (ns jakub-stastny.org-mode.parser-test
     (:require [clojure.test :refer :all]
               [jakub-stastny.org-mode.parser :refer :all]))
@@ -18,6 +23,12 @@
            {:blocks [{:lang "clojure"
                       :code ["(println \"Hello, World!\")"]}]})))
 
+  (deftest test-extract-code-blocks
+    (is (= (extract-code-blocks
+            <<example-1>>)
+           {:blocks [{:lang "clojure"
+                      :code ["(println \"Hello, World!\")"]}]})))
+
   (deftest test-format-blocks
     (is (= (format-blocks [{:lang "clojure"
                             :code ["(println \"Hello, World!\")"]}])
@@ -25,9 +36,6 @@
              :code "(println \"Hello, World!\")"}])))
 
   (run-tests)
-#+end_src
-
-#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/org-mode/parser.clj :mkdirp yes
@@ -97,3 +105,7 @@
         [[] nil]
         lines))))
 #+end_src
+
+** TODO Consider extracting out
+- Be careful, don't just assume it's like in Ruby, maybe there could be a natural way of having 3 packages in one project in Clojure.
+- As these are developed together, it's convenient to keep them in the same repo.
