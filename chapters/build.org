@@ -21,6 +21,22 @@
      :main-opts ["-m" "cognitect.test-runner"]}}}
 #+end_src
 
+*** Babashka configuration ~bb.edn~
+- Now you can run ~bb run tangle~ and ~bb run test~.
+
+#+begin_src clojure :tangle ../bb.edn
+  {:paths ["src" "test"]
+   :deps {org.babashka/cli {:mvn/version "0.8.59"}}
+   :tasks
+   {:tangle
+    {:doc "Run the tangler script"
+     :task (shell {:dir "src" :cmd "bb -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx"})}
+
+    :test
+    {:doc "Run the tests"
+     :task (shell {:dir "test" :cmd "bb -m cognitect.test-runner"})}}}
+#+end_src
+
 #+begin_src clojure :tangle ../build.clj
   (ns build
     (:require [clojure.tools.build.api :as b]))
