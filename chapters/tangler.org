@@ -1,0 +1,113 @@
+* TODO Tangler
+- This will be a standalone project, but for now it'll be part of ET, just so I can use it to tangle files on the CI without having to install Emacs.
+- Allow for ENV vars etc.
+
+Run:
+- ~bb -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
+- ~clojure -M -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
+
+#+begin_src clojure :tangle ../src/jakub_stastny/tangler/core.clj :mkdirp yes
+  (ns jakub-stastny.tangler.core
+    (:require [clojure.string :as str]
+              [clojure.java.io :as io]
+              [jakub-stastny.tangler.utils :refer [read-file split-lines]]
+              [jakub-stastny.tangler.cli :refer [parse-args]]))
+
+  (defn extract-code-blocks [lines]
+    (reduce
+      (fn [acc line]
+        (cond
+          (str/starts-with? line "#+BEGIN_SRC")
+          (assoc acc :current-block {:lang (second (str/split line #" ")) :code []})
+
+          (str/starts-with? line "#+END_SRC")
+          (update acc :blocks conj (:current-block acc))
+
+          (:current-block acc)
+          (update-in acc [:current-block :code] conj line)
+
+          :else acc))
+      {:blocks []}
+      lines))
+
+  (defn format-blocks [blocks]
+    (map
+      (fn [{:keys [lang code]}]
+        {:lang lang
+         :code (str/join "\n" code)})
+      blocks))
+
+  (defn write-block [output-dir block]
+    (let [file (io/file output-dir (str "tangled." (:lang block)))]
+      (spit file (:code block) :append true)))
+
+  (defn write-blocks [output-dir blocks]
+    (doseq [block blocks]
+      (write-block output-dir block)))
+
+  (defn tangle [file output-dir]
+    (-> file
+        read-file
+        split-lines
+        extract-code-blocks
+        :blocks
+        format-blocks
+        (write-blocks output-dir)))
+#+end_src
+
+#+begin_src clojure :tangle ../test/jakub_stastny/tangler/core_test.clj :mkdirp yes
+  (ns jakub-stastny.tangler.core-test
+    (:require [clojure.test :refer :all]
+              [jakub-stastny.tangler.core :refer :all]))
+
+  (deftest test-extract-code-blocks
+    (is (= (extract-code-blocks ["#+BEGIN_SRC clojure"
+                                 "(println \"Hello, World!\")"
+                                 "#+END_SRC"])
+           {:blocks [{:lang "clojure"
+                      :code ["(println \"Hello, World!\")"]}]})))
+
+  (deftest test-format-blocks
+    (is (= (format-blocks [{:lang "clojure"
+                            :code ["(println \"Hello, World!\")"]}])
+           [{:lang "clojure"
+             :code "(println \"Hello, World!\")"}])))
+
+  (run-tests)
+#+end_src
+
+#+begin_src clojure :tangle ../src/jakub_stastny/tangler/utils.clj :mkdirp yes
+  (ns jakub-stastny.tangler.utils
+    (:require [clojure.string :as str]
+              [clojure.java.io :as io]))
+
+  (defn read-file [path]
+    (slurp path))
+
+  (defn split-lines [content]
+    (str/split-lines content))
+#+end_src
+
+#+begin_src clojure :tangle ../src/jakub_stastny/tangler/cli.clj :mkdirp yes
+  (ns jakub-stastny.tangler.cli
+    (:require [babashka.cli :as cli]))
+
+  (defn parse-args [args]
+    (cli/parse-opts args
+                    [["-f" "--file FILE" "Org mode file" :default "example.org"]
+                     ["-o" "--output-dir DIR" "Output directory" :default "."]]))
+#+end_src
+
+#+begin_src clojure :tangle ../src/jakub_stastny/tangler/main.clj :mkdirp yes
+  (ns jakub-stastny.tangler.main
+    (:require [jakub-stastny.tangler.core :refer [tangle]]
+              [jakub-stastny.tangler.cli :refer [parse-args]]))
+
+  (defn -main [& args]
+    (let [{:keys [file output-dir]} (parse-args args)]
+      (tangle file output-dir)))
+
+  ;; Check if the script is being run with arguments and call -main if so.
+  (when (= *ns* 'jakub-stastny.tangler.main)
+    (apply -main *command-line-args*))
+#+end_src

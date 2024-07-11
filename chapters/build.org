@@ -4,18 +4,22 @@
 *** Clojure configuration ~deps.edn~
 #+begin_src clojure :tangle ../deps.edn
   {:paths ["src"]
-   :aliases {:build
-             {:deps {io.github.clojure/tools.build
-                     {:git/tag "v0.9.4" :git/sha "76b78fe"}}
-              :ns-default build}
+   :deps {org.clojure/clojure {:mvn/version "1.10.3"}}
+   :aliases
+   {:build
+    ; Shouldn't it be extra-deps?
+    {:deps {io.github.clojure/tools.build {:git/tag "v0.9.4" :git/sha "76b78fe"}}
+     :ns-default build}
 
-              :test
-              {:extra-paths ["test"]
-               :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
-                            io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
-                            babashka/process {:mvn/version "0.1.8"}}
-               :main-opts ["-m" "cognitect.test-runner"]}}}
+    :tangler
+    {:extra-deps {org.babashka/cli {:mvn/version "0.8.59"}}}
 
+    :test
+    {:extra-paths ["test"]
+     :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
+                  io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
+                  babashka/process {:mvn/version "0.5.22"}}
+     :main-opts ["-m" "cognitect.test-runner"]}}}
 #+end_src
 
 #+begin_src clojure :tangle ../build.clj

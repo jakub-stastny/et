@@ -33,15 +33,10 @@ jobs:
         tar -xzf babashka-release.tgz
         sudo mv bb /usr/local/bin/bb
 
-    - name: Install Emacs
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y emacs
-
     - name: Tangle Org files
       run: |
         for file in chapters/*.org; do
-          emacs --batch --load="$file" --funcall org-babel-tangle
+          echo TODO
         done
 
     - name: Run tests in JVM
