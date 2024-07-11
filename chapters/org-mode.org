@@ -1,0 +1,79 @@
+* Org-mode parser
+- This is the key part for both ET and the tangler, so it has to be implemented first.
+
+** TODO Consider extracting out
+- Be careful, don't just assume it's like in Ruby, maybe there could be a natural way of having 3 packages in one project in Clojure.
+- As these are developed together, it's convenient to keep them in the same repo.
+
+** TODO Tests
+
+#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
+#+end_src
+
+#+begin_src clojure :tangle ../src/jakub_stastny/org-mode/parser.clj :mkdirp yes
+  (ns jakub-stastny.et.parser
+    "...."
+    (:require [clojure.string :as str]
+              [clojure.edn :as edn]))
+
+  (defn parse-var [line]
+    (str/trim (str/replace line #"^\s*#\+\w+:?(.*)$" "$1")))
+
+  (defn babel-to-map [string]
+    (try
+      (edn/read-string (str "{" string "}"))
+      (catch Exception e
+        (throw (ex-info "Parse error" {:type :parse-error :data string :error e})))))
+
+  (defn parse-examples [lines]
+    (let [update-last-task
+          (fn [tasks update-fn]
+            (conj
+             (vec (butlast tasks))
+             (conj (last tasks) (update-fn (last tasks)))))]
+
+      (first
+       (reduce
+        (fn [[tasks status] line]
+          (cond
+            ;; Read name.
+            (re-find #"^\s*#\+(?i)name:" line)
+            [(conj tasks {:task-name (parse-var line)}) :named]
+
+            ;; Read block options.
+            (and (re-find #"^\s*#\+(?i)begin_src" line)
+                 (= status :named))
+            [(update-last-task
+              tasks
+              (fn [task]
+                (let [raw-opts (str/split (parse-var line) #"\s+")
+                      lang (first raw-opts)
+                      opts (babel-to-map (str/join " " (rest raw-opts)))]
+                  {:lines [] :lang lang :opts opts})))
+             :reading]
+
+            ;; Read block options for an unnamed block.
+            (re-find #"^\s*#\+(?i)begin_src" line)
+            [(conj tasks
+                   (let [raw-opts (str/split (parse-var line) #"\s+")
+                         lang (first raw-opts)
+                         opts (babel-to-map (str/join " " (rest raw-opts)))]
+                     {:lines [] :lang lang :opts opts})) :reading]
+
+            ;; Stop reading block body.
+            ;; We do need this line even though it does the same
+            ;; as the default cond so the end_src line gets skipped.
+            (re-find #"^\s*#\+(?i)end_src" line)
+            [tasks nil]
+
+            ;; Read body.
+            (= status :reading)
+            [(update-last-task
+              tasks
+              (fn [task] {:lines (vec (conj (:lines task) line))}))
+             :reading]
+
+            :default [tasks nil]))
+        [[] nil]
+        lines))))
+#+end_src
