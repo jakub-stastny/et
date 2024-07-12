@@ -1,54 +1,60 @@
 * Org-mode parser
 - This is the key part for both ET and the tangler, so it has to be implemented first.
 
-# ** Test data
-# #+begin_src org :tangle ../test/jakub_stastny/org-mode/examples/code-block-only.org :mkdirp yes
-#   ,#+begin_src clojure
-#     (+ 1 2)
-#   ,#+end_src
-# #+end_src
-
-** Testing
-#+begin_src clojure :tangle ../src/jakub_stastny/org_mode/testing.clj :mkdirp yes
-  (ns jakub-stastny.org-mode.testing
-    "Provides defparser-test macro for easier testing."
+** Expected behaviour
+#+begin_src clojure :tangle ../test/jakub_stastny/org_mode/parser_test.clj :mkdirp yes
+  (ns jakub-stastny.org-mode.parser-test
     (:require [clojure.test :refer :all]
+              [clojure.string :as str]
               [jakub-stastny.org-mode.parser :as parser]))
 
   (defmacro defparser-test [test-name input expected]
     `(deftest ~test-name
        (is (= (parser/parse-examples ~input) ~expected))))
-#+end_src
-
-#+begin_src clojure :tangle ../test/jakub_stastny/org_mode/parser_test.clj :mkdirp yes
-  (ns jakub-stastny.org-mode.parser-test
-    (:require [clojure.test :refer :all]
-              [clojure.string :as str]
-              [jakub-stastny.org-mode.testing :refer :all]
-              [jakub-stastny.org-mode.parser :as parser]))
 
   (defparser-test test-parse-basic-example
     ["#+begin_src clojure" "(+ 1 2)" "#+end_src"]
     [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
 
-  (defparser-test test-parse-basic-example-uppercase
+  (defparser-test test-parse-basic-example-sandwiched-between-text
+    ["* Title" "Lorem ipsum" "#+begin_src clojure" "(+ 1 2)" "#+end_src" "The end"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
+
+  (defparser-test test-parse-uppercase-code-block-declaration
     ["#+BEGIN_SRC clojure" "(+ 1 2)" "#+END_SRC"]
     [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
 
-  (defparser-test test-trailing-whitespace
+  (defparser-test test-code-block-declaration-trailing-whitespace
     ["#+begin_src clojure " "(+ 1 2)" "#+end_src "]
     [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
 
-  (defparser-test test-parse-basic-example-with-shebang
+  (defparser-test test-parse-named-example
+    ["#+name: example" "#+begin_src clojure" "(+ 1 2)" "#+end_src"]
+    [{:task-name "example" :lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
+
+  (defparser-test test-parse-shebang-option
     ["#+begin_src clojure :shebang \"#!/usr/bin/env bb\"" "(+ 1 2)" "#+end_src"]
     [{:lines ["(+ 1 2)"], :lang "clojure", :opts {:shebang "#!/usr/bin/env bb"}}])
+
+  (defparser-test test-parse-mkdirp-option
+    ["#+begin_src clojure :mkdirp yes" "(+ 1 2)" "#+end_src"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {:mkdirp (symbol "yes")}}])
+
+  (defparser-test test-parse-basic-example
+    ["* Three examples"
+     "#+begin_src clojure" "(+ 1 2)" "#+end_src"
+     "#+begin_src ruby :shebang \"#!/usr/bin/env ruby\"" "1 + 2" "#+end_src"
+     "#+begin_src clojure" "(+ 1 2)" "(+ 3 4)" "#+end_src"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}
+     {:lines ["1 + 2"], :lang "ruby", :opts {:shebang "#!/usr/bin/env ruby"}}
+     {:lines ["(+ 1 2)" "(+ 3 4)"] , :lang "clojure", :opts {}}])
 
   (run-tests)
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/org_mode/parser.clj :mkdirp yes
   (ns jakub-stastny.org-mode.parser
-    "...."
+    "Emacs org-mode parser, currently only supports parsing out code blocks."
     (:require [clojure.string :as str]
               [clojure.edn :as edn]))
 
