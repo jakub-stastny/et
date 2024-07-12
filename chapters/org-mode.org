@@ -1,5 +1,23 @@
 * Org-mode parser
-- This is the key part for both ET and the tangler, so it has to be implemented first.
+Parses out source code examples.
+
+#+begin_src org
+  ,#+begin_src clojure :tangle "script.clj" :mkdirp yes
+    (+ 1 2)
+  ,#+end_src
+#+end_src
+
+#+begin_src clojure
+  [{:lines ["(+ 1 2)"],
+    :lang "clojure",
+    :opts {:tangle "script.clj" :mkdirp yes}}]
+#+end_src
+
+** Option syntax
+Note that options are parsed out as EDN, which is not strictly compatible with org-mode.
+The difference is that string arguments have to be escaped using double quotes.
+Unknown words are parsed as symbols, such as ~yes~ in the example above.
+Generally we recommend using ~true~ instead of ~yes~ though.
 
 ** Expected behaviour
 #+begin_src clojure :tangle ../test/jakub_stastny/org_mode/parser_test.clj :mkdirp yes
@@ -39,6 +57,14 @@
   (defparser-test test-parse-mkdirp-option
     ["#+begin_src clojure :mkdirp yes" "(+ 1 2)" "#+end_src"]
     [{:lines ["(+ 1 2)"], :lang "clojure", :opts {:mkdirp (symbol "yes")}}])
+
+  (defparser-test test-parse-boolean
+    ["#+begin_src clojure :oss true" "(+ 1 2)" "#+end_src"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {:oss true}}])
+
+  (defparser-test test-parse-number
+    ["#+begin_src clojure :top 1 :level 1.1" "(+ 1 2)" "#+end_src"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {:top 1 :level 1.1}}])
 
   (defparser-test test-parse-basic-example
     ["* Three examples"
