@@ -79,6 +79,10 @@ Generally we recommend using ~true~ instead of ~yes~ though.
 #+end_src
 
 ** Implementation
+*** TODO Add backtrace info
+This probably should take the whole file and make responsibility for reading it, rather than taking just lines.
+Or at least wrap that and offer both approaches.
+
 #+begin_src clojure :tangle ../src/jakub_stastny/org_mode/parser.clj :mkdirp yes
   (ns jakub-stastny.org-mode.parser
     "Emacs org-mode parser, currently only supports parsing out code blocks."
@@ -93,24 +97,6 @@ Generally we recommend using ~true~ instead of ~yes~ though.
       (edn/read-string (str "{" string "}"))
       (catch Exception e
         (throw (ex-info "Parse error" {:type :parse-error :data string :error e})))))
-
-  ;; Alternative implementation by ChatGPT:
-  ;; (defn extract-code-blocks [lines]
-  ;;   (reduce
-  ;;     (fn [acc line]
-  ;;       (cond
-  ;;         (str/starts-with? line "#+BEGIN_SRC")
-  ;;         (assoc acc :current-block {:lang (second (str/split line #" ")) :code []})
-
-  ;;         (str/starts-with? line "#+END_SRC")
-  ;;         (update acc :blocks conj (:current-block acc))
-
-  ;;         (:current-block acc)
-  ;;         (update-in acc [:current-block :code] conj line)
-
-  ;;         :else acc))
-  ;;     {:blocks []}
-  ;;     lines))
 
   (defn parse-examples [lines]
     (let [update-last-task
