@@ -52,6 +52,7 @@
   (run-tests)
 #+end_src
 
+** Implementation
 #+begin_src clojure :tangle ../src/jakub_stastny/org_mode/parser.clj :mkdirp yes
   (ns jakub-stastny.org-mode.parser
     "Emacs org-mode parser, currently only supports parsing out code blocks."

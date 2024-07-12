@@ -1,8 +1,4 @@
 * Tangler
-** TODO Consider extracting out
-- Be careful, don't just assume it's like in Ruby, maybe there could be a natural way of having 3 packages in one project in Clojure.
-- As these are developed together, it's convenient to keep them in the same repo.
-
 ** Run
 - ~bb run tangle~
 - ~clojure -M:tangler -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
@@ -167,3 +163,7 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
   (when (= *ns* 'jakub-stastny.tangler.main)
     (apply -main *command-line-args*))
 #+end_src
+
+** TODO Consider extracting out
+- Be careful, don't just assume it's like in Ruby, maybe there could be a natural way of having 3 packages in one project in Clojure.
+- As these are developed together, it's convenient to keep them in the same repo.
