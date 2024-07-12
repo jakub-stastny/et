@@ -48,7 +48,7 @@ Generally we recommend using ~true~ instead of ~yes~ though.
 
   (defparser-test test-parse-named-example
     ["#+name: example" "#+begin_src clojure" "(+ 1 2)" "#+end_src"]
-    [{:task-name "example" :lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
+    [{:name "example" :lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
 
   (defparser-test test-parse-shebang-option
     ["#+begin_src clojure :shebang \"#!/usr/bin/env bb\"" "(+ 1 2)" "#+end_src"]
@@ -107,7 +107,7 @@ Generally we recommend using ~true~ instead of ~yes~ though.
           (cond
             ;; Read name.
             (re-find #"^\s*#\+(?i)name:" line)
-            [(conj tasks {:task-name (parse-var line)}) :named]
+            [(conj tasks {:name (parse-var line)}) :named]
 
             ;; Read block options.
             (and (re-find #"^\s*#\+(?i)begin_src" line)
