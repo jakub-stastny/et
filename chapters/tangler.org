@@ -77,7 +77,7 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
               [clojure.java.io :as io]
               [clojure.string :as str]
               [jakub-stastny.org-mode.parser :as parser]
-              [jakub-stastny.tangler.utils :refer [ensure-dir-deleted]]
+              [jakub-stastny.tangler.utils :refer [ensure-dir-empty]]
               [jakub-stastny.tangler.cli :refer [parse-args]]))
 
   (defn ns-to-path [ns-name ext]
@@ -111,27 +111,22 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
       {:path (relative-file-path lang opts) :code (str/join "\n" lines)}))
 
   (defn format-blocks [blocks]
-    (map format-block blocks))
+    (reduce (fn [acc block]
+              (let [result (format-block block)]
+                (if (:path result) (conj acc result) acc)))
+            [] blocks))
 
-  (defn write-block [output-dir block]
-    (prn :o output-dir :b block) ;;;;; Continue here.
-    ;; HERE We only have the output string, but where are we going to write these blobs?
-    ;; We need {:path xyz :code "..."}
-
-    ;; :export no OR :export false mean it's an example and as such, won't be exported.
-
-    (let [_ (prn block)
-          path (str output-dir "/" (relative-file-path block)) ;;; WE HAVE THE :path here arleady
-          file (io/file path)]
+  (defn write-block [output-dir {:keys [path code]}]
+    (let [full-path (str output-dir "/" path)]
       (println (str "~ " path))
-      (spit file (:code block) :append true)))
+      (spit full-path code :append true)))
 
   (defn write-blocks [output-dir blocks]
     (doseq [block blocks]
       (write-block output-dir block)))
 
   (defn tangle [org-file output-dir]
-    (ensure-dir-deleted output-dir)
+    (ensure-dir-empty output-dir)
     (let [lines (str/split-lines (slurp org-file))
           examples (parser/parse-examples lines)
           code-blobs (format-blocks examples)]
@@ -158,8 +153,9 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
               [clojure.java.io :as io]
               [babashka.fs :as fs]))
 
-  (defn ensure-dir-deleted [path]
+  (defn ensure-dir-empty [path]
     (fs/delete-tree path)
+    (fs/create-dirs path)
     ;; (let [dir-file (io/file path)]
     ;;   (when (fs/exists? dir-file)
     ;;     (fs/delete-tree dir-file)))
