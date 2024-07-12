@@ -51,6 +51,12 @@
 ** TODO Noweb replacement
 Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/fixtures/xyz.txt~ or what have you. Or alternatively to and EDN file like ~fixtures.edn~ and save all the blocks there, so it'd be as Clojure strings and hence more obvious what's going on.
 
+*** TODO Use labels as a way to refer to full paths
+- By labels I mean ~#+name: example-1~.
+- Not sure how to implement it yet, but essentially it's the same idea as ENV replacement:
+- ~(println (str "Home: "<<$HOME>>"))~ and ~(slurp "<<example-1>>")~.
+- It will make refactoring much easier.
+
 
 **** TODO Consider the following
 - Support code evaluation.
