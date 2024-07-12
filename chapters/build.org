@@ -2,7 +2,7 @@
 #+SETUPFILE: setupfile.org
 
 *** Clojure configuration ~deps.edn~
-#+begin_src clojure :tangle ../deps.edn
+#+begin_src clojure :tangle ../deps.edn :path deps.edn
   {:paths ["src"]
    :deps {org.clojure/clojure {:mvn/version "1.11.3"}}
    :aliases
@@ -26,7 +26,7 @@
 *** Babashka configuration ~bb.edn~
 - Now you can run ~bb run tangle~ and ~bb run test~.
 
-#+begin_src clojure :tangle ../bb.edn
+#+begin_src clojure :tangle ../bb.edn :path "bb.edn"
   {:paths ["src" "test"]
    :deps {org.babashka/cli {:mvn/version "0.8.59"}}
    :tasks
@@ -39,7 +39,7 @@
      :task (shell {:cmd "bb -m cognitect.test-runner"})}}} ; :dir "test"
 #+end_src
 
-#+begin_src clojure :tangle ../build.clj
+#+begin_src clojure :tangle ../build.clj :path "build.clj"
   (ns build
     (:require [clojure.tools.build.api :as b]))
 
@@ -73,7 +73,7 @@ Note that this way you can only use the default runner.
 
 Check out this [[https://maksimrv.medium.com/compile-clojure-to-native-binary-using-graalvm-b31d1cc9ec76][article]].
 
-#+begin_src sh
+#+begin_src sh :export no
   wget https://github.com/jakub-stastny/et/raw/doc/downloads/et
 #+end_src
 
