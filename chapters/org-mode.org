@@ -1,38 +1,53 @@
 * Org-mode parser
 - This is the key part for both ET and the tangler, so it has to be implemented first.
 
-** Tests
-- The fixtures would be best solved through our NoWeb replacement, but since this is the base on which the replacement is going to be built, it doesn't exist as of now.
+# ** Test data
+# #+begin_src org :tangle ../test/jakub_stastny/org-mode/examples/code-block-only.org :mkdirp yes
+#   ,#+begin_src clojure
+#     (+ 1 2)
+#   ,#+end_src
+# #+end_src
 
-#+begin_src org :tangle ../test/jakub_stastny/org-mode/fixtures/example-1.org :mkdirp yes
-  ,* Title
-  Lorem ipsum
+** Testing
+#+begin_src clojure :tangle ../src/jakub_stastny/org_mode/testing.clj :mkdirp yes
+  (ns jakub-stastny.org-mode.testing
+    "Provides defparser-test macro for easier testing."
+    (:require [clojure.test :refer :all]
+              [jakub-stastny.org-mode.parser :as parser]))
 
-  ,#+begin_src clojure
-    (+ 1 2)
-  ,#+end_src
+  (defmacro defparser-test [test-name input expected]
+    `(deftest ~test-name
+       (is (= (parser/parse-examples ~input) ~expected))))
 #+end_src
 
-#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
+#+begin_src clojure :tangle ../test/jakub_stastny/org_mode/parser_test.clj :mkdirp yes
   (ns jakub-stastny.org-mode.parser-test
     (:require [clojure.test :refer :all]
-              [jakub-stastny.org-mode.parser :refer :all]))
+              [clojure.string :as str]
+              [jakub-stastny.org-mode.testing :refer :all]
+              [jakub-stastny.org-mode.parser :as parser]))
 
-  (def example-1 (slurp "test/jakub_stastny/org-mode/fixtures/example-1.org"))
+  (defparser-test test-parse-basic-example
+    ["#+begin_src clojure" "(+ 1 2)" "#+end_src"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
 
-  (deftest test-extract-code-blocks
-    (is (= (extract-code-blocks example-1)
-           {:blocks [{:lang "clojure" :code ["(+ 1 2)"]}]})))
+  (defparser-test test-parse-basic-example-uppercase
+    ["#+BEGIN_SRC clojure" "(+ 1 2)" "#+END_SRC"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
 
-  (deftest test-format-blocks
-    (is (= (format-blocks [{:lang "clojure" :code ["(+ 1 2)"]}])
-           [{:lang "clojure" :code "(+ 1 2)"}])))
+  (defparser-test test-trailing-whitespace
+    ["#+begin_src clojure " "(+ 1 2)" "#+end_src "]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {}}])
+
+  (defparser-test test-parse-basic-example-with-shebang
+    ["#+begin_src clojure :shebang \"#!/usr/bin/env bb\"" "(+ 1 2)" "#+end_src"]
+    [{:lines ["(+ 1 2)"], :lang "clojure", :opts {:shebang "#!/usr/bin/env bb"}}])
 
   (run-tests)
 #+end_src
 
-#+begin_src clojure :tangle ../src/jakub_stastny/org-mode/parser.clj :mkdirp yes
-  (ns jakub-stastny.et.parser
+#+begin_src clojure :tangle ../src/jakub_stastny/org_mode/parser.clj :mkdirp yes
+  (ns jakub-stastny.org-mode.parser
     "...."
     (:require [clojure.string :as str]
               [clojure.edn :as edn]))
