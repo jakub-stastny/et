@@ -94,6 +94,24 @@ Generally we recommend using ~true~ instead of ~yes~ though.
       (catch Exception e
         (throw (ex-info "Parse error" {:type :parse-error :data string :error e})))))
 
+  ;; Alternative implementation by ChatGPT:
+  ;; (defn extract-code-blocks [lines]
+  ;;   (reduce
+  ;;     (fn [acc line]
+  ;;       (cond
+  ;;         (str/starts-with? line "#+BEGIN_SRC")
+  ;;         (assoc acc :current-block {:lang (second (str/split line #" ")) :code []})
+
+  ;;         (str/starts-with? line "#+END_SRC")
+  ;;         (update acc :blocks conj (:current-block acc))
+
+  ;;         (:current-block acc)
+  ;;         (update-in acc [:current-block :code] conj line)
+
+  ;;         :else acc))
+  ;;     {:blocks []}
+  ;;     lines))
+
   (defn parse-examples [lines]
     (let [update-last-task
           (fn [tasks update-fn]

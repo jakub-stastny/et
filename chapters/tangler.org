@@ -1,4 +1,18 @@
 * Tangler
+Replacement for org-mode/babel tangle. Note that it uses the org-mode code block syntax and hence is org-mode compatible, but due to different options and behaviours, it is an incompatible replacement for babel tangle.
+
+** Syntax
+#+begin_src org
+  # Run it: tangle my-chapter.org --output-dir project-root
+  ,#+begin_src clojure :tangle "bin/hello.clj"
+    (+ 1 2)
+  ,#+end_src
+#+end_src
+
+This is the smallest example using Tangler. Note that string values must be in double quotes as options are treated as a map.
+
+*** Output directory
+
 ** Run
 - ~bb run tangle~
 - ~clojure -M:tangler -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx~
@@ -61,25 +75,10 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
   (ns jakub-stastny.tangler.core
     (:require [clojure.string :as str]
               [clojure.java.io :as io]
-              [jakub-stastny.tangler.utils :refer [read-file split-lines]]
+              [clojure.string :as str]
+              [jakub-stastny.org-mode.parser :as parser]
+              [jakub-stastny.tangler.utils :refer [ensure-dir-deleted]]
               [jakub-stastny.tangler.cli :refer [parse-args]]))
-
-  (defn extract-code-blocks [lines]
-    (reduce
-      (fn [acc line]
-        (cond
-          (str/starts-with? line "#+BEGIN_SRC")
-          (assoc acc :current-block {:lang (second (str/split line #" ")) :code []})
-
-          (str/starts-with? line "#+END_SRC")
-          (update acc :blocks conj (:current-block acc))
-
-          (:current-block acc)
-          (update-in acc [:current-block :code] conj line)
-
-          :else acc))
-      {:blocks []}
-      lines))
 
   (defn format-blocks [blocks]
     (map
@@ -88,9 +87,32 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
          :code (str/join "\n" code)})
       blocks))
 
+  (defn ns-to-path [ns-name]
+    (str "src/" (str/replace ns-name "." "/")))
+
+  ;; TODO: Handle with defmulti maybe?
+  (defn- relative-file-path-config [{:keys [lang opts]}]
+    (cond
+      ;; If path is used, no extension is added automatically (but :ext is respected).
+      ;; :path "bin/script"                            -> bin/script
+      ;; :path "bin/script" :ext "bb"                  -> bin/script.bb
+      (:path opts)            {:path (:path opts)}
+
+      ;; :ns jakub-stastny.org-mode.parser             -> src/jakub_stastny/org_mode/parser.clj
+      ;; :ns jakub-stastny.org-mode.parser :ext "cljc" -> src/jakub_stastny/org_mode/parser.cljc
+
+      ;; TODO: :ns points to src by default. It should be configurable to src: ns-name, test: ns-name-test etc.
+      (:ns opts)              {:path (ns-to-path (str (:ns opts))) :ext "clj"}))
+
+  (defn relative-file-path [block]
+    (let [config (relative-file-path-config block)]
+      (str/join "." (remove nil? [(:path config) (or (:ext block) (:ext config))])))
+    (or (get-in block :options :path)))
+
   (defn write-block [output-dir block]
     (prn :o output-dir :b block) ;;;;; Continue here.
-    (let [file (io/file output-dir (str "tangled." (:lang block)))]
+    (let [path (str output-dir "/" (relative-file-path block))
+          file (io/file path)]
       (spit file (:code block) :append true)))
 
   (defn write-blocks [output-dir blocks]
@@ -98,26 +120,14 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
       (write-block output-dir block)))
 
   (defn tangle [file output-dir]
-    (-> file
-        read-file
-        split-lines
-        extract-code-blocks
-        :blocks
-        format-blocks
-        (write-blocks output-dir)))
+    (ensure-dir-deleted output-dir)
+    (write-blocks output-dir (format-blocks (parser/parse-examples (str/split-lines (slurp file))))))
 #+end_src
 
 #+begin_src clojure :tangle ../test/jakub_stastny/tangler/core_test.clj :mkdirp yes
   (ns jakub-stastny.tangler.core-test
     (:require [clojure.test :refer :all]
               [jakub-stastny.tangler.core :refer :all]))
-
-  (deftest test-extract-code-blocks
-    (is (= (extract-code-blocks ["#+BEGIN_SRC clojure"
-                                 "(println \"Hello, World!\")"
-                                 "#+END_SRC"])
-           {:blocks [{:lang "clojure"
-                      :code ["(println \"Hello, World!\")"]}]})))
 
   (deftest test-format-blocks
     (is (= (format-blocks [{:lang "clojure"
@@ -131,13 +141,15 @@ Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/f
 #+begin_src clojure :tangle ../src/jakub_stastny/tangler/utils.clj :mkdirp yes
   (ns jakub-stastny.tangler.utils
     (:require [clojure.string :as str]
-              [clojure.java.io :as io]))
+              [clojure.java.io :as io]
+              [babashka.fs :as fs]))
 
-  (defn read-file [path]
-    (slurp path))
-
-  (defn split-lines [content]
-    (str/split-lines content))
+  (defn ensure-dir-deleted [path]
+    (fs/delete-tree path)
+    ;; (let [dir-file (io/file path)]
+    ;;   (when (fs/exists? dir-file)
+    ;;     (fs/delete-tree dir-file)))
+    )
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/tangler/cli.clj :mkdirp yes

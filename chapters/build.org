@@ -11,7 +11,9 @@
      :ns-default build}
 
     :tangler
-    {:extra-deps {org.babashka/cli {:mvn/version "0.8.59"}}}
+    {:extra-deps
+     {org.babashka/cli {:mvn/version "0.8.59"}
+      babashka/fs {:mvn/version "0.5.21"}}}
 
     :test
     {:extra-paths ["test"]
