@@ -29,7 +29,12 @@
       {:output-dir "a/b/c"}
 
       jakub-stastny.tangler.extensions.preamble
-      {:general preamble}}})
+      {:general preamble}
+
+      ;; :namespace jakub-stastny.org-mode.parser -> src/jakub_stastny/org_mode/parser.clj
+      ;; TODO: This may need to have :lib and :test and potentially others (configurable).
+      jakub-stastny.tangler.extensions.clojure-namespaces {}
+      }})
 
   (defn -main [& args] (run config args))
 #+end_src
@@ -42,6 +47,10 @@
 
 **** TODO ~jakub-stastny.tangler.extensions.env-vars~ extension
 - Allows configuration of the pattern & replace, such as: ~/<%= \$(HOME) %>/~, ~ENV[$1]~.
+
+** TODO Noweb replacement
+Use the ~#+name: xyz~ directive and save it as a file to something like ~tests/fixtures/xyz.txt~ or what have you. Or alternatively to and EDN file like ~fixtures.edn~ and save all the blocks there, so it'd be as Clojure strings and hence more obvious what's going on.
+
 
 **** TODO Consider the following
 - Support code evaluation.

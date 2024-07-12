@@ -2,7 +2,9 @@
 - This is the key part for both ET and the tangler, so it has to be implemented first.
 
 ** Tests
-#+begin_src org :name example-1
+- The fixtures would be best solved through our NoWeb replacement, but since this is the base on which the replacement is going to be built, it doesn't exist as of now.
+
+#+begin_src org :tangle ../test/jakub_stastny/org-mode/fixtures/example-1.org :mkdirp yes
   ,* Title
   Lorem ipsum
 
@@ -11,29 +13,20 @@
   ,#+end_src
 #+end_src
 
-#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes :noweb yes
+#+begin_src clojure :tangle ../test/jakub_stastny/org-mode/parser_test.clj :mkdirp yes
   (ns jakub-stastny.org-mode.parser-test
     (:require [clojure.test :refer :all]
               [jakub-stastny.org-mode.parser :refer :all]))
 
-  (deftest test-extract-code-blocks
-    (is (= (extract-code-blocks ["#+BEGIN_SRC clojure"
-                                 "(println \"Hello, World!\")"
-                                 "#+END_SRC"])
-           {:blocks [{:lang "clojure"
-                      :code ["(println \"Hello, World!\")"]}]})))
+  (def example-1 (slurp "test/jakub_stastny/org-mode/fixtures/example-1.org"))
 
   (deftest test-extract-code-blocks
-    (is (= (extract-code-blocks
-            <<example-1>>)
-           {:blocks [{:lang "clojure"
-                      :code ["(println \"Hello, World!\")"]}]})))
+    (is (= (extract-code-blocks example-1)
+           {:blocks [{:lang "clojure" :code ["(+ 1 2)"]}]})))
 
   (deftest test-format-blocks
-    (is (= (format-blocks [{:lang "clojure"
-                            :code ["(println \"Hello, World!\")"]}])
-           [{:lang "clojure"
-             :code "(println \"Hello, World!\")"}])))
+    (is (= (format-blocks [{:lang "clojure" :code ["(+ 1 2)"]}])
+           [{:lang "clojure" :code "(+ 1 2)"}])))
 
   (run-tests)
 #+end_src
