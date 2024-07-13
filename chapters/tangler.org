@@ -27,7 +27,7 @@ This is the smallest example using Tangler. Note that string values must be in d
 Pass this over, at the end just save to file (core fn).
 
 #+begin_src clojure
-  ;; Pass this into the pipeline and the result will be saved into a file.
+  ;; Pass this into the pipeline before it hits the adapter.
 
   ;; INPUT
   {:lines [] :lang "clojure" :opts {:fuck :off} :config {:comment ";;"} ;; Maybe we want to use comment fn instead that can handle both one-line and multi-line comments. Not relevant in Clojure, but it is in C-style languages amongst others.
@@ -35,13 +35,9 @@ Pass this over, at the end just save to file (core fn).
    :shebang "#!/usr/bin/env clojure"
    :path "relative/path.clj"}
 
-  ;; OUTPUT
-  {:path "relative/path.clj" :content "#!/usr/bin/env clojure\n\n..." :permissions 755}
+  (defn my-middleware [block] (merge block {:extension "cljc"}))
 
-  (defn my-middleware [block output] output)
-
-  (my-middleware {:lang "clojure" :opts {} :lines}
-                 {:path nil :content nil :permissions 644})
+  (my-middleware {:lang "clojure" :opts {} :lines})
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/tangler/core.clj :mkdirp yes :ns jakub-stastny.tangler.core
@@ -52,95 +48,52 @@ Pass this over, at the end just save to file (core fn).
               [jakub-stastny.tangler.utils :refer [ensure-dir-empty]]
               [jakub-stastny.tangler.cli :refer [parse-args]]))
 
-  ;; Return output -> proceed, return nil -> run the next adapter.
-  ;; What if multiple adaptors match?
-  ;; This way we can ignore generic org-mode code blocks that aren't meant for Tangler.
-  (defn default-adapter [_ lines {:keys [path shebang]}]
-    (when path
-      (if (re-find #"^(\/|\.|\.\.).*" s)
-        (throw (ex-info "Paths must be relative and cannot start either '.' or '..'." {:sucks "yes"})))
-
-      ;; The pipeline has finished now, so let's glue everything together for the FS save.
-      (let [content (str/join "\n" lines)]
-        (if shebang
-          {:path relative-path :permissions 755 :content content}
-          {:path relative-path :permissions 644 :content content}))))
-
-  (defn clojure-adapter [_ lines {:keys [ns :as ns-name]}]
-    (when ns-name))
-
-  (defn join-into-lines [{:keys [shebang preamble lines]}]
-    (reduce (fn [acc i] (if (and i (first i)) (concat acc i) acc))
-            []
-            [[shebang] preamble lines]))
-
-  (defn remove-trailing-whitespace [lines]
-    (map str/trimr lines))
-
-  (defn min-indentation [lines]
-    (apply min (map (fn [line]
-                      (count (re-find #"^\s*" line)))
-                    lines)))
-
-  (defn fix-indentation [lines]
-    (let [min-indent (min-indentation lines)]
-      (map (fn [line]
-             (subs line (min min-indent (count line))))
-           lines)))
-
-  (defn fix-whitespace [lines]
-    (fix-indentation (remove-trailing-whitespace lines)))
-
-  (defn generate-contents [block]
-    (str/join "\n" (join-into-lines block)))
-
-  (defn format-block [{:keys [lang lines opts]}]
-    ;; Skip ET tasks and :export no/false.
-    ;; TODO: export is used by ox- packages, name it differently.
-    (when-not (or (contains? #{'no false} (:export opts)) (or (:task opts) (:doc opts)))
-      ;; TODO: Add shebang (from opts), where should preamble be added? It comes from configuration.
-
-      ;;(or (:relative-file-path config) relative-file-path)
-      {:path (relative-file-path lang opts) :code (str/join "\n" lines)}))
-
-  (defn format-blocks [blocks]
-    (reduce (fn [acc block]
-              (let [result (format-block block)]
-                (if (:path result) (conj acc result) acc)))
-            [] blocks))
-
-  ;; (defn save-file [definition]
-  ;;   ;;(ensure-dir-exists (dirname path))
-  ;;   ;; if shebang; chmod +x path
-  ;;   (spit path (generate-contents definition)))
-
-  (defn write-block [output-dir {:keys [path code]}]
+  ;; TODO: Extract out as a standalone project or find if there's one already,
+  ;; it's pretty useful.
+  (defn commit-fs-change [output-dir {:keys [path code]}]
     (let [full-path (str output-dir "/" path)]
       (println (str "~ " path))
       ;; FIXME: No append, fail if file is to be overriden.
       (spit full-path code :append true)))
 
-  (defn write-blocks [output-dir blocks]
+  ;; {path: string :content string :permissions 755}
+  (defn commit-fs-changes [output-dir blocks]
+    ;;(ensure-dir-exists (dirname path))
     (doseq [block blocks]
-      (write-block output-dir block)))
+      (commit-fs-change output-dir block)))
 
-  ;; TODO: Implement me.
+  ;; TODO: error handling and reporting.
+  (defn run-pipeline [pipeline org-file example]
+    (prn :run-pipeline pipeline org-file example)
+    (pipeline org-file example))
+
   (defn run-pipelines [config org-file examples]
-    (prn :run-pipelines)
-    (prn :config config)
+    (let [pipelines (:pipelines config)]
+      (if (empty? pipelines)
+        examples
+        (reduce (fn [example pipeline]
+                  (run-pipeline pipeline org-file example))
+                pipelines))))
+
+  (defn process-example [adapters org-file example]
+    (prn :process-example)
     (prn :org-file org-file)
-    (prn :examples examples)
-    (format-blocks examples))
+    (prn :example example)
+    (println)
+    (some (fn [adapter]
+            (adapter org-file example))
+          adapters))
 
-  (defn run-adapters [config org-mode example])
+  (defn run-adapters [config org-file examples]
+    (map #(process-example (:adapters config) org-file %1) examples))
 
-  (defn tangle [custom-config org-file output-dir]
-    (let [config (merge default-config custom-config)]
-      (ensure-dir-empty output-dir)
-      (let [lines (str/split-lines (slurp org-file))
-            examples (parser/parse-examples lines)
-            code-blobs (run-pipelines config org-file examples)]
-        (write-blocks output-dir code-blobs))))
+  (defn tangle [config org-file output-dir]
+    (ensure-dir-empty output-dir)
+    (let [lines (str/split-lines (slurp org-file))
+          examples (parser/parse-examples lines)
+          code-blocks (run-pipelines config org-file examples)
+          fs-changeset (run-adapters config org-file code-blocks)]
+      (commit-fs-changes output-dir fs-changeset)))
 #+end_src
 
 #+begin_src clojure :tangle ../test/jakub_stastny/tangler/core_test.clj :mkdirp yes :ns jakub-stastny.tangler.core-test
@@ -189,9 +142,15 @@ CLI should be the main entry point, whereas main has no knowledge of the CLI and
     (:require [jakub-stastny.tangler.core :refer [tangle]]
               [jakub-stastny.tangler.cli :refer [parse-args]]))
 
+  ;; Configuration.
+  (defn dummy-adaptor [& args]
+    (prn :dummy-adaptor args))
+
+  (def default-config {:adapters [dummy-adaptor] :pipeline []})
+
   (defn -main [& args]
     (let [{:keys [file output-dir]} (parse-args args)]
-      (tangle file output-dir)))
+      (tangle default-config file output-dir)))
 
   ;; Check if the script is being run with arguments and call -main if so.
   (when (= *ns* 'jakub-stastny.tangler.main)
@@ -213,13 +172,68 @@ CLI should be the main entry point, whereas main has no knowledge of the CLI and
   (defn -main [& args] (run config args))
 #+end_src
 
+** Adapters
+#+begin_src clojure :ns jakub-stastny.tangler.adapters.default
+  (ns jakub-stastny.tangler.adapters.default
+    (:require [default.string :as str]))
 
-** Extensions
-#+begin_src clojure :tangle ../src/jakub_stastny/tangler/extensions.clj :mkdirp yes :ns jakub-stastny.tangler.extensions
-  (ns jakub-stastny.tangler.extensions
-    (:require [clojure.string :as str]))
+  ;; (defn format-block [{:keys [lang lines opts]}]
+  ;;   ;; Skip ET tasks and :export no/false.
+  ;;   ;; TODO: export is used by ox- packages, name it differently.
+  ;;   (when-not (or (contains? #{'no false} (:export opts)) (or (:task opts) (:doc opts)))
+  ;;     ;; TODO: Add shebang (from opts), where should preamble be added? It comes from configuration.
 
-  (defn handle-env-vars [block])
+  ;;     ;;(or (:relative-file-path config) relative-file-path)
+  ;;     {:path (relative-file-path lang opts) :code (str/join "\n" lines)}))
+
+  (defn join-into-lines [{:keys [shebang preamble lines]}]
+    (reduce (fn [acc i] (if (and i (first i)) (concat acc i) acc))
+            []
+            [[shebang] preamble lines]))
+
+  (defn remove-trailing-whitespace [lines]
+    (map str/trimr lines))
+
+  (defn min-indentation [lines]
+    (apply min (map (fn [line]
+                      (count (re-find #"^\s*" line)))
+                    lines)))
+
+  (defn fix-indentation [lines]
+    (let [min-indent (min-indentation lines)]
+      (map (fn [line]
+             (subs line (min min-indent (count line))))
+           lines)))
+
+  (defn fix-whitespace [lines]
+    (fix-indentation (remove-trailing-whitespace lines)))
+
+  (defn generate-contents [block]
+    (str/join "\n" (join-into-lines block)))
+
+  ;; Return output -> proceed, return nil -> run the next adapter.
+  ;; What if multiple adaptors match?
+  ;; This way we can ignore generic org-mode code blocks that aren't meant for Tangler.
+  (defn default-adapter [_ lines {:keys [path shebang]}]
+    (when path
+      (if (re-find #"^(\/|\.|\.\.).*" s)
+        (throw (ex-info "Paths must be relative and cannot start either '.' or '..'." {:sucks "yes"})))
+
+      ;; The pipeline has finished now, so let's glue everything together for the FS save.
+      (let [content (generate-contents block)]
+        (if shebang
+          {:path relative-path :permissions 755 :content content}
+          {:path relative-path :permissions 644 :content content}))))
+#+end_src
+
+#+begin_src clojure :ns jakub-stastny.tangler.adapters.clojure
+  (ns jakub-stastny.tangler.adapters.clojure
+    (:require [clojure.string :as str]
+              [jakub-stastny.tangler.adapters.default :refer [default-adapter]]))
+
+  (defn clojure-adapter [_ lines {:keys [ns :as ns-name]}]
+    (when ns-name
+      (default-adapter _ lines (merge opts {:path relative-path}))))
 
   ;; ;; :namespace jakub-stastny.org-mode.parser -> src/jakub_stastny/org_mode/parser.clj
   ;; ;; TODO: This may need to have :lib and :test and potentially others (configurable).
@@ -253,6 +267,14 @@ CLI should be the main entry point, whereas main has no knowledge of the CLI and
 
       ;; TODO: Which chapter from, number of code group?
       true (throw (ex-info "Cannot construct relative-file-path" {:lang lang :opts opts}))))
+#+end_src
+
+** Extensions
+#+begin_src clojure :tangle ../src/jakub_stastny/tangler/extensions.clj :mkdirp yes :ns jakub-stastny.tangler.extensions
+  (ns jakub-stastny.tangler.extensions
+    (:require [clojure.string :as str]))
+
+  (defn handle-env-vars [block])
 
 
   ;; Feel free to include when the file was generated, from which chapter,
