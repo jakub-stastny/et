@@ -23,7 +23,9 @@ This is the smallest example using Tangler. Note that string values must be in d
 - Log in colours.
 - Publish first version and install it in the CI script.
 
-** Save block to a file
+** Pipeline
+Pass this over, at the end just save to file (core fn).
+
 #+begin_src clojure
   ;; Pass this into the pipeline and the result will be saved into a file.
   {:lines [] :lang "clojure" :opts {:fuck :off} :config {:comment ";;"} ;; Maybe we want to use comment fn instead that can handle both one-line and multi-line comments. Not relevant in Clojure, but it is in C-style languages amongst others.
@@ -102,6 +104,8 @@ This is the smallest example using Tangler. Note that string values must be in d
     ;; TODO: export is used by ox- packages, name it differently.
     (when-not (or (contains? #{'no false} (:export opts)) (or (:task opts) (:doc opts)))
       ;; TODO: Add shebang (from opts), where should preamble be added? It comes from configuration.
+
+      ;;(or (:relative-file-path config) relative-file-path)
       {:path (relative-file-path lang opts) :code (str/join "\n" lines)}))
 
   (defn format-blocks [blocks]
@@ -198,7 +202,6 @@ This is the smallest example using Tangler. Note that string values must be in d
 
   ;; TODO: Handle with defmulti maybe?
   (defn relative-file-path [lang {:keys [path ext ns] :as opts}]
-    (str path)
     (cond
       ;; If path is used, no extension is added automatically (but :ext is respected).
       ;; :path "bin/script" :ext "bb"                  -> bin/script.bb
