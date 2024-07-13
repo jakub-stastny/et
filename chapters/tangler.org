@@ -76,24 +76,25 @@ Pass this over, at the end just save to file (core fn).
                 pipelines))))
 
   (defn process-example [adapters org-file example]
-    (prn :process-example)
-    (prn :org-file org-file)
-    (prn :example example)
-    (println)
-    (some (fn [adapter]
-            (adapter org-file example))
-          adapters))
+    ;; Return result from the first matched adapter.
+    (let [result (some (fn [a] (a org-file example)) adapters)]
+      ;; (prn :adapter-result result)
+      result))
 
   (defn run-adapters [config org-file examples]
     (map #(process-example (:adapters config) org-file %1) examples))
 
+  ;; TODO: Allow recursive dirs, actually multiple dirs and files.
   (defn tangle [config org-file output-dir]
     (ensure-dir-empty output-dir)
     (let [lines (str/split-lines (slurp org-file))
           examples (parser/parse-examples lines)
           code-blocks (run-pipelines config org-file examples)
           fs-changeset (run-adapters config org-file code-blocks)]
-      (commit-fs-changes output-dir fs-changeset)))
+      (println "\nChanges to be commited:")
+      (prn fs-changeset) ;;;;;
+      ;; (commit-fs-changes output-dir fs-changeset)
+      ))
 #+end_src
 
 #+begin_src clojure :tangle ../test/jakub_stastny/tangler/core_test.clj :mkdirp yes :ns jakub-stastny.tangler.core-test
@@ -144,7 +145,7 @@ CLI should be the main entry point, whereas main has no knowledge of the CLI and
 
   ;; Configuration.
   (defn dummy-adaptor [& args]
-    (prn :dummy-adaptor args))
+    (prn :dummy-adaptor args) :dummy-result)
 
   (def default-config {:adapters [dummy-adaptor] :pipeline []})
 
