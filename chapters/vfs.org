@@ -1,7 +1,45 @@
-* Virtual FS
+* Transactional FS
 
-#+begin_src clojure :tangle ../src/jakub_stastny/virtual_fs/core.clj :mkdirp yes :ns jakub-stastny.virtual-fs.core
-  (ns jakub-stastny.virtual-fs.core
+TransactionalFS is a declarative and safe file system operations script designed to handle file and directory manipulations in a transactional manner. Users can define a series of operations, such as creating directories (~mkdir~), creating files with content (~spit~), setting executable permissions, and deleting files (~rm~) or directories (~rmdir~), including recursive deletions. These operations are validated and accumulated without side effects until the ~commit~ function is called, ensuring that all changes are applied atomically. This approach is particularly advantageous for testing environments, where operations can be verified in a mock directory before committing, allowing for controlled, repeatable, and safe tests without affecting the actual file system.
+
+** TODO Instructions vs VFS
+Instructions is what we produce currently.
+VFS is the directory tree just like it'd be on the FS, but in memory. We can query it like (vfs/file-exists? vfs "path/test.txt").
+(commit instructions) -> vfs
+  THIS MAY NOT BE NECESSARY NOW, but for testing it's definitely useful. And even just as a way of validating.
+
+** Usage
+*** In code
+#+begin_src clojure
+  (ns myapp.test
+    (:require [clojure.test :refer :all]
+              [jakub-stastny.transactional-fs.core :as tfs]))
+
+  ;; Return a list of changes.
+  (def black-box []
+    [(tfs/mkdir "my/path" :parents true)
+     (tfs/spit "my/path/test-file.txt" "Hello, World!")])
+
+  (deftest file-creation-test
+    (let [vfs (black-box)
+          test-file (first (find #(= :path "my/path/test-file.txt")))]
+      (is (= "Hello, World!") (:content test-file))))
+#+end_src
+
+*** In tests
+#+begin_src clojure
+  (let [changes [(mkdir "my/path" :parents true)
+                 (spit "my/path/file.txt" "lorem ipsum")
+                 (spit "my/path/executable.sh" "#!/bin/bash\necho Hello" :executable true)
+                 (rm "my/path/file.txt")
+                 (rmdir "my/path")
+                 (rmdir "my/another/path" :recursive true)]]
+    (commit "/tmp/transactional-root" changes))
+#+end_src
+
+** Implementation
+#+begin_src clojure :tangle ../src/jakub_stastny/transactional_fs/core.clj :mkdirp yes :ns jakub-stastny.transactional-fs.core
+  (ns jakub-stastny.transactional-fs.core
     (:require [babashka.fs :as fs]))
 
   (defn create-change [type path & {:keys [content parents executable recursive] :or {parents false executable false recursive false}}]
@@ -83,14 +121,4 @@
     ;;(ensure-dir-exists (dirname path))
     (doseq [block blocks]
       (commit-fs-change output-dir block)))
-#+end_src
-
-#+begin_src clojure
-  (let [changes [(mkdir "my/path" :parents true)
-                 (spit "my/path/file.txt" "lorem ipsum")
-                 (spit "my/path/executable.sh" "#!/bin/bash\necho Hello" :executable true)
-                 (rm "my/path/file.txt")
-                 (rmdir "my/path")
-                 (rmdir "my/another/path" :recursive true)]]
-    (commit "/tmp/virtual-root" changes))
 #+end_src
