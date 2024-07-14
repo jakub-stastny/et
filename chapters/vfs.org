@@ -1,50 +1,74 @@
 * Virtual FS
 
 #+begin_src clojure :tangle ../src/jakub_stastny/virtual_fs/core.clj :mkdirp yes :ns jakub-stastny.virtual-fs.core
-  (ns virtual-fs.core
+  (ns jakub-stastny.virtual-fs.core
     (:require [babashka.fs :as fs]))
 
-  (defn create-change [type directory path permissions]
-    {:type type :directory directory :path path :permissions permissions})
+  (defn create-change [type path & {:keys [content parents executable recursive] :or {parents false executable false recursive false}}]
+    (let [base-change {:type type :path path}
+          base-change (if parents (assoc base-change :parents true) base-change)
+          base-change (if executable (assoc base-change :executable true) base-change)
+          base-change (if recursive (assoc base-change :recursive true) base-change)]
+      (if (= type :create-file)
+        (assoc base-change :content content)
+        base-change)))
 
   (defn mkdir
-    [path & {:keys [permissions] :or {permissions 755}}]
-    (create-change :write true path permissions))
+    [path & {:keys [parents] :or {parents false}}]
+    (create-change :create-directory path :parents parents))
 
   (defn spit
-    [path content & {:keys [permissions] :or {permissions 644}}]
-    {:type :write :directory false :path path :content content :permissions permissions})
+    [path content & {:keys [parents executable] :or {parents false executable false}}]
+    (create-change :create-file path :content content :parents parents :executable executable))
+
+  (defn rm [path]
+    (create-change :delete-file path))
+
+  ;; Note that to recursively delete a directory it's rmdir path :recursive true, not rm as it'd be on Unix.
+  (defn rmdir
+    [path & {:keys [recursive] :or {recursive false}}]
+    (create-change :delete-directory path :recursive recursive))
 
   (defn validate-change [change]
-    (let [{:keys [type directory path permissions]} change]
+    (let [{:keys [type path]} change]
       (cond
         (nil? type) (throw (ex-info "Change must have a type" {:change change}))
         (nil? path) (throw (ex-info "Change must have a path" {:change change}))
-        (not (integer? permissions)) (throw (ex-info "Permissions must be an integer" {:change change}))
+        (and (= type :create-file) (nil? (:content change))) (throw (ex-info "Create file change must have content" {:change change}))
         :else true)))
 
   (defn validate-changes [changes]
     (every? validate-change changes))
 
   (defn apply-change [change root]
-    (let [{:keys [type directory path permissions content]} change
+    (let [{:keys [type path content parents executable recursive]} change
           full-path (fs/path root path)]
-      (cond
-        (= type :write)
-        (if directory
-          (do
-            (fs/create-dirs full-path)
-            (fs/set-posix-file-permissions full-path (fs/posix-file-permissions permissions)))
-          (do
-            (fs/create-dirs (fs/parent full-path))
-            (fs/spit full-path content)
-            (fs/set-posix-file-permissions full-path (fs/posix-file-permissions permissions)))))))
+      (case type
+        :create-file
+        (do
+          (when parents
+            (fs/create-dirs (fs/parent full-path)))
+          (fs/spit full-path content)
+          (when executable
+            (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
+
+        :delete-file
+        (fs/delete full-path)
+
+        :create-directory
+        (if parents
+          (fs/create-dirs full-path)
+          (fs/create-dir full-path))
+
+        :delete-directory
+        (if recursive
+          (fs/delete full-path {:recursive true})
+          (fs/delete full-path)))))
 
   (defn commit [root changes]
     (when (validate-changes changes)
       (doseq [change changes]
         (apply-change change root))))
-
 
   ;; TODO: Extract out as a standalone project or find if there's one already,
   ;; it's pretty useful.
@@ -61,9 +85,12 @@
       (commit-fs-change output-dir block)))
 #+end_src
 
-
 #+begin_src clojure
-  (let [changes [(vfs/mkdir "my/path" :permissions 755)
-                 (vfs/spit "my/path/file.txt" "lorem ipsum" :permissions 644)]]
-    (vfs/commit "/tmp/virtual-root" changes))
+  (let [changes [(mkdir "my/path" :parents true)
+                 (spit "my/path/file.txt" "lorem ipsum")
+                 (spit "my/path/executable.sh" "#!/bin/bash\necho Hello" :executable true)
+                 (rm "my/path/file.txt")
+                 (rmdir "my/path")
+                 (rmdir "my/another/path" :recursive true)]]
+    (commit "/tmp/virtual-root" changes))
 #+end_src
