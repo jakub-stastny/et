@@ -1,0 +1,69 @@
+* Virtual FS
+
+#+begin_src clojure :tangle ../src/jakub_stastny/virtual_fs/core.clj :mkdirp yes :ns jakub-stastny.virtual-fs.core
+  (ns virtual-fs.core
+    (:require [babashka.fs :as fs]))
+
+  (defn create-change [type directory path permissions]
+    {:type type :directory directory :path path :permissions permissions})
+
+  (defn mkdir
+    [path & {:keys [permissions] :or {permissions 755}}]
+    (create-change :write true path permissions))
+
+  (defn spit
+    [path content & {:keys [permissions] :or {permissions 644}}]
+    {:type :write :directory false :path path :content content :permissions permissions})
+
+  (defn validate-change [change]
+    (let [{:keys [type directory path permissions]} change]
+      (cond
+        (nil? type) (throw (ex-info "Change must have a type" {:change change}))
+        (nil? path) (throw (ex-info "Change must have a path" {:change change}))
+        (not (integer? permissions)) (throw (ex-info "Permissions must be an integer" {:change change}))
+        :else true)))
+
+  (defn validate-changes [changes]
+    (every? validate-change changes))
+
+  (defn apply-change [change root]
+    (let [{:keys [type directory path permissions content]} change
+          full-path (fs/path root path)]
+      (cond
+        (= type :write)
+        (if directory
+          (do
+            (fs/create-dirs full-path)
+            (fs/set-posix-file-permissions full-path (fs/posix-file-permissions permissions)))
+          (do
+            (fs/create-dirs (fs/parent full-path))
+            (fs/spit full-path content)
+            (fs/set-posix-file-permissions full-path (fs/posix-file-permissions permissions)))))))
+
+  (defn commit [root changes]
+    (when (validate-changes changes)
+      (doseq [change changes]
+        (apply-change change root))))
+
+
+  ;; TODO: Extract out as a standalone project or find if there's one already,
+  ;; it's pretty useful.
+  (defn commit-fs-change [output-dir {:keys [path code]}]
+    (let [full-path (str output-dir "/" path)]
+      (println (str "~ " path))
+      ;; FIXME: No append, fail if file is to be overriden.
+      (spit full-path code :append true)))
+
+  ;; {path: string :content string :permissions 755}
+  (defn commit-fs-changes [output-dir blocks]
+    ;;(ensure-dir-exists (dirname path))
+    (doseq [block blocks]
+      (commit-fs-change output-dir block)))
+#+end_src
+
+
+#+begin_src clojure
+  (let [changes [(vfs/mkdir "my/path" :permissions 755)
+                 (vfs/spit "my/path/file.txt" "lorem ipsum" :permissions 644)]]
+    (vfs/commit "/tmp/virtual-root" changes))
+#+end_src

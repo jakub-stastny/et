@@ -48,20 +48,6 @@ Pass this over, at the end just save to file (core fn).
               [jakub-stastny.tangler.utils :refer [ensure-dir-empty]]
               [jakub-stastny.tangler.cli :refer [parse-args]]))
 
-  ;; TODO: Extract out as a standalone project or find if there's one already,
-  ;; it's pretty useful.
-  (defn commit-fs-change [output-dir {:keys [path code]}]
-    (let [full-path (str output-dir "/" path)]
-      (println (str "~ " path))
-      ;; FIXME: No append, fail if file is to be overriden.
-      (spit full-path code :append true)))
-
-  ;; {path: string :content string :permissions 755}
-  (defn commit-fs-changes [output-dir blocks]
-    ;;(ensure-dir-exists (dirname path))
-    (doseq [block blocks]
-      (commit-fs-change output-dir block)))
-
   ;; TODO: error handling and reporting.
   (defn run-pipeline [pipeline org-file example]
     (prn :run-pipeline pipeline org-file example)
