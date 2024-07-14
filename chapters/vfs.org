@@ -5,8 +5,22 @@ TransactionalFS is a declarative and safe file system operations script designed
 ** TODO Instructions vs VFS
 Instructions is what we produce currently.
 VFS is the directory tree just like it'd be on the FS, but in memory. We can query it like (vfs/file-exists? vfs "path/test.txt").
-(commit instructions) -> vfs
+(commit (mkvfs instructions))
   THIS MAY NOT BE NECESSARY NOW, but for testing it's definitely useful. And even just as a way of validating.
+
+This instruction:
+#+begin_src clojure
+  {:path "a/b/c" :parents true :executable true :content "#!/usr/bin/env bb\n(println (+ 1 2))\n"}
+#+end_src
+
+Generates this VFS:
+#+begin_src clojure
+  [{:path "a" :type :directory}
+   {:path "a/b" :type :directory}
+   {:path "a/b/c" :type :file :executable true}]
+#+end_src
+
+Instructions can create and then delete, VFS is always the final state.
 
 ** Usage
 *** In code
