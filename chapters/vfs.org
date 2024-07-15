@@ -132,6 +132,50 @@ Instructions can create and then delete, VFS is always the final state.
       (let [change {:type :write-file :path "myfile.txt"}]
         (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Create file change instruction must have content"
                               (validate-change-instruction change))))))
+
+  (deftest commit-test
+    (testing "commit with create-directory"
+      (let [changes [(mkdir "a/b/c" :parents true)]
+            vfs (commit changes)]
+        (prn changes) (prn vfs) ;;;;
+        (is (= {:type :directory} (get vfs "a")))
+        (is (= {:type :directory} (get vfs "a/b")))
+        (is (= {:type :directory} (get vfs "a/b/c")))))
+
+    ;; (testing "commit with write-file"
+    ;;   (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true :executable true)]
+    ;;         vfs (commit changes)]
+    ;;     (is (= {:type :directory} (get vfs "a")))
+    ;;     (is (= {:type :directory} (get vfs "a/b")))
+    ;;     (is (= {:type :file :content "Hello, World!" :executable true} (get vfs "a/b/c.txt")))))
+
+    ;; (testing "commit with delete-file"
+    ;;   (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true)
+    ;;                  (rm "a/b/c.txt")]
+    ;;         vfs (commit changes)]
+    ;;     (is (= {:type :directory} (get vfs "a")))
+    ;;     (is (= {:type :directory} (get vfs "a/b")))
+    ;;     (is (nil? (get vfs "a/b/c.txt")))))
+
+    ;; (testing "commit with delete-directory"
+    ;;   (let [changes [(mkdir "a/b/c" :parents true)
+    ;;                  (rmdir "a/b/c")]
+    ;;         vfs (commit changes)]
+    ;;     (is (= {:type :directory} (get vfs "a")))
+    ;;     (is (= {:type :directory} (get vfs "a/b")))
+    ;;     (is (nil? (get vfs "a/b/c")))))
+
+    ;; (testing "commit with recursive delete-directory"
+    ;;   (let [changes [(mkdir "a/b/c" :parents true)
+    ;;                  (write "a/b/c/file.txt" "Hello, World!")
+    ;;                  (rmdir "a" :recursive true)]
+    ;;         vfs (commit changes)]
+    ;;     (is (nil? (get vfs "a")))
+    ;;     (is (nil? (get vfs "a/b")))
+    ;;     (is (nil? (get vfs "a/b/c")))
+    ;;     (is (nil? (get vfs "a/b/c/file.txt")))))
+
+    )
 #+end_src
 
 ** Implementation
@@ -172,38 +216,63 @@ Instructions can create and then delete, VFS is always the final state.
         (throw (ex-info "Create file change instruction must have content" {:change-instruction change-instruction})))
       true))
 
-  (defn validate-change-instructions [change-instructions]
-    (every? validate-change-instruction change-instructions))
+  ;; (defn apply-change-instruction [change-instruction root]
+  ;;   (let [{:keys [type path content parents executable recursive]} change-instruction
+  ;;         full-path (fs/path root path)]
+  ;;     (case type
+  ;;       :write-file
+  ;;       (do
+  ;;         (when parents
+  ;;           (fs/create-dirs (fs/parent full-path)))
+  ;;         (spit full-path content)
+  ;;         (when executable
+  ;;           (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
 
-  (defn apply-change-instruction [change-instruction root]
-    (let [{:keys [type path content parents executable recursive]} change-instruction
-          full-path (fs/path root path)]
+  ;;       :delete-file
+  ;;       (fs/delete full-path)
+
+  ;;       :create-directory
+  ;;       (if parents
+  ;;         (fs/create-dirs full-path)
+  ;;         (fs/create-dir full-path))
+
+  ;;       :delete-directory
+  ;;       (if recursive
+  ;;         (fs/delete full-path {:recursive true})
+  ;;         (fs/delete full-path)))))
+
+  (defn apply-change-to-vfs [vfs change]
+    (let [{:keys [type path content parents executable recursive]} change]
       (case type
         :write-file
-        (do
-          (when parents
-            (fs/create-dirs (fs/parent full-path)))
-          (spit full-path content)
-          (when executable
-            (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
-
-        :delete-file
-        (fs/delete full-path)
+        (let [dirs (if parents (butlast (fs/components path)) [])
+              new-vfs (reduce (fn [acc dir]
+                                (assoc acc (str dir) {:type :directory}))
+                              vfs
+                              dirs)]
+          (assoc new-vfs (str path) {:type :file :content content :executable executable}))
 
         :create-directory
-        (if parents
-          (fs/create-dirs full-path)
-          (fs/create-dir full-path))
+        (let [dirs (if parents (fs/components path) [path])]
+          (reduce (fn [acc dir]
+                    (assoc acc (str dir) {:type :directory}))
+                  vfs
+                  dirs))
+
+        :delete-file
+        (dissoc vfs (str path))
 
         :delete-directory
         (if recursive
-          (fs/delete full-path {:recursive true})
-          (fs/delete full-path)))))
+          (reduce (fn [acc [k v]]
+                    (if (fs/starts-with? k path) acc (assoc acc k v)))
+                  {}
+                  vfs)
+          (dissoc vfs (str path))))))
 
-  (defn commit [root change-instructions]
-    (when (validate-change-instructions change-instructions)
-      (doseq [change-instruction change-instructions]
-        (apply-change-instruction change-instruction root))))
+  (defn commit [change-instructions]
+    (when (every? validate-change-instruction change-instructions)
+      (reduce apply-change-to-vfs {} change-instructions)))
 #+end_src
 
 #+begin_src clojure
