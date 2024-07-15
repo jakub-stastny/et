@@ -3,10 +3,8 @@
 TransactionalFS is a declarative and safe file system operations script designed to handle file and directory manipulations in a transactional manner. Users can define a series of operations, such as creating directories (~mkdir~), creating files with content (~spit~), setting executable permissions, and deleting files (~rm~) or directories (~rmdir~), including recursive deletions. These operations are validated and accumulated without side effects until the ~commit~ function is called, ensuring that all changes are applied atomically. This approach is particularly advantageous for testing environments, where operations can be verified in a mock directory before committing, allowing for controlled, repeatable, and safe tests without affecting the actual file system.
 
 ** TODO Instructions vs VFS
-Instructions is what we produce currently.
 VFS is the directory tree just like it'd be on the FS, but in memory. We can query it like (vfs/file-exists? vfs "path/test.txt").
-(commit (mkvfs instructions))
-  THIS MAY NOT BE NECESSARY NOW, but for testing it's definitely useful. And even just as a way of validating.
+~(commit (mkvfs instructions))~
 
 This instruction:
 #+begin_src clojure
@@ -15,9 +13,7 @@ This instruction:
 
 Generates this VFS:
 #+begin_src clojure
-  [{:path "a" :type :directory}
-   {:path "a/b" :type :directory}
-   {:path "a/b/c" :type :file :executable true}]
+  {"a" {:type :directory} "a/b" {:type :directory} "a/b/c" {:type :file :executable true}}
 #+end_src
 
 Instructions can create and then delete, VFS is always the final state.
@@ -137,51 +133,49 @@ Instructions can create and then delete, VFS is always the final state.
     (testing "commit with create-directory"
       (let [changes [(mkdir "a/b/c" :parents true)]
             vfs (commit changes)]
-        (prn changes) (prn vfs) ;;;;
         (is (= {:type :directory} (get vfs "a")))
         (is (= {:type :directory} (get vfs "a/b")))
         (is (= {:type :directory} (get vfs "a/b/c")))))
 
-    ;; (testing "commit with write-file"
-    ;;   (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true :executable true)]
-    ;;         vfs (commit changes)]
-    ;;     (is (= {:type :directory} (get vfs "a")))
-    ;;     (is (= {:type :directory} (get vfs "a/b")))
-    ;;     (is (= {:type :file :content "Hello, World!" :executable true} (get vfs "a/b/c.txt")))))
+    (testing "commit with write-file"
+      (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true :executable true)]
+            vfs (commit changes)]
+        (is (= {:type :directory} (get vfs "a")))
+        (is (= {:type :directory} (get vfs "a/b")))
+        (is (= {:type :file :content "Hello, World!" :executable true} (get vfs "a/b/c.txt")))))
 
-    ;; (testing "commit with delete-file"
-    ;;   (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true)
-    ;;                  (rm "a/b/c.txt")]
-    ;;         vfs (commit changes)]
-    ;;     (is (= {:type :directory} (get vfs "a")))
-    ;;     (is (= {:type :directory} (get vfs "a/b")))
-    ;;     (is (nil? (get vfs "a/b/c.txt")))))
+    (testing "commit with delete-file"
+      (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true)
+                     (rm "a/b/c.txt")]
+            vfs (commit changes)]
+        (is (= {:type :directory} (get vfs "a")))
+        (is (= {:type :directory} (get vfs "a/b")))
+        (is (nil? (get vfs "a/b/c.txt")))))
 
-    ;; (testing "commit with delete-directory"
-    ;;   (let [changes [(mkdir "a/b/c" :parents true)
-    ;;                  (rmdir "a/b/c")]
-    ;;         vfs (commit changes)]
-    ;;     (is (= {:type :directory} (get vfs "a")))
-    ;;     (is (= {:type :directory} (get vfs "a/b")))
-    ;;     (is (nil? (get vfs "a/b/c")))))
+    (testing "commit with delete-directory"
+      (let [changes [(mkdir "a/b/c" :parents true)
+                     (rmdir "a/b/c")]
+            vfs (commit changes)]
+        (is (= {:type :directory} (get vfs "a")))
+        (is (= {:type :directory} (get vfs "a/b")))
+        (is (nil? (get vfs "a/b/c")))))
 
-    ;; (testing "commit with recursive delete-directory"
-    ;;   (let [changes [(mkdir "a/b/c" :parents true)
-    ;;                  (write "a/b/c/file.txt" "Hello, World!")
-    ;;                  (rmdir "a" :recursive true)]
-    ;;         vfs (commit changes)]
-    ;;     (is (nil? (get vfs "a")))
-    ;;     (is (nil? (get vfs "a/b")))
-    ;;     (is (nil? (get vfs "a/b/c")))
-    ;;     (is (nil? (get vfs "a/b/c/file.txt")))))
-
-    )
+    (testing "commit with recursive delete-directory"
+      (let [changes [(mkdir "a/b/c" :parents true)
+                     (write "a/b/c/file.txt" "Hello, World!")
+                     (rmdir "a" :recursive true)]
+            vfs (commit changes)]
+        (is (nil? (get vfs "a")))
+        (is (nil? (get vfs "a/b")))
+        (is (nil? (get vfs "a/b/c")))
+        (is (nil? (get vfs "a/b/c/file.txt"))))))
 #+end_src
 
 ** Implementation
 #+begin_src clojure :tangle ../src/jakub_stastny/transactional_fs/core.clj :mkdirp yes :ns jakub-stastny.transactional-fs.core
   (ns jakub-stastny.transactional-fs.core
-    (:require [babashka.fs :as fs]))
+    (:require [clojure.string :as str]
+              [babashka.fs :as fs]))
 
   (defn- create-change-instruction [type path & {:keys [content parents executable recursive] :or {parents false executable false recursive false}}]
     (let [base-change-instruction {:type type :path path}
@@ -243,32 +237,34 @@ Instructions can create and then delete, VFS is always the final state.
 
   (defn apply-change-to-vfs [vfs change]
     (let [{:keys [type path content parents executable recursive]} change]
-      (case type
-        :write-file
-        (let [dirs (if parents (butlast (fs/components path)) [])
-              new-vfs (reduce (fn [acc dir]
-                                (assoc acc (str dir) {:type :directory}))
-                              vfs
-                              dirs)]
-          (assoc new-vfs (str path) {:type :file :content content :executable executable}))
+      (letfn [(split-path [path]
+                (let [chunks (str/split path #"/")]
+                  (map #(str/join "/" (take % chunks)) (range 1 (inc (count chunks))))))
+              (add-directories [vfs dirs]
+                (reduce (fn [acc dir]
+                          (assoc acc dir {:type :directory}))
+                        vfs
+                        dirs))]
+        (case type
+          :write-file
+          (let [dirs (if parents (butlast (split-path path)) [])
+                new-vfs (add-directories vfs dirs)]
+            (assoc new-vfs path {:type :file :content content :executable executable}))
 
-        :create-directory
-        (let [dirs (if parents (fs/components path) [path])]
-          (reduce (fn [acc dir]
-                    (assoc acc (str dir) {:type :directory}))
-                  vfs
-                  dirs))
+          :create-directory
+          (let [dirs (if parents (split-path path) [path])]
+            (add-directories vfs dirs))
 
-        :delete-file
-        (dissoc vfs (str path))
+          :delete-file
+          (dissoc vfs path)
 
-        :delete-directory
-        (if recursive
-          (reduce (fn [acc [k v]]
-                    (if (fs/starts-with? k path) acc (assoc acc k v)))
-                  {}
-                  vfs)
-          (dissoc vfs (str path))))))
+          :delete-directory
+          (if recursive
+            (reduce (fn [acc [k v]]
+                      (if (str/starts-with? k path) acc (assoc acc k v)))
+                    {}
+                    vfs)
+            (dissoc vfs path))))))
 
   (defn commit [change-instructions]
     (when (every? validate-change-instruction change-instructions)
