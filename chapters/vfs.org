@@ -303,18 +303,16 @@ As you can see it's the ~commit~ function that writes changes to HD.
         (is (fs/directory? (fs/path root-path "a")))
         (is (fs/directory? (fs/path root-path "a/b")))
         (is (fs/regular-file? (fs/path root-path "a/b/c.txt")))
-        (is (= "Hello, World!" (slurp (fs/path root-path "a/b/c.txt"))))
-        (prn :x ;;;;;;
-         (str (fs/posix-file-permissions (fs/path root-path "a/b/c.txt")))) ;;;;;;
-        (is (= "rwxr-xr-x" (str (fs/posix-file-permissions (fs/path root-path "a/b/c.txt"))))))
+        (is (= "Hello, World!" (slurp (str/join "/" [root-path "a/b/c.txt"]))))
+        (is (= "rwxr-xr-x" (fs/posix->str (fs/posix-file-permissions (fs/path root-path "a/b/c.txt"))))))
 
       ;; Test creating a file with non-existent parent directory
       (let [vfs {"d/e.txt" {:type :file :content "Test content"}}]
-        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Parent directory does not exist"
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Parent directory doesn't exist"
                               (commit vfs root-path))))
 
       ;; Clean up after test
-      ;; (fs/delete-tree root-path {:recursive true})
+      ;; (fs/delete-tree root-path)
       ))
 #+end_src
 
@@ -323,21 +321,31 @@ As you can see it's the ~commit~ function that writes changes to HD.
     (:require [clojure.string :as str]
               [babashka.fs :as fs]))
 
+  (defn log [full-path {:keys [type] :as opts}]
+    (let [opts (dissoc opts :type)
+          indicator (str/upper-case (get (name type) 0))]
+      (println (str "~ [" indicator "] " full-path " " (when-not (empty? opts) (pr-str opts))))))
+
+  (defn ensure-parent-directory [full-path]
+    (when-not (fs/directory? (fs/parent full-path))
+      (throw (ex-info (str "Parent directory doesn't exist") {:full-path full-path}))))
+
   (defn create-directory [full-path opts]
-    (println (str "~ [D] " full-path " " (pr-str opts)))
+    (log full-path opts)
+    (ensure-parent-directory full-path)
     (fs/create-dir full-path opts))
 
   (defn create-file [full-path {:keys [content executable] :as opts}]
-    (println (str "~ [F] " full-path " " (pr-str opts)))
+    (log full-path opts)
+    (ensure-parent-directory full-path)
     (spit full-path content)
     (when executable
-      (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
+      (fs/set-posix-file-permissions full-path "rwxr-xr-x")))
 
   (defn commit [vfs root-path]
     (fs/create-dirs root-path)
     (doseq [[path {:keys [type] :as opts}] vfs]
-      (let [full-path (str/join "/" [root-path path])
-            opts (dissoc opts :type)]
+      (let [full-path (str/join "/" [root-path path])]
         (case type
           :directory (create-directory full-path opts)
           :file (create-file full-path opts)))))
