@@ -219,31 +219,6 @@ As you can see it's the ~commit~ function that writes changes to HD.
         (throw (ex-info "Create file change instruction must have content" {:change-instruction change-instruction})))
       true))
 
-  ;; (defn apply-change-instruction [change-instruction root]
-  ;;   (let [{:keys [type path content parents executable recursive]} change-instruction
-  ;;         full-path (fs/path root path)]
-  ;;     (case type
-  ;;       :write-file
-  ;;       (do
-  ;;         (when parents
-  ;;           (fs/create-dirs (fs/parent full-path)))
-  ;;         (spit full-path content)
-  ;;         (when executable
-  ;;           (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
-
-  ;;       :delete-file
-  ;;       (fs/delete full-path)
-
-  ;;       :create-directory
-  ;;       (if parents
-  ;;         (fs/create-dirs full-path)
-  ;;         (fs/create-dir full-path))
-
-  ;;       :delete-directory
-  ;;       (if recursive
-  ;;         (fs/delete full-path {:recursive true})
-  ;;         (fs/delete full-path)))))
-
   (defn apply-change-to-vfs [vfs change]
     (let [{:keys [type path content parents executable recursive]} change]
       (letfn [(split-path [path]
@@ -349,20 +324,4 @@ As you can see it's the ~commit~ function that writes changes to HD.
         (case type
           :directory (create-directory full-path opts)
           :file (create-file full-path opts)))))
-#+end_src
-
-#+begin_src clojure
-  ;; TODO: Extract out as a standalone project or find if there's one already,
-  ;; it's pretty useful.
-  (defn mkvfs-fs-change-instruction [output-dir {:keys [path code]}]
-    (let [full-path (str output-dir "/" path)]
-      (println (str "~ " path))
-      ;; FIXME: No append, fail if file is to be overriden.
-      (spit full-path code :append true)))
-
-  ;; {path: string :content string :permissions 755}
-  (defn mkvfs-fs-change-instructions [output-dir blocks]
-    ;;(ensure-dir-exists (dirname path))
-    (doseq [block blocks]
-      (mkvfs-fs-change-instruction output-dir block)))
 #+end_src
