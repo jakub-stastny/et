@@ -281,14 +281,66 @@ As you can see it's the ~commit~ function that writes changes to HD.
 #+end_src
 
 ** Adapters
+#+begin_src clojure :tangle ../test/jakub_stastny/virtual_fs/adapters/babashka_fs_test.clj :mkdirp yes :ns jakub-stastny.virtual-fs.babashka-fs-test
+  (ns jakub-stastny.virtual-fs.adapters.babashka-fs-test
+    (:require [clojure.test :refer :all]
+              [jakub-stastny.virtual-fs.adapters.babashka-fs :refer :all]
+              [clojure.string :as str]
+              [babashka.fs :as fs]))
+
+  (deftest commit-test
+    (let [root-path "/tmp/test-root"]
+      ;; Clean up before test
+      (fs/delete-tree root-path)
+
+      ;; Test creating directories and files
+      (let [vfs {"a" {:type :directory}
+                 "a/b" {:type :directory}
+                 "a/b/c.txt" {:type :file :content "Hello, World!" :executable true}}]
+        (commit vfs root-path) ;; <--- Occurs here
+
+        ;; Assertions
+        (is (fs/directory? (fs/path root-path "a")))
+        (is (fs/directory? (fs/path root-path "a/b")))
+        (is (fs/regular-file? (fs/path root-path "a/b/c.txt")))
+        (is (= "Hello, World!" (slurp (fs/path root-path "a/b/c.txt"))))
+        (prn :x ;;;;;;
+         (str (fs/posix-file-permissions (fs/path root-path "a/b/c.txt")))) ;;;;;;
+        (is (= "rwxr-xr-x" (str (fs/posix-file-permissions (fs/path root-path "a/b/c.txt"))))))
+
+      ;; Test creating a file with non-existent parent directory
+      (let [vfs {"d/e.txt" {:type :file :content "Test content"}}]
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Parent directory does not exist"
+                              (commit vfs root-path))))
+
+      ;; Clean up after test
+      ;; (fs/delete-tree root-path {:recursive true})
+      ))
+#+end_src
+
 #+begin_src clojure :tangle ../src/jakub_stastny/virtual_fs/adapters/babashka_fs.clj :mkdirp yes :ns jakub-stastny.virtual-fs.babashka-fs
   (ns jakub-stastny.virtual-fs.adapters.babashka-fs
     (:require [clojure.string :as str]
               [babashka.fs :as fs]))
 
-  (defn commit [vfs path]
-    ;; TODO
-    )
+  (defn create-directory [full-path opts]
+    (println (str "~ [D] " full-path " " (pr-str opts)))
+    (fs/create-dir full-path opts))
+
+  (defn create-file [full-path {:keys [content executable] :as opts}]
+    (println (str "~ [F] " full-path " " (pr-str opts)))
+    (spit full-path content)
+    (when executable
+      (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
+
+  (defn commit [vfs root-path]
+    (fs/create-dirs root-path)
+    (doseq [[path {:keys [type] :as opts}] vfs]
+      (let [full-path (str/join "/" [root-path path])
+            opts (dissoc opts :type)]
+        (case type
+          :directory (create-directory full-path opts)
+          :file (create-file full-path opts)))))
 #+end_src
 
 #+begin_src clojure
