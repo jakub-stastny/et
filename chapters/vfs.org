@@ -51,56 +51,72 @@ Instructions can create and then delete, VFS is always the final state.
     (commit "/tmp/transactional-root" changes))
 #+end_src
 
+** Tests
+#+begin_src clojure :tangle ../test/jakub_stastny/transactional_fs/core_test.clj :mkdirp yes :ns jakub-stastny.transactional-fs.core-test
+  (ns jakub-stastny.transactional-fs.core-test
+    (:require [clojure.test :refer :all]
+              [jakub-stastny.transactional-fs.core :refer :all]))
+
+  (deftest mkdir-test
+    (testing "mkdir without parents"
+      (let [change (mkdir "mydir")]
+        (is (= {:type :create-directory :path "mydir"}
+               change))))
+
+    (testing "mkdir with parents"
+      (let [change (mkdir "a/b/c" :parents true)]
+        (is (= {:type :create-directory :path "a/b/c" :parents true}
+               change)))))
+#+end_src
+
 ** Implementation
 #+begin_src clojure :tangle ../src/jakub_stastny/transactional_fs/core.clj :mkdirp yes :ns jakub-stastny.transactional-fs.core
   (ns jakub-stastny.transactional-fs.core
     (:require [babashka.fs :as fs]))
 
-  (defn create-change [type path & {:keys [content parents executable recursive] :or {parents false executable false recursive false}}]
-    (let [base-change {:type type :path path}
-          base-change (if parents (assoc base-change :parents true) base-change)
-          base-change (if executable (assoc base-change :executable true) base-change)
-          base-change (if recursive (assoc base-change :recursive true) base-change)]
-      (if (= type :create-file)
-        (assoc base-change :content content)
-        base-change)))
+  (defn- create-change-instruction [type path & {:keys [content parents executable recursive] :or {parents false executable false recursive false}}]
+    (let [base-change-instruction {:type type :path path}
+          base-change-instruction (if parents (assoc base-change-instruction :parents true) base-change-instruction)
+          base-change-instruction (if executable (assoc base-change-instruction :executable true) base-change-instruction)
+          base-change-instruction (if recursive (assoc base-change-instruction :recursive true) base-change-instruction)]
+      (if (= type :write-file)
+        (assoc base-change-instruction :content content)
+        base-change-instruction)))
 
-  (defn mkdir
-    [path & {:keys [parents] :or {parents false}}]
-    (create-change :create-directory path :parents parents))
+  (defn mkdir [path & {:keys [parents] :or {parents false}}]
+    (create-change-instruction :create-directory path :parents parents))
 
-  (defn spit
+  (defn write
     [path content & {:keys [parents executable] :or {parents false executable false}}]
-    (create-change :create-file path :content content :parents parents :executable executable))
+    (create-change-instruction :write-file path :content content :parents parents :executable executable))
 
   (defn rm [path]
-    (create-change :delete-file path))
+    (create-change-instruction :delete-file path))
 
   ;; Note that to recursively delete a directory it's rmdir path :recursive true, not rm as it'd be on Unix.
-  (defn rmdir
-    [path & {:keys [recursive] :or {recursive false}}]
-    (create-change :delete-directory path :recursive recursive))
+  (defn rmdir [path & {:keys [recursive] :or {recursive false}}]
+    (create-change-instruction :delete-directory path :recursive recursive))
 
-  (defn validate-change [change]
-    (let [{:keys [type path]} change]
+  (defn validate-change-instruction [change-instruction]
+    (let [{:keys [type path]} change-instruction]
       (cond
-        (nil? type) (throw (ex-info "Change must have a type" {:change change}))
-        (nil? path) (throw (ex-info "Change must have a path" {:change change}))
-        (and (= type :create-file) (nil? (:content change))) (throw (ex-info "Create file change must have content" {:change change}))
+        (nil? type) (throw (ex-info "Change-Instruction must have a type" {:change-instruction change-instruction}))
+        (nil? path) (throw (ex-info "Change-Instruction must have a path" {:change-instruction change-instruction}))
+        (and (= type :write-file) (nil? (:content change-instruction))) (throw (ex-info "Create file change-instruction must have content" {:change-instruction change-instruction}))
         :else true)))
 
-  (defn validate-changes [changes]
-    (every? validate-change changes))
+  (defn validate-change-instructions [change-instructions]
+    (every? validate-change-instruction change-instructions))
 
-  (defn apply-change [change root]
-    (let [{:keys [type path content parents executable recursive]} change
+  (defn apply-change-instruction [change-instruction root]
+    (let [{:keys [type path content parents executable recursive]} change-instruction
           full-path (fs/path root path)]
       (case type
-        :create-file
+        :write-file
         (do
           (when parents
             (fs/create-dirs (fs/parent full-path)))
-          (fs/spit full-path content)
+          (spit full-path content)
           (when executable
             (fs/set-posix-file-permissions full-path (fs/posix-file-permissions "rwxr-xr-x"))))
 
@@ -117,22 +133,24 @@ Instructions can create and then delete, VFS is always the final state.
           (fs/delete full-path {:recursive true})
           (fs/delete full-path)))))
 
-  (defn commit [root changes]
-    (when (validate-changes changes)
-      (doseq [change changes]
-        (apply-change change root))))
+  (defn commit [root change-instructions]
+    (when (validate-change-instructions change-instructions)
+      (doseq [change-instruction change-instructions]
+        (apply-change-instruction change-instruction root))))
+#+end_src
 
+#+begin_src clojure
   ;; TODO: Extract out as a standalone project or find if there's one already,
   ;; it's pretty useful.
-  (defn commit-fs-change [output-dir {:keys [path code]}]
+  (defn commit-fs-change-instruction [output-dir {:keys [path code]}]
     (let [full-path (str output-dir "/" path)]
       (println (str "~ " path))
       ;; FIXME: No append, fail if file is to be overriden.
       (spit full-path code :append true)))
 
   ;; {path: string :content string :permissions 755}
-  (defn commit-fs-changes [output-dir blocks]
+  (defn commit-fs-change-instructions [output-dir blocks]
     ;;(ensure-dir-exists (dirname path))
     (doseq [block blocks]
-      (commit-fs-change output-dir block)))
+      (commit-fs-change-instruction output-dir block)))
 #+end_src
