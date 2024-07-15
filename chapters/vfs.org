@@ -1,57 +1,67 @@
-* Transactional FS
+* Virtual FS
 
-TransactionalFS is a declarative and safe file system operations script designed to handle file and directory manipulations in a transactional manner. Users can define a series of operations, such as creating directories (~mkdir~), creating files with content (~spit~), setting executable permissions, and deleting files (~rm~) or directories (~rmdir~), including recursive deletions. These operations are validated and accumulated without side effects until the ~commit~ function is called, ensuring that all changes are applied atomically. This approach is particularly advantageous for testing environments, where operations can be verified in a mock directory before committing, allowing for controlled, repeatable, and safe tests without affecting the actual file system.
+VirtualFS is a declarative and safe file system operations script designed to handle file and directory manipulations in a virtual manner. Users can define a series of operations, such as creating directories (~mkdir~), creating files with content (~spit~), setting executable permissions, and deleting files (~rm~) or directories (~rmdir~), including recursive deletions. These operations are validated and accumulated without side effects until the ~mkvfs~ function is called, ensuring that all changes are applied atomically. This approach is particularly advantageous for testing environments, where operations can be verified in a mock directory before commiting, allowing for controlled, repeatable, and safe tests without affecting the actual file system.
 
-** TODO Instructions vs VFS
-VFS is the directory tree just like it'd be on the FS, but in memory. We can query it like (vfs/file-exists? vfs "path/test.txt").
-~(commit (mkvfs instructions))~
+** Change instructions vs VFS
+A *change instruction* is a concise, descriptive map representing an intended file system operation, such as creating, deleting, or modifying files and directories. All FS operations produce change instructions.
+
+Upon calling ~mkvfs~ on the change instruction list, a VFS is produced. VFS (Virtual File System) is a detailed map that models the current state of a file system, including the hierarchical structure of directories and files with their associated metadata. Change instructions describe planned operations, while the VFS represents the resulting file system state after applying those operations.
 
 This instruction:
 #+begin_src clojure
-  {:path "a/b/c" :parents true :executable true :content "#!/usr/bin/env bb\n(println (+ 1 2))\n"}
+  {:path "a/b/c" :parents true :executable true :content "#!/bin/sh\necho Hello world!"}
 #+end_src
 
 Generates this VFS:
 #+begin_src clojure
-  {"a" {:type :directory} "a/b" {:type :directory} "a/b/c" {:type :file :executable true}}
+  {"a" {:type :directory}
+   "a/b" {:type :directory}
+   "a/b/c" {:type :file :executable true :content "#!/bin/sh\necho Hello world!"}}
 #+end_src
 
 Instructions can create and then delete, VFS is always the final state.
 
+All the way up to here there we had no side-effects. This declarative way helps us to test the result VFS:
+
 ** Usage
-*** In code
+*** In tests
 #+begin_src clojure
   (ns myapp.test
     (:require [clojure.test :refer :all]
-              [jakub-stastny.transactional-fs.core :as tfs]))
+              [jakub-stastny.virtual-fs.core :as vfs]))
 
   ;; Return a list of changes.
   (def black-box []
-    [(tfs/mkdir "my/path" :parents true)
-     (tfs/spit "my/path/test-file.txt" "Hello, World!")])
+    [(vfs/write "my/path/test-file.txt" "Hello, World!")])
 
   (deftest file-creation-test
-    (let [vfs (black-box)
-          test-file (first (find #(= :path "my/path/test-file.txt")))]
+    (let [vfs (mkvfs (black-box))
+          test-file (get vfs "my/path/test-file.txt")]
       (is (= "Hello, World!") (:content test-file))))
 #+end_src
 
-*** In tests
+*** In code
 #+begin_src clojure
+  (ns myapp.test
+    (:require [jakub-stastny.virtual-fs.core :refer :all]
+              [jakub-stastny.virtual-fs.adapters.babashka-fs :refer [commit]]))
+
   (let [changes [(mkdir "my/path" :parents true)
                  (spit "my/path/file.txt" "lorem ipsum")
                  (spit "my/path/executable.sh" "#!/bin/bash\necho Hello" :executable true)
                  (rm "my/path/file.txt")
                  (rmdir "my/path")
                  (rmdir "my/another/path" :recursive true)]]
-    (commit "/tmp/transactional-root" changes))
+    (commit (mkvfs changes) "/tmp/virtual-root")
 #+end_src
 
+As you can see it's the ~commit~ function that writes changes to HD.
+
 ** Tests
-#+begin_src clojure :tangle ../test/jakub_stastny/transactional_fs/core_test.clj :mkdirp yes :ns jakub-stastny.transactional-fs.core-test
-  (ns jakub-stastny.transactional-fs.core-test
+#+begin_src clojure :tangle ../test/jakub_stastny/virtual_fs/core_test.clj :mkdirp yes :ns jakub-stastny.virtual-fs.core-test
+  (ns jakub-stastny.virtual-fs.core-test
     (:require [clojure.test :refer :all]
-              [jakub-stastny.transactional-fs.core :refer :all]))
+              [jakub-stastny.virtual-fs.core :refer :all]))
 
   (deftest mkdir-test
     (testing "mkdir without parents"
@@ -129,42 +139,42 @@ Instructions can create and then delete, VFS is always the final state.
         (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Create file change instruction must have content"
                               (validate-change-instruction change))))))
 
-  (deftest commit-test
-    (testing "commit with create-directory"
+  (deftest mkvfs-test
+    (testing "mkvfs with create-directory"
       (let [changes [(mkdir "a/b/c" :parents true)]
-            vfs (commit changes)]
+            vfs (mkvfs changes)]
         (is (= {:type :directory} (get vfs "a")))
         (is (= {:type :directory} (get vfs "a/b")))
         (is (= {:type :directory} (get vfs "a/b/c")))))
 
-    (testing "commit with write-file"
+    (testing "mkvfs with write-file"
       (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true :executable true)]
-            vfs (commit changes)]
+            vfs (mkvfs changes)]
         (is (= {:type :directory} (get vfs "a")))
         (is (= {:type :directory} (get vfs "a/b")))
         (is (= {:type :file :content "Hello, World!" :executable true} (get vfs "a/b/c.txt")))))
 
-    (testing "commit with delete-file"
+    (testing "mkvfs with delete-file"
       (let [changes [(write "a/b/c.txt" "Hello, World!" :parents true)
                      (rm "a/b/c.txt")]
-            vfs (commit changes)]
+            vfs (mkvfs changes)]
         (is (= {:type :directory} (get vfs "a")))
         (is (= {:type :directory} (get vfs "a/b")))
         (is (nil? (get vfs "a/b/c.txt")))))
 
-    (testing "commit with delete-directory"
+    (testing "mkvfs with delete-directory"
       (let [changes [(mkdir "a/b/c" :parents true)
                      (rmdir "a/b/c")]
-            vfs (commit changes)]
+            vfs (mkvfs changes)]
         (is (= {:type :directory} (get vfs "a")))
         (is (= {:type :directory} (get vfs "a/b")))
         (is (nil? (get vfs "a/b/c")))))
 
-    (testing "commit with recursive delete-directory"
+    (testing "mkvfs with recursive delete-directory"
       (let [changes [(mkdir "a/b/c" :parents true)
                      (write "a/b/c/file.txt" "Hello, World!")
                      (rmdir "a" :recursive true)]
-            vfs (commit changes)]
+            vfs (mkvfs changes)]
         (is (nil? (get vfs "a")))
         (is (nil? (get vfs "a/b")))
         (is (nil? (get vfs "a/b/c")))
@@ -172,10 +182,9 @@ Instructions can create and then delete, VFS is always the final state.
 #+end_src
 
 ** Implementation
-#+begin_src clojure :tangle ../src/jakub_stastny/transactional_fs/core.clj :mkdirp yes :ns jakub-stastny.transactional-fs.core
-  (ns jakub-stastny.transactional-fs.core
-    (:require [clojure.string :as str]
-              [babashka.fs :as fs]))
+#+begin_src clojure :tangle ../src/jakub_stastny/virtual_fs/core.clj :mkdirp yes :ns jakub-stastny.virtual-fs.core
+  (ns jakub-stastny.virtual-fs.core
+    (:require [clojure.string :as str]))
 
   (defn- create-change-instruction [type path & {:keys [content parents executable recursive] :or {parents false executable false recursive false}}]
     (let [base-change-instruction {:type type :path path}
@@ -266,23 +275,34 @@ Instructions can create and then delete, VFS is always the final state.
                     vfs)
             (dissoc vfs path))))))
 
-  (defn commit [change-instructions]
+  (defn mkvfs [change-instructions]
     (when (every? validate-change-instruction change-instructions)
       (reduce apply-change-to-vfs {} change-instructions)))
+#+end_src
+
+** Adapters
+#+begin_src clojure :tangle ../src/jakub_stastny/virtual_fs/adapters/babashka_fs.clj :mkdirp yes :ns jakub-stastny.virtual-fs.babashka-fs
+  (ns jakub-stastny.virtual-fs.adapters.babashka-fs
+    (:require [clojure.string :as str]
+              [babashka.fs :as fs]))
+
+  (defn commit [vfs path]
+    ;; TODO
+    )
 #+end_src
 
 #+begin_src clojure
   ;; TODO: Extract out as a standalone project or find if there's one already,
   ;; it's pretty useful.
-  (defn commit-fs-change-instruction [output-dir {:keys [path code]}]
+  (defn mkvfs-fs-change-instruction [output-dir {:keys [path code]}]
     (let [full-path (str output-dir "/" path)]
       (println (str "~ " path))
       ;; FIXME: No append, fail if file is to be overriden.
       (spit full-path code :append true)))
 
   ;; {path: string :content string :permissions 755}
-  (defn commit-fs-change-instructions [output-dir blocks]
+  (defn mkvfs-fs-change-instructions [output-dir blocks]
     ;;(ensure-dir-exists (dirname path))
     (doseq [block blocks]
-      (commit-fs-change-instruction output-dir block)))
+      (mkvfs-fs-change-instruction output-dir block)))
 #+end_src
