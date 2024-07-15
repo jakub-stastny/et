@@ -60,13 +60,78 @@ Instructions can create and then delete, VFS is always the final state.
   (deftest mkdir-test
     (testing "mkdir without parents"
       (let [change (mkdir "mydir")]
-        (is (= {:type :create-directory :path "mydir"}
-               change))))
+        (is (= {:type :create-directory :path "mydir"} change))))
 
     (testing "mkdir with parents"
       (let [change (mkdir "a/b/c" :parents true)]
-        (is (= {:type :create-directory :path "a/b/c" :parents true}
+        (is (= {:type :create-directory :path "a/b/c" :parents true} change)))))
+
+  (deftest write-test
+    (testing "write without parents and executable"
+      (let [change (write "myfile.txt" "Hello, World!")]
+        (is (= {:type :write-file :path "myfile.txt" :content "Hello, World!"}
+               change))))
+
+    (testing "write with parents"
+      (let [change (write "a/b/c.txt" "Hello, World!" :parents true)]
+        (is (= {:type :write-file :path "a/b/c.txt" :content "Hello, World!" :parents true}
+               change))))
+
+    (testing "write with executable"
+      (let [change (write "myfile.sh" "#!/bin/bash\necho Hello" :executable true)]
+        (is (= {:type :write-file :path "myfile.sh" :content "#!/bin/bash\necho Hello" :executable true}
+               change))))
+
+    (testing "write with parents and executable"
+      (let [change (write "a/b/c.sh" "#!/bin/bash\necho Hello" :parents true :executable true)]
+        (is (= {:type :write-file :path "a/b/c.sh" :content "#!/bin/bash\necho Hello" :parents true :executable true}
                change)))))
+
+  (deftest rm-test
+    (testing "rm file"
+      (let [change (rm "myfile.txt")]
+        (is (= {:type :delete-file :path "myfile.txt"} change)))))
+
+  (deftest rmdir-test
+    (testing "rmdir without recursive"
+      (let [change (rmdir "mydir")]
+        (is (= {:type :delete-directory :path "mydir"} change))))
+
+    (testing "rmdir with recursive"
+      (let [change (rmdir "mydir" :recursive true)]
+        (is (= {:type :delete-directory :path "mydir" :recursive true} change)))))
+
+  (deftest validate-change-instruction-test
+    (testing "validate-change-instruction with valid create-directory"
+      (let [change (mkdir "mydir")]
+        (is (true? (validate-change-instruction change)))))
+
+    (testing "validate-change-instruction with valid write-file"
+      (let [change (write "myfile.txt" "Hello, World!")]
+        (is (true? (validate-change-instruction change)))))
+
+    (testing "validate-change-instruction with valid delete-file"
+      (let [change (rm "myfile.txt")]
+        (is (true? (validate-change-instruction change)))))
+
+    (testing "validate-change-instruction with valid delete-directory"
+      (let [change (rmdir "mydir")]
+        (is (true? (validate-change-instruction change)))))
+
+    (testing "validate-change-instruction without type"
+      (let [change {:path "mydir"}]
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Change instruction must have a type"
+                              (validate-change-instruction change)))))
+
+    (testing "validate-change-instruction without path"
+      (let [change {:type :create-directory}]
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Change instruction must have a path"
+                              (validate-change-instruction change)))))
+
+    (testing "validate-change-instruction write-file without content"
+      (let [change {:type :write-file :path "myfile.txt"}]
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"Create file change instruction must have content"
+                              (validate-change-instruction change))))))
 #+end_src
 
 ** Implementation
@@ -99,11 +164,13 @@ Instructions can create and then delete, VFS is always the final state.
 
   (defn validate-change-instruction [change-instruction]
     (let [{:keys [type path]} change-instruction]
-      (cond
-        (nil? type) (throw (ex-info "Change-Instruction must have a type" {:change-instruction change-instruction}))
-        (nil? path) (throw (ex-info "Change-Instruction must have a path" {:change-instruction change-instruction}))
-        (and (= type :write-file) (nil? (:content change-instruction))) (throw (ex-info "Create file change-instruction must have content" {:change-instruction change-instruction}))
-        :else true)))
+      (when-not type
+        (throw (ex-info "Change instruction must have a type" {:change-instruction change-instruction})))
+      (when-not path
+        (throw (ex-info "Change instruction must have a path" {:change-instruction change-instruction})))
+      (when (and (= type :write-file) (not (:content change-instruction)))
+        (throw (ex-info "Create file change instruction must have content" {:change-instruction change-instruction})))
+      true))
 
   (defn validate-change-instructions [change-instructions]
     (every? validate-change-instruction change-instructions))
