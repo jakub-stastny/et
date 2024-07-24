@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-23 Thu 15:20 -->
+<!-- 2024-07-24 Wed 10:38 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Building ET</title>
@@ -199,45 +199,81 @@
 <div id="content" class="content">
 <h1 class="title">Building ET</h1>
 
-<div id="outline-container-org4898cf5" class="outline-3">
-<h3 id="org4898cf5"><span class="section-number-3">0.1.</span> Clojure configuration <code>deps.edn</code></h3>
+<div id="outline-container-org22f2e2a" class="outline-3">
+<h3 id="org22f2e2a"><span class="section-number-3">0.1.</span> Clojure configuration <code>deps.edn</code></h3>
 <div class="outline-text-3" id="text-0-1">
 <div class="org-src-container">
-<pre class="src src-clojure">{<span class="org-clojure-keyword">:paths</span> [<span class="org-string">"src"</span>]
- <span class="org-clojure-keyword">:aliases</span> {<span class="org-clojure-keyword">:build</span>
-           {<span class="org-clojure-keyword">:deps</span> {<span class="org-type">io.github.clojure</span>/tools.build
-                   {<span class="org-clojure-keyword">:</span><span class="org-type">git</span><span class="org-default">/</span><span class="org-clojure-keyword">tag</span> <span class="org-string">"v0.9.4"</span> <span class="org-clojure-keyword">:</span><span class="org-type">git</span><span class="org-default">/</span><span class="org-clojure-keyword">sha</span> <span class="org-string">"76b78fe"</span>}}
-            <span class="org-clojure-keyword">:ns-default</span> build}}}
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">{</span><span class="org-clojure-keyword">:paths</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-string">"src"</span><span class="org-rainbow-delimiters-depth-2">]</span>
+ <span class="org-clojure-keyword">:deps</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-type">org.clojure</span>/clojure <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"1.11.3"</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">}</span>
+ <span class="org-clojure-keyword">:aliases</span>
+ <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:build</span>
+  <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:extra-deps</span> <span class="org-rainbow-delimiters-depth-4">{</span><span class="org-type">io.github.clojure</span>/tools.build <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"0.10.4"</span><span class="org-rainbow-delimiters-depth-5">}</span><span class="org-rainbow-delimiters-depth-4">}</span>
+   <span class="org-clojure-keyword">:ns-default</span> build<span class="org-rainbow-delimiters-depth-3">}</span>
+
+  <span class="org-clojure-keyword">:tangler</span>
+  <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:extra-deps</span>
+   <span class="org-rainbow-delimiters-depth-4">{</span><span class="org-type">org.babashka</span>/cli <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"0.8.59"</span><span class="org-rainbow-delimiters-depth-5">}</span>
+    <span class="org-type">babashka</span>/fs <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"0.5.21"</span><span class="org-rainbow-delimiters-depth-5">}</span><span class="org-rainbow-delimiters-depth-4">}</span><span class="org-rainbow-delimiters-depth-3">}</span>
+
+  <span class="org-clojure-keyword">:test</span>
+  <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:extra-paths</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-string">"test"</span><span class="org-rainbow-delimiters-depth-4">]</span>
+   <span class="org-clojure-keyword">:extra-deps</span> <span class="org-rainbow-delimiters-depth-4">{</span><span class="org-type">org.clojure</span>/test.check <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"1.1.1"</span><span class="org-rainbow-delimiters-depth-5">}</span>
+                <span class="org-type">io.github.cognitect-labs</span>/test-runner <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:</span><span class="org-type">git</span><span class="org-default">/</span><span class="org-clojure-keyword">tag</span> <span class="org-string">"v0.5.1"</span> <span class="org-clojure-keyword">:</span><span class="org-type">git</span><span class="org-default">/</span><span class="org-clojure-keyword">sha</span> <span class="org-string">"dfb30dd"</span><span class="org-rainbow-delimiters-depth-5">}</span>
+                <span class="org-type">babashka</span>/process <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"0.5.22"</span><span class="org-rainbow-delimiters-depth-5">}</span><span class="org-rainbow-delimiters-depth-4">}</span>
+   <span class="org-clojure-keyword">:main-opts</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-string">"-m"</span> <span class="org-string">"cognitect.test-runner"</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgad62592" class="outline-3">
+<h3 id="orgad62592"><span class="section-number-3">0.2.</span> Babashka configuration <code>bb.edn</code></h3>
+<div class="outline-text-3" id="text-0-2">
+<ul class="org-ul">
+<li>Now you can run <code>bb run tangle</code> and <code>bb run test</code>.</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">{</span><span class="org-clojure-keyword">:paths</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-string">"src"</span> <span class="org-string">"test"</span><span class="org-rainbow-delimiters-depth-2">]</span>
+ <span class="org-clojure-keyword">:deps</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-type">org.babashka</span>/cli <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:</span><span class="org-type">mvn</span><span class="org-default">/</span><span class="org-clojure-keyword">version</span> <span class="org-string">"0.8.59"</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">}</span>
+ <span class="org-clojure-keyword">:tasks</span>
+ <span class="org-rainbow-delimiters-depth-2">{</span>tangle
+  <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:doc</span> <span class="org-string">"Run the tangler script"</span>
+   <span class="org-clojure-keyword">:task</span> <span class="org-rainbow-delimiters-depth-4">(</span>shell <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:cmd</span> <span class="org-string">"bb -cp src -m jakub-stastny.tangler.main --file chapters/build.org --output-dir xxx"</span><span class="org-rainbow-delimiters-depth-5">}</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">}</span>
+
+  test
+  <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:doc</span> <span class="org-string">"Run the tests"</span>
+   <span class="org-clojure-keyword">:task</span> <span class="org-rainbow-delimiters-depth-4">(</span>shell <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:cmd</span> <span class="org-string">"bb -m cognitect.test-runner"</span><span class="org-rainbow-delimiters-depth-5">}</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">}</span> <span class="org-comment">; :dir "test"</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">build</span>
-  (<span class="org-clojure-keyword">:require</span> [clojure.tools.build.api <span class="org-clojure-keyword">:as</span> b]))
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">build</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>clojure.tools.build.api <span class="org-clojure-keyword">:as</span> b<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">def</span> <span class="org-variable-name">lib</span> '<span class="org-type">jakub-stastny</span>/et)
-(<span class="org-keyword">def</span> <span class="org-variable-name">class-dir</span> <span class="org-string">"target/classes"</span>)
-(<span class="org-keyword">def</span> <span class="org-variable-name">basis</span> (<span class="org-type">b</span>/create-basis {<span class="org-clojure-keyword">:project</span> <span class="org-string">"deps.edn"</span>}))
-(<span class="org-keyword">def</span> <span class="org-variable-name">uber-file</span> (format <span class="org-string">"target/%s.jar"</span> (name lib)))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">lib</span> '<span class="org-type">jakub-stastny</span>/et<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">class-dir</span> <span class="org-string">"target/classes"</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">basis</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">b</span>/create-basis <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:project</span> <span class="org-string">"deps.edn"</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">uber-file</span> <span class="org-rainbow-delimiters-depth-2">(</span>format <span class="org-string">"target/%s.jar"</span> <span class="org-rainbow-delimiters-depth-3">(</span>name lib<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">clean</span> [_] (<span class="org-type">b</span>/delete {<span class="org-clojure-keyword">:path</span> <span class="org-string">"target"</span>}))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">clean</span> <span class="org-rainbow-delimiters-depth-2">[</span>_<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">b</span>/delete <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:path</span> <span class="org-string">"target"</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">uber</span> [_]
-  (clean <span class="org-constant">nil</span>)
-  (<span class="org-type">b</span>/copy-dir {<span class="org-clojure-keyword">:src-dirs</span> [<span class="org-string">"src"</span>] <span class="org-clojure-keyword">:target-dir</span> class-dir})
-  (<span class="org-type">b</span>/compile-clj {<span class="org-clojure-keyword">:basis</span> basis <span class="org-clojure-keyword">:src-dirs</span> [<span class="org-string">"src"</span>] <span class="org-clojure-keyword">:class-dir</span> class-dir})
-  (<span class="org-type">b</span>/uber {<span class="org-clojure-keyword">:class-dir</span> class-dir <span class="org-clojure-keyword">:uber-file</span> uber-file
-           <span class="org-clojure-keyword">:basis</span> basis <span class="org-clojure-keyword">:main</span> 'jakub-stastny.et.runner}))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">uber</span> <span class="org-rainbow-delimiters-depth-2">[</span>_<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>clean <span class="org-constant">nil</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">b</span>/copy-dir <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:src-dirs</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-string">"src"</span><span class="org-rainbow-delimiters-depth-4">]</span> <span class="org-clojure-keyword">:target-dir</span> class-dir<span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">b</span>/compile-clj <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:basis</span> basis <span class="org-clojure-keyword">:src-dirs</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-string">"src"</span><span class="org-rainbow-delimiters-depth-4">]</span> <span class="org-clojure-keyword">:class-dir</span> class-dir<span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">b</span>/uber <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:class-dir</span> class-dir <span class="org-clojure-keyword">:uber-file</span> uber-file
+           <span class="org-clojure-keyword">:basis</span> basis <span class="org-clojure-keyword">:main</span> 'jakub-stastny.et.runner<span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org71ed32d" class="outline-2">
-<h2 id="org71ed32d"><span class="section-number-2">1.</span> AOT compilation</h2>
+<div id="outline-container-org65dd42b" class="outline-2">
+<h2 id="org65dd42b"><span class="section-number-2">1.</span> AOT compilation</h2>
 <div class="outline-text-2" id="text-1">
 <div class="org-src-container">
-<pre class="src src-sh" id="org7ab3d3d"><span class="org-comment-delimiter"># </span><span class="org-comment">java -jar target/et.jar build.org uber</span>
+<pre class="src src-sh" id="orga182b38"><span class="org-comment-delimiter"># </span><span class="org-comment">java -jar target/et.jar build.org uber</span>
 <span class="org-comment-delimiter"># </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner build.org uber</span>
 <span class="org-comment-delimiter"># </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner build.org uber</span>
 clojure -T:build uber
@@ -246,8 +282,8 @@ clojure -T:build uber
 </div>
 </div>
 
-<div id="outline-container-org59d01db" class="outline-2">
-<h2 id="org59d01db"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> GraalVM-compiled binary</h2>
+<div id="outline-container-org8d42c2a" class="outline-2">
+<h2 id="org8d42c2a"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> GraalVM-compiled binary</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Note that this way you can only use the default runner.

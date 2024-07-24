@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-23 Thu 15:20 -->
+<!-- 2024-07-24 Wed 10:38 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs tasks development</title>
@@ -199,19 +199,165 @@
 <div id="content" class="content">
 <h1 class="title">Emacs tasks development</h1>
 
-<div id="outline-container-orga21b9af" class="outline-2">
-<h2 id="orga21b9af"><span class="section-number-2">1.</span> <span class="todo TODO">TODO</span> Tests</h2>
+<div id="outline-container-orgb7880c6" class="outline-2">
+<h2 id="orgb7880c6"><span class="section-number-2">1.</span> Testing</h2>
 <div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-orga0cc073" class="outline-3">
+<h3 id="orga0cc073"><span class="section-number-3">1.1.</span> <span class="todo TODO">TODO</span> Link deps.edn (build.org) here</h3>
+</div>
+
+<div id="outline-container-orgf8425c6" class="outline-3">
+<h3 id="orgf8425c6"><span class="section-number-3">1.2.</span> Test runner</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Run: <code>bb -cp "$(clojure -Spath -Mtest)" run-tests.bb</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span>require '<span class="org-rainbow-delimiters-depth-2">[</span>clojure.test <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-2">]</span>
+         '<span class="org-rainbow-delimiters-depth-2">[</span>integration-test <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-2">]</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span>run-tests 'integration-test<span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8a7e79d" class="outline-3">
+<h3 id="org8a7e79d"><span class="section-number-3">1.3.</span> Unit tests</h3>
+<div class="outline-text-3" id="text-1-3">
+<div class="org-src-container">
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.parser-test</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>clojure.test <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.parser <span class="org-clojure-keyword">:as</span> parser<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">deftest</span> <span class="org-function-name">example-test</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>testing <span class="org-string">"Example test case"</span>
+    <span class="org-comment">;(is (= (parser/parse "some input") "expected output"))</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>println <span class="org-string">"Hey there!"</span><span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga4f00c0" class="outline-3">
+<h3 id="orga4f00c0"><span class="section-number-3">1.4.</span> Integration tests</h3>
+<div class="outline-text-3" id="text-1-4">
+<div class="org-src-container">
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">integration-test</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>clojure.test <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>babashka.process <span class="org-clojure-keyword">:as</span> process<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>clojure.java.shell <span class="org-clojure-keyword">:refer</span> <span class="org-rainbow-delimiters-depth-4">[</span>sh<span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">run-bb</span> <span class="org-rainbow-delimiters-depth-2">[</span>args<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">process</span>/shell <span class="org-string">"bb"</span> args<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">run-java</span> <span class="org-rainbow-delimiters-depth-2">[</span>args<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>sh <span class="org-string">"java"</span> <span class="org-string">"-jar"</span> args<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">assert-exit-status</span> <span class="org-rainbow-delimiters-depth-2">[</span>result expected-status<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>is <span class="org-rainbow-delimiters-depth-3">(</span>= <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-clojure-keyword">:exit</span> result<span class="org-rainbow-delimiters-depth-4">)</span> expected-status<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">assert-output-matches</span> <span class="org-rainbow-delimiters-depth-2">[</span>result expected-regex<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>is <span class="org-rainbow-delimiters-depth-3">(</span>re-find <span class="org-rainbow-delimiters-depth-4">(</span>re-pattern expected-regex<span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-clojure-keyword">:out</span> result<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">deftest</span> <span class="org-function-name">test-works</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>println <span class="org-string">"Hey there!"</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(deftest test-babashka-execution</span>
+<span class="org-comment-delimiter">;;   </span><span class="org-comment">(let [result (run-bb "your-program.clj")]</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(assert-exit-status result 0)</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(assert-output-matches result "hello")))</span>
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(deftest test-java-execution</span>
+<span class="org-comment-delimiter">;;   </span><span class="org-comment">(let [result (run-java "your-program.jar")]</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(assert-exit-status result 0)</span>
+<span class="org-comment-delimiter">;;     </span><span class="org-comment">(assert-output-matches result "hello")))</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org210cccf" class="outline-2">
+<h2 id="org210cccf"><span class="section-number-2">2.</span> CI</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org0c1ca8d" class="outline-3">
+<h3 id="org0c1ca8d"><span class="section-number-3">2.1.</span> Execution times</h3>
+<div class="outline-text-3" id="text-2-1">
 <ul class="org-ul">
-<li>Test against bb, clj &amp; java (test output)</li>
-<li>Unit tests</li>
+<li>Install Clojure &amp; BB, no Emacs: <a href="https://github.com/jakub-stastny/et/actions/runs/9897692051/job/27342788460">11s</a>.</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-yaml"><span class="org-comment-delimiter"># </span><span class="org-comment">Please note that this is a duplicate. The source is in chapters/development.org.</span>
+<span class="org-variable-name">name</span>: CI
+<span class="org-constant">on</span>: [push, pull_request]
+
+<span class="org-variable-name">jobs</span>:
+  <span class="org-variable-name">build</span>:
+    <span class="org-variable-name">runs-on</span>: ubuntu-latest
+
+    <span class="org-variable-name">strategy</span>:
+      <span class="org-variable-name">matrix</span>:
+        <span class="org-variable-name">os</span>: [ubuntu-latest]
+        <span class="org-variable-name">java</span>: [11]
+
+    <span class="org-variable-name">steps</span>:
+    - <span class="org-variable-name">name</span>: Checkout code
+      <span class="org-variable-name">uses</span>: actions/checkout@v2
+
+    - <span class="org-variable-name">name</span>: Set up JDK ${{ matrix.java }}
+      <span class="org-variable-name">uses</span>: actions/setup-java@v2
+      <span class="org-variable-name">with</span>:
+        <span class="org-variable-name">distribution</span>: temurin
+        <span class="org-variable-name">java-version</span>: ${{ matrix.java }}
+
+    - <span class="org-variable-name">name</span>: Install Clojure CLI
+      <span class="org-variable-name">run</span>: |
+        <span class="org-string">curl -O https://download.clojure.org/install/linux-install-1.10.3.998.sh</span>
+<span class="org-string">        chmod +x linux-install-1.10.3.998.sh</span>
+<span class="org-string">        sudo ./linux-install-1.10.3.998.sh</span>
+
+    - <span class="org-variable-name">name</span>: Install Babashka
+      <span class="org-variable-name">run</span>: |
+        <span class="org-string">wget https://github.com/babashka/babashka/releases/download/v1.3.191/babashka-1.3.191-linux-amd64-static.tar.gz -O babashka-release.tgz</span>
+<span class="org-string">        tar -xzf babashka-release.tgz</span>
+<span class="org-string">        sudo mv bb /usr/local/bin/bb</span>
+
+    - <span class="org-variable-name">name</span>: Tangle Org files
+      <span class="org-variable-name">run</span>: |
+        <span class="org-string">for file in chapters/*.org; do</span>
+<span class="org-string">          echo TODO</span>
+<span class="org-string">        done</span>
+
+    - <span class="org-variable-name">name</span>: Run tests in JVM
+      <span class="org-variable-name">run</span>: clojure -M:test
+
+    - <span class="org-variable-name">name</span>: Run tests in Babashka
+      <span class="org-variable-name">run</span>: bb -cp <span class="org-string">"$(clojure -Spath -Mtest)"</span> run-tests.bb
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3c31673" class="outline-2">
+<h2 id="org3c31673"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Tests</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li>Deal with compilation in the YAML file.</li>
+<li>GitHub Actions YAML: add Git pre-commit hook to ruby -ryaml -e "YAML.load(STDIN.read)"</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org9723079" class="outline-2">
-<h2 id="org9723079"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Release</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-orgc2b58e6" class="outline-2">
+<h2 id="orgc2b58e6"><span class="section-number-2">4.</span> <span class="todo TODO">TODO</span> Release</h2>
+<div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>Versions 2023-03-01, publish doc and src, update README link. Keep resetting docs/src to the last release.</li>
 <li>Rel branch: merge dev for every release.</li>
@@ -221,17 +367,17 @@
 </div>
 </div>
 
-<div id="outline-container-orgea517aa" class="outline-2">
-<h2 id="orgea517aa"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Dev</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-orge1cc928" class="outline-2">
+<h2 id="orge1cc928"><span class="section-number-2">5.</span> <span class="todo TODO">TODO</span> Dev</h2>
+<div class="outline-text-2" id="text-5">
 <ul class="org-ul">
 <li>RPM emacs project root etc.</li>
 </ul>
 </div>
 
-<div id="outline-container-org10d5075" class="outline-3">
-<h3 id="org10d5075"><span class="section-number-3">3.1.</span> ZSH</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-orgc8fd5ed" class="outline-3">
+<h3 id="orgc8fd5ed"><span class="section-number-3">5.1.</span> ZSH</h3>
+<div class="outline-text-3" id="text-5-1">
 <ul class="org-ul">
 <li>Function <code>save-function-list</code> comes from <a href="https://github.com/jakub-stastny/dotfiles/blob/master/.zsh/shared.env.zsh">~/zsh/shared.env.zsh</a>.</li>
 <li>File <a href="https://github.com/jakub-stastny/dotfiles/blob/master/.zsh/environments/basic.zsh">~/zsh/environments/basic.zsh</a></li>
@@ -251,36 +397,23 @@ report-custom-functions
 </div>
 </div>
 
-<div id="outline-container-orgd94732e" class="outline-3">
-<h3 id="orgd94732e"><span class="section-number-3">3.2.</span> Emacs</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-org71c03cf" class="outline-3">
+<h3 id="org71c03cf"><span class="section-number-3">5.2.</span> Emacs</h3>
+<div class="outline-text-3" id="text-5-2">
 </div>
-<div id="outline-container-orgf04aa80" class="outline-4">
-<h4 id="orgf04aa80"><span class="section-number-4">3.2.1.</span> Setup</h4>
-<div class="outline-text-4" id="text-3-2-1">
+<div id="outline-container-org9ed2f7b" class="outline-4">
+<h4 id="org9ed2f7b"><span class="section-number-4">5.2.1.</span> Setup</h4>
+<div class="outline-text-4" id="text-5-2-1">
 <p>
 <i>With this setup files get tangled automatically on save.</i>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(add-to-list 'load-path (expand-file-name <span class="org-string">"~/.zsh/environments/elisp"</span>))
+<pre class="src src-elisp"><span class="org-rainbow-delimiters-depth-1">(</span>add-to-list 'load-path <span class="org-rainbow-delimiters-depth-2">(</span>expand-file-name <span class="org-string">"~/.zsh/environments/elisp"</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">(load-theme 'tsdh-light)</span>
 
-(load <span class="org-string">"literate-programming"</span>)
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-
-<div id="outline-container-org52896d8" class="outline-2">
-<h2 id="org52896d8"><span class="section-number-2">4.</span> Hosting</h2>
-<div class="outline-text-2" id="text-4">
-<div class="org-src-container">
-<pre class="src src-sh" id="org9fec65b">scp target/et.jar home:/bm/www/jar/et.jar
+<span class="org-rainbow-delimiters-depth-1">(</span>load <span class="org-string">"literate-programming"</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
@@ -290,6 +423,8 @@ report-custom-functions
 <ul class="org-ul">
 <li>Here's the <a href="./export.html">publishing</a> chapter.</li>
 </ul>
+</div>
+</div>
 </div>
 </div>
 </div>

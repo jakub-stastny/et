@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-23 Thu 15:20 -->
+<!-- 2024-07-24 Wed 10:38 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Orgmode publish</title>
@@ -199,18 +199,18 @@
 <div id="content" class="content">
 <h1 class="title">Orgmode publish</h1>
 
-<div id="outline-container-orgfacdbcb" class="outline-2">
-<h2 id="orgfacdbcb"><span class="section-number-2">1.</span> Custom CSS &amp; JS</h2>
+<div id="outline-container-org3c55ecc" class="outline-2">
+<h2 id="org3c55ecc"><span class="section-number-2">1.</span> Custom CSS &amp; JS</h2>
 <div class="outline-text-2" id="text-1">
 <div class="org-src-container">
-<pre class="src src-css"><span class="org-css-selector">.highlight </span>{ <span class="org-css-property">background</span>: <span class="custom-1">gold</span>; }
+<pre class="src src-css"><span class="org-css-selector">.highlight</span> { <span class="org-css-property">background</span>: <span class="custom-1">gold</span>; }
 
-<span class="org-css-selector">ul </span>{
+<span class="org-css-selector">ul</span> {
   <span class="org-css-property">padding-left</span>: 1em;
   <span class="org-css-property">list-style</span>: none;
 }
 
-<span class="org-css-selector">ul li::before </span>{
+<span class="org-css-selector">ul li::before</span> {
   <span class="org-css-property">content</span>: <span class="org-string">"\21FE"</span>;
   <span class="org-css-property">color</span>: <span class="custom">darkgreen</span>;
   <span class="org-css-property">font-weight</span>: bold;
@@ -235,56 +235,56 @@ $$(<span class="org-string">"[class^='section-number-']"</span>).forEach((sectio
 </div>
 </div>
 
-<div id="outline-container-org585fab0" class="outline-2">
-<h2 id="org585fab0"><span class="section-number-2">2.</span> Export</h2>
+<div id="outline-container-org9425985" class="outline-2">
+<h2 id="org9425985"><span class="section-number-2">2.</span> Export</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orgd23dc9d" class="outline-3">
-<h3 id="orgd23dc9d"><span class="section-number-3">2.1.</span> Install dependencies</h3>
+<div id="outline-container-orgb0c48dd" class="outline-3">
+<h3 id="orgb0c48dd"><span class="section-number-3">2.1.</span> Install dependencies</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 Only run this once.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="orgd818a6f"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org install</span>
+<pre class="src src-emacs-lisp" id="org2f396bc"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org install</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org install</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org install</span>
 
-(package-initialize)
+<span class="org-rainbow-delimiters-depth-1">(</span>package-initialize<span class="org-rainbow-delimiters-depth-1">)</span>
 
-(add-to-list 'package-archives
-             '(<span class="org-string">"melpa"</span> . <span class="org-string">"http://melpa.org/packages/"</span>))
-(add-to-list 'package-archives
-             '(<span class="org-string">"org"</span> . <span class="org-string">"http://orgmode.org/elpa/"</span>))
+<span class="org-rainbow-delimiters-depth-1">(</span>add-to-list 'package-archives
+             '<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"melpa"</span> . <span class="org-string">"http://melpa.org/packages/"</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>add-to-list 'package-archives
+             '<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-string">"org"</span> . <span class="org-string">"http://orgmode.org/elpa/"</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(package-refresh-contents)
+<span class="org-rainbow-delimiters-depth-1">(</span>package-refresh-contents<span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">dolist</span> (pkg '(htmlize css-mode ruby-mode clojure-mode))
-  (package-install pkg))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">dolist</span> <span class="org-rainbow-delimiters-depth-2">(</span>pkg '<span class="org-rainbow-delimiters-depth-3">(</span>htmlize css-mode ruby-mode clojure-mode<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>package-install pkg<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org6b54a4e" class="outline-3">
-<h3 id="org6b54a4e"><span class="section-number-3">2.2.</span> Publishing script</h3>
+<div id="outline-container-orgdc5e2d7" class="outline-3">
+<h3 id="orgdc5e2d7"><span class="section-number-3">2.2.</span> Publishing script</h3>
 <div class="outline-text-3" id="text-2-2">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="orgb7e4f1e"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org publish</span>
+<pre class="src src-emacs-lisp" id="org971a7c2"><span class="org-comment-delimiter">; </span><span class="org-comment">Run: java -jar target/et.jar export.org publish</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org publish</span>
 <span class="org-comment-delimiter">;      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org publish</span>
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">Set up load paths.</span>
-(package-initialize)
+<span class="org-rainbow-delimiters-depth-1">(</span>package-initialize<span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">require</span> '<span class="org-constant">ox-publish</span>)
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">require</span> '<span class="org-constant">ox-publish</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">setq</span> org-publish-project-alist
-      '(
-        (<span class="org-string">"et"</span>
-         <span class="org-builtin">:components</span> (<span class="org-string">"et.org"</span> <span class="org-string">"et.assets"</span> <span class="org-string">"et.downloads"</span>))
-        (<span class="org-string">"et.org"</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">setq</span> org-publish-project-alist
+      '<span class="org-rainbow-delimiters-depth-2">(</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"et"</span>
+         <span class="org-builtin">:components</span> <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-string">"et.org"</span> <span class="org-string">"et.assets"</span> <span class="org-string">"et.downloads"</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"et.org"</span>
          <span class="org-builtin">:base-directory</span> <span class="org-string">"."</span>
          <span class="org-builtin">:publishing-directory</span> <span class="org-string">"doc"</span>
          <span class="org-builtin">:base-extension</span> <span class="org-string">"org"</span>
@@ -292,38 +292,38 @@ Only run this once.
          <span class="org-builtin">:recursive</span> f
          <span class="org-builtin">:publishing-function</span> org-html-publish-to-html
          <span class="org-builtin">:headline-levels</span> 4
-         <span class="org-builtin">:auto-preamble</span> f)
-        (<span class="org-string">"et.assets"</span>
+         <span class="org-builtin">:auto-preamble</span> f<span class="org-rainbow-delimiters-depth-3">)</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"et.assets"</span>
          <span class="org-builtin">:base-directory</span> <span class="org-string">"src/assets"</span>
          <span class="org-builtin">:publishing-directory</span> <span class="org-string">"doc/assets"</span>
          <span class="org-builtin">:base-extension</span> <span class="org-string">"css</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">js"</span>
          <span class="org-builtin">:recursive</span> f
-         <span class="org-builtin">:publishing-function</span> org-publish-attachment)
-        (<span class="org-string">"et.downloads"</span>
+         <span class="org-builtin">:publishing-function</span> org-publish-attachment<span class="org-rainbow-delimiters-depth-3">)</span>
+        <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-string">"et.downloads"</span>
          <span class="org-builtin">:base-directory</span> <span class="org-string">"target"</span>
          <span class="org-builtin">:publishing-directory</span> <span class="org-string">"doc/downloads"</span>
          <span class="org-builtin">:base-extension</span> <span class="org-string">"jar</span><span class="org-string"><span class="org-regexp-grouping-backslash">\\</span></span><span class="org-string"><span class="org-regexp-grouping-construct">|</span></span><span class="org-string">bin"</span>
          <span class="org-builtin">:recursive</span> f
-         <span class="org-builtin">:publishing-function</span> org-publish-attachment)))
+         <span class="org-builtin">:publishing-function</span> org-publish-attachment<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">Set a theme that looks well when exported into HTML.</span>
-(load-theme 'tsdh-light)
+<span class="org-rainbow-delimiters-depth-1">(</span>load-theme 'tsdh-light<span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">Publish.</span>
-(<span class="org-keyword">setq</span> org-html-htmlize-output-type 'css)
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">setq</span> org-html-htmlize-output-type 'css<span class="org-rainbow-delimiters-depth-1">)</span>
 
-(org-mode)
-(org-publish-project <span class="org-string">"et"</span>)
+<span class="org-rainbow-delimiters-depth-1">(</span>org-mode<span class="org-rainbow-delimiters-depth-1">)</span>
+<span class="org-rainbow-delimiters-depth-1">(</span>org-publish-project <span class="org-string">"et"</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org3fa3271" class="outline-3">
-<h3 id="org3fa3271"><span class="section-number-3">2.3.</span> Export by-passing Org Mode cache</h3>
+<div id="outline-container-org050a8e1" class="outline-3">
+<h3 id="org050a8e1"><span class="section-number-3">2.3.</span> Export by-passing Org Mode cache</h3>
 <div class="outline-text-3" id="text-2-3">
 <div class="org-src-container">
-<pre class="src src-sh" id="org1da0bfd"><span class="org-comment-delimiter"># </span><span class="org-comment">Run: java -jar target/et.jar export.org republish</span>
+<pre class="src src-sh" id="orge0ff400"><span class="org-comment-delimiter"># </span><span class="org-comment">Run: java -jar target/et.jar export.org republish</span>
 <span class="org-comment-delimiter">#      </span><span class="org-comment">bb -cp src -m jakub-stastny.et.runner export.org republish</span>
 <span class="org-comment-delimiter">#      </span><span class="org-comment">clojure -M -m jakub-stastny.et.runner export.org republish</span>
 rm -rf doc ~/.org-timestamps
@@ -335,16 +335,15 @@ bb -cp src -m jakub-stastny.et.runner chapters/export.org publish
 </div>
 
 
-<div id="outline-container-orgb8c004d" class="outline-2">
-<h2 id="orgb8c004d"><span class="section-number-2">3.</span> Regenerate the documentation</h2>
+<div id="outline-container-org12620ab" class="outline-2">
+<h2 id="org12620ab"><span class="section-number-2">3.</span> Regenerate the documentation</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org5ba88fd" class="outline-3">
-<h3 id="org5ba88fd"><span class="section-number-3">3.1.</span> TODO: move files from target to the root</h3>
+<div id="outline-container-orga09ed00" class="outline-3">
+<h3 id="orga09ed00"><span class="section-number-3">3.1.</span> TODO: move files from target to the root</h3>
 <div class="outline-text-3" id="text-3-1">
 <div class="org-src-container">
-<pre class="src src-sh" id="org00c8d11"><span class="org-comment-delimiter"># </span><span class="org-comment">&lt;&lt;&lt;&lt;&lt;&lt;&lt; Updated upstream:chapters/export.org</span>
-bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || <span class="org-keyword">exit</span> 1
+<pre class="src src-sh" id="orga665bda">bb -cp src -m jakub-stastny.et.runner chapters/build.org uber || <span class="org-keyword">exit</span> 1
 bb -cp src -m jakub-stastny.et.runner chapters/export.org republish || <span class="org-keyword">exit</span> 1
 mv doc doc.regenerated
 git stash
@@ -359,12 +358,17 @@ git checkout dev
 git stash pop
 </pre>
 </div>
+</div>
 
+<div id="outline-container-org163c07c" class="outline-4">
+<h4 id="org163c07c"><span class="section-number-4">3.1.1.</span> <span class="todo TODO">TODO</span> Also regenerate SRC</h4>
+<div class="outline-text-4" id="text-3-1-1">
 <div class="org-src-container">
 <pre class="src src-sh">git checkout --orphan src
 git rm --cached $(git status | grep <span class="org-string">"new file:"</span> | awk <span class="org-string">'{ print $3 }'</span>)
 git commit --allow-empty -m <span class="org-string">"Initial empty commit"</span>
 </pre>
+</div>
 </div>
 </div>
 </div>

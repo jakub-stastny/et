@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-23 Thu 15:20 -->
+<!-- 2024-07-24 Wed 10:38 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ET implementation</title>
@@ -199,21 +199,21 @@
 <div id="content" class="content">
 <h1 class="title">ET implementation</h1>
 
-<div id="outline-container-org1cde897" class="outline-2">
-<h2 id="org1cde897"><span class="section-number-2">1.</span> Implementation</h2>
+<div id="outline-container-org0523124" class="outline-2">
+<h2 id="org0523124"><span class="section-number-2">1.</span> Implementation</h2>
 </div>
 
-<div id="outline-container-org8283a90" class="outline-2">
-<h2 id="org8283a90"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Implementation</h2>
+<div id="outline-container-org66063f6" class="outline-2">
+<h2 id="org66063f6"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> Implementation</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li><a id="org4683bf7"></a> PWD…noweb or custom?</li>
+<li><a id="org34bacdc"></a> PWD…noweb or custom?</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org568dcd2" class="outline-2">
-<h2 id="org568dcd2"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Babashka support</h2>
+<div id="outline-container-orge6b2009" class="outline-2">
+<h2 id="orge6b2009"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> Babashka support</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li>Use babashka/fs etc in CLJ (deps.edn).</li>
@@ -223,222 +223,226 @@
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.utils</span>)
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.utils</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">def</span> ^<span class="org-clojure-keyword">:private</span> <span class="org-variable-name">colours</span> {<span class="org-clojure-keyword">:red</span> 31 <span class="org-clojure-keyword">:green</span> 32 <span class="org-clojure-keyword">:yellow</span> 33
-                        <span class="org-clojure-keyword">:blue</span> 34 <span class="org-clojure-keyword">:purple</span> 35 <span class="org-clojure-keyword">:cyan</span> 36 <span class="org-clojure-keyword">:grey</span> 37})
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> ^<span class="org-clojure-keyword">:private</span> <span class="org-variable-name">colours</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:red</span> 31 <span class="org-clojure-keyword">:green</span> 32 <span class="org-clojure-keyword">:yellow</span> 33
+                        <span class="org-clojure-keyword">:blue</span> 34 <span class="org-clojure-keyword">:purple</span> 35 <span class="org-clojure-keyword">:cyan</span> 36 <span class="org-clojure-keyword">:grey</span> 37<span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">; </span><span class="org-comment">https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences</span>
-(<span class="org-keyword">def</span> ^<span class="org-clojure-keyword">:private</span> <span class="org-variable-name">font-effects</span> {<span class="org-clojure-keyword">:normal</span> 0 <span class="org-clojure-keyword">:bold</span> 1})
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> ^<span class="org-clojure-keyword">:private</span> <span class="org-variable-name">font-effects</span> <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:normal</span> 0 <span class="org-clojure-keyword">:bold</span> 1<span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">colour</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">colour</span>
   <span class="org-doc">"Wraps text in ANSI colour escape sequence"</span>
-  ([c text]
-   (colour c <span class="org-clojure-keyword">:normal</span> text))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[</span>c text<span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-rainbow-delimiters-depth-3">(</span>colour c <span class="org-clojure-keyword">:normal</span> text<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
 
-  ([c font-effect text]
-   (<span class="org-keyword">if</span> (= (<span class="org-type">System</span>/getenv <span class="org-string">"TERM"</span>) <span class="org-string">"xterm-256color"</span>)
-     (<span class="org-keyword">let</span> [colour-code (colours c)
-           font-effect-code (font-effects font-effect)]
-       (str <span class="org-string">"</span><span class="org-string"><span class="org-bold">\0</span></span><span class="org-string">33["</span> font-effect-code <span class="org-string">";"</span> colour-code <span class="org-string">"m"</span> text <span class="org-string">"</span><span class="org-string"><span class="org-bold">\0</span></span><span class="org-string">33[0m"</span>))
-     text)))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[</span>c font-effect text<span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>= <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">System</span>/getenv <span class="org-string">"TERM"</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-string">"xterm-256color"</span><span class="org-rainbow-delimiters-depth-4">)</span>
+     <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-5">[</span>colour-code <span class="org-rainbow-delimiters-depth-6">(</span>colours c<span class="org-rainbow-delimiters-depth-6">)</span>
+           font-effect-code <span class="org-rainbow-delimiters-depth-6">(</span>font-effects font-effect<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">]</span>
+       <span class="org-rainbow-delimiters-depth-5">(</span>str <span class="org-string">"</span><span class="org-string"><span class="org-bold">\0</span></span><span class="org-string">33["</span> font-effect-code <span class="org-string">";"</span> colour-code <span class="org-string">"m"</span> text <span class="org-string">"</span><span class="org-string"><span class="org-bold">\0</span></span><span class="org-string">33[0m"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+     text<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">abort</span> [&amp; chunks]
-  (println (apply str (colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"Error: "</span>) chunks))
-  (<span class="org-type">System</span>/exit 1))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">abort</span> <span class="org-rainbow-delimiters-depth-2">[</span>&amp; chunks<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>println <span class="org-rainbow-delimiters-depth-3">(</span>apply str <span class="org-rainbow-delimiters-depth-4">(</span>colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"Error: "</span><span class="org-rainbow-delimiters-depth-4">)</span> chunks<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">System</span>/exit 1<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">puts</span> [&amp; chunks]
-  (println (apply str chunks)))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">puts</span> <span class="org-rainbow-delimiters-depth-2">[</span>&amp; chunks<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>println <span class="org-rainbow-delimiters-depth-3">(</span>apply str chunks<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">info</span> [&amp; chunks]
-  (apply puts (colour <span class="org-clojure-keyword">:white</span> <span class="org-clojure-keyword">:bold</span> <span class="org-string">"~ "</span>) chunks))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">info</span> <span class="org-rainbow-delimiters-depth-2">[</span>&amp; chunks<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>apply puts <span class="org-rainbow-delimiters-depth-3">(</span>colour <span class="org-clojure-keyword">:white</span> <span class="org-clojure-keyword">:bold</span> <span class="org-string">"~ "</span><span class="org-rainbow-delimiters-depth-3">)</span> chunks<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">task-type</span> [task]
-  (<span class="org-keyword">cond</span>
-    (contains? task <span class="org-clojure-keyword">:fn</span>) <span class="org-clojure-keyword">:built-in</span>
-    (<span class="org-keyword">and</span> (contains? task <span class="org-clojure-keyword">:path</span>) (contains? task <span class="org-clojure-keyword">:task-name</span>)) <span class="org-clojure-keyword">:custom</span>
-    <span class="org-constant">true</span> <span class="org-clojure-keyword">:invalid</span>))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">task-type</span> <span class="org-rainbow-delimiters-depth-2">[</span>task<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">cond</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>contains? task <span class="org-clojure-keyword">:fn</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-clojure-keyword">:built-in</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">and</span> <span class="org-rainbow-delimiters-depth-4">(</span>contains? task <span class="org-clojure-keyword">:path</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">(</span>contains? task <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-clojure-keyword">:custom</span>
+    <span class="org-constant">true</span> <span class="org-clojure-keyword">:invalid</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmulti</span> <span class="org-function-name">pr-task</span> <span class="org-doc">"Print task"</span> task-type)
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmulti</span> <span class="org-function-name">pr-task</span> <span class="org-doc">"Print task"</span> task-type<span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmethod</span> <span class="org-function-name">pr-task</span> <span class="org-clojure-keyword">:built-in</span> [{<span class="org-clojure-keyword">:keys</span> [task-name args]}]
-  (<span class="org-keyword">let</span> [base-str (str <span class="org-string">"built-in task "</span> (colour <span class="org-clojure-keyword">:yellow</span> (name task-name)))]
-    (<span class="org-keyword">if</span> (empty? args)
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmethod</span> <span class="org-function-name">pr-task</span> <span class="org-clojure-keyword">:built-in</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:keys</span> <span class="org-rainbow-delimiters-depth-4">[</span>task-name args<span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>base-str <span class="org-rainbow-delimiters-depth-4">(</span>str <span class="org-string">"built-in task "</span> <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:yellow</span> <span class="org-rainbow-delimiters-depth-6">(</span>name task-name<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>empty? args<span class="org-rainbow-delimiters-depth-4">)</span>
       base-str
-      (str base-str <span class="org-string">" and args "</span> (colour <span class="org-clojure-keyword">:cyan</span> (str args))))))
+      <span class="org-rainbow-delimiters-depth-4">(</span>str base-str <span class="org-string">" and args "</span> <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:cyan</span> <span class="org-rainbow-delimiters-depth-6">(</span>str args<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmethod</span> <span class="org-function-name">pr-task</span> <span class="org-clojure-keyword">:custom</span> [{<span class="org-clojure-keyword">:keys</span> [task-name path args]}]
-  (<span class="org-keyword">let</span> [base-str (str <span class="org-string">"task "</span> (colour <span class="org-clojure-keyword">:yellow</span> (name task-name)) <span class="org-string">" from "</span> (colour <span class="org-clojure-keyword">:green</span> path))]
-    (<span class="org-keyword">if</span> (empty? args)
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmethod</span> <span class="org-function-name">pr-task</span> <span class="org-clojure-keyword">:custom</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:keys</span> <span class="org-rainbow-delimiters-depth-4">[</span>task-name path args<span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>base-str <span class="org-rainbow-delimiters-depth-4">(</span>str <span class="org-string">"task "</span> <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:yellow</span> <span class="org-rainbow-delimiters-depth-6">(</span>name task-name<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-string">" from "</span> <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:green</span> path<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>empty? args<span class="org-rainbow-delimiters-depth-4">)</span>
       base-str
-      (str base-str <span class="org-string">" and args "</span> (colour <span class="org-clojure-keyword">:cyan</span> (str args))))))
+      <span class="org-rainbow-delimiters-depth-4">(</span>str base-str <span class="org-string">" and args "</span> <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:cyan</span> <span class="org-rainbow-delimiters-depth-6">(</span>str args<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmethod</span> <span class="org-function-name">pr-task</span> <span class="org-clojure-keyword">:invalid</span> [{<span class="org-clojure-keyword">:keys</span> [task-name] <span class="org-clojure-keyword">:as</span> task}]
-  (str (colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"invalid task "</span> task-name <span class="org-string">": "</span> (pr-str task))))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmethod</span> <span class="org-function-name">pr-task</span> <span class="org-clojure-keyword">:invalid</span> <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:keys</span> <span class="org-rainbow-delimiters-depth-4">[</span>task-name<span class="org-rainbow-delimiters-depth-4">]</span> <span class="org-clojure-keyword">:as</span> task<span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>str <span class="org-rainbow-delimiters-depth-3">(</span>colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"invalid task "</span> task-name <span class="org-string">": "</span> <span class="org-rainbow-delimiters-depth-4">(</span>pr-str task<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">throw-user-error</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">throw-user-error</span>
   <span class="org-doc">"..."</span>
-  [message]
-  (<span class="org-keyword">throw</span> (ex-info message {<span class="org-clojure-keyword">:type</span> <span class="org-clojure-keyword">:user-error</span>})))
+  <span class="org-rainbow-delimiters-depth-2">[</span>message<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">throw</span> <span class="org-rainbow-delimiters-depth-3">(</span>ex-info message <span class="org-rainbow-delimiters-depth-4">{</span><span class="org-clojure-keyword">:type</span> <span class="org-clojure-keyword">:user-error</span><span class="org-rainbow-delimiters-depth-4">}</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">rethrow</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">rethrow</span>
   <span class="org-doc">"..."</span>
-  [error]
-  (<span class="org-keyword">throw</span> (ex-info (str <span class="org-string">"rethrow "</span> (ex-message error)) {<span class="org-clojure-keyword">:rethrown</span> <span class="org-constant">true</span>} error)))
+  <span class="org-rainbow-delimiters-depth-2">[</span>error<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">throw</span> <span class="org-rainbow-delimiters-depth-3">(</span>ex-info
+          <span class="org-rainbow-delimiters-depth-4">(</span>str <span class="org-string">"rethrow "</span> <span class="org-rainbow-delimiters-depth-5">(</span>ex-message error<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+          <span class="org-rainbow-delimiters-depth-4">(</span>merge <span class="org-rainbow-delimiters-depth-5">{</span><span class="org-clojure-keyword">:rethrown</span> <span class="org-constant">true</span><span class="org-rainbow-delimiters-depth-5">}</span> <span class="org-rainbow-delimiters-depth-5">(</span>ex-data error<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+          error<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.built-ins</span>
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.built-ins</span>
   <span class="org-doc">"Built-in tasks."</span>
-  (<span class="org-clojure-keyword">:require</span> [jakub-stastny.et.org <span class="org-clojure-keyword">:as</span> org]
-            [jakub-stastny.et.utils <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span>]))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.org <span class="org-clojure-keyword">:as</span> org<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.utils <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">tasks</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">tasks</span>
   <span class="org-doc">"Built-in task to show all tasks in given paths."</span>
-  [paths]
-  (puts <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span> (colour <span class="org-clojure-keyword">:blue</span> <span class="org-clojure-keyword">:bold</span> <span class="org-string">"Available tasks"</span>))
-  (<span class="org-keyword">doseq</span> [path paths]
-    (<span class="org-keyword">let</span> [tasks (filter (<span class="org-keyword">fn</span> [task] (get-in task [<span class="org-clojure-keyword">:opts</span> <span class="org-clojure-keyword">:doc</span>])) (<span class="org-type">org</span>/load-tasks path))]
-      (<span class="org-keyword">when-not</span> (empty? tasks)
-        (puts <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">Namespace "</span> (colour <span class="org-clojure-keyword">:cyan</span> path) <span class="org-string">":"</span>)
-        (<span class="org-keyword">doseq</span> [{<span class="org-clojure-keyword">:keys</span> [task-name opts]} tasks]
-          (puts (colour <span class="org-clojure-keyword">:yellow</span> task-name)
-                (apply str (repeat (- 12 (count task-name)) <span class="org-string">" "</span>))
-                (opts <span class="org-clojure-keyword">:doc</span>) <span class="org-string">"."</span>))))))
+  <span class="org-rainbow-delimiters-depth-2">[</span>paths<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>puts <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span> <span class="org-rainbow-delimiters-depth-3">(</span>colour <span class="org-clojure-keyword">:blue</span> <span class="org-clojure-keyword">:bold</span> <span class="org-string">"Available tasks"</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">doseq</span> <span class="org-rainbow-delimiters-depth-3">[</span>path paths<span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-4">[</span>tasks <span class="org-rainbow-delimiters-depth-5">(</span>filter <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-keyword">fn</span> <span class="org-rainbow-delimiters-depth-7">[</span>task<span class="org-rainbow-delimiters-depth-7">]</span> <span class="org-rainbow-delimiters-depth-7">(</span>get-in task <span class="org-rainbow-delimiters-depth-8">[</span><span class="org-clojure-keyword">:opts</span> <span class="org-clojure-keyword">:doc</span><span class="org-rainbow-delimiters-depth-8">]</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-type">org</span>/load-tasks path<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">]</span>
+      <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">when-not</span> <span class="org-rainbow-delimiters-depth-5">(</span>empty? tasks<span class="org-rainbow-delimiters-depth-5">)</span>
+        <span class="org-rainbow-delimiters-depth-5">(</span>puts <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">Namespace "</span> <span class="org-rainbow-delimiters-depth-6">(</span>colour <span class="org-clojure-keyword">:cyan</span> path<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-string">":"</span><span class="org-rainbow-delimiters-depth-5">)</span>
+        <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-keyword">doseq</span> <span class="org-rainbow-delimiters-depth-6">[</span><span class="org-rainbow-delimiters-depth-7">{</span><span class="org-clojure-keyword">:keys</span> <span class="org-rainbow-delimiters-depth-8">[</span>task-name opts<span class="org-rainbow-delimiters-depth-8">]</span><span class="org-rainbow-delimiters-depth-7">}</span> tasks<span class="org-rainbow-delimiters-depth-6">]</span>
+          <span class="org-rainbow-delimiters-depth-6">(</span>puts <span class="org-rainbow-delimiters-depth-7">(</span>colour <span class="org-clojure-keyword">:yellow</span> task-name<span class="org-rainbow-delimiters-depth-7">)</span>
+                <span class="org-rainbow-delimiters-depth-7">(</span>apply str <span class="org-rainbow-delimiters-depth-8">(</span>repeat <span class="org-rainbow-delimiters-depth-9">(</span>- 12 <span class="org-rainbow-delimiters-depth-1">(</span>count task-name<span class="org-rainbow-delimiters-depth-1">)</span><span class="org-rainbow-delimiters-depth-9">)</span> <span class="org-string">" "</span><span class="org-rainbow-delimiters-depth-8">)</span><span class="org-rainbow-delimiters-depth-7">)</span>
+                <span class="org-rainbow-delimiters-depth-7">(</span>opts <span class="org-clojure-keyword">:doc</span><span class="org-rainbow-delimiters-depth-7">)</span> <span class="org-string">"."</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">help</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">help</span>
   <span class="org-doc">"Built-in task to show help.</span>
 <span class="org-doc">   Unlike other tasks can take 0 arguments."</span>
-  [&amp; args]
-  (puts <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span> (colour <span class="org-clojure-keyword">:green</span> <span class="org-clojure-keyword">:bold</span> <span class="org-string">"Help:"</span>))
-  (puts <span class="org-string">"-T|--tasks task-file.org           # Show documented tasks in given task files"</span>)
-  (puts <span class="org-string">"task-file.org task-name arg1 arg2  # Run task-name from task-file.org with arguments arg1 arg2"</span>))
+  <span class="org-rainbow-delimiters-depth-2">[</span>&amp; args<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>puts <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span> <span class="org-rainbow-delimiters-depth-3">(</span>colour <span class="org-clojure-keyword">:green</span> <span class="org-clojure-keyword">:bold</span> <span class="org-string">"Help:"</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>puts <span class="org-string">"-T|--tasks task-file.org           # Show documented tasks in given task files"</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>puts <span class="org-string">"task-file.org task-name arg1 arg2  # Run task-name from task-file.org with arguments arg1 arg2"</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">def</span> ^<span class="org-clojure-keyword">:private</span> <span class="org-variable-name">built-in-tasks</span>
-  {<span class="org-clojure-keyword">:tasks</span> tasks <span class="org-clojure-keyword">:help</span> help})
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> ^<span class="org-clojure-keyword">:private</span> <span class="org-variable-name">built-in-tasks</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:tasks</span> tasks <span class="org-clojure-keyword">:help</span> help<span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn-</span> <span class="org-function-name">make-built-in-task</span>
-  <span class="org-doc">"Wrap fn as a task."</span> [name]
-  {<span class="org-clojure-keyword">:task-name</span> name <span class="org-clojure-keyword">:fn</span> (built-in-tasks name)})
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn-</span> <span class="org-function-name">make-built-in-task</span>
+  <span class="org-doc">"Wrap fn as a task."</span> <span class="org-rainbow-delimiters-depth-2">[</span>name<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:task-name</span> name <span class="org-clojure-keyword">:fn</span> <span class="org-rainbow-delimiters-depth-3">(</span>built-in-tasks name<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">get-task</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">get-task</span>
   <span class="org-doc">"Get a built-in task. Defaults to the help task."</span>
-  [arg] (<span class="org-keyword">cond</span>
-          (some #(= arg <span class="org-variable-name">%</span>) [<span class="org-string">"-T"</span> <span class="org-string">"--tasks"</span> <span class="org-clojure-keyword">:tasks</span>])
-          (make-built-in-task <span class="org-clojure-keyword">:tasks</span>)
+  <span class="org-rainbow-delimiters-depth-2">[</span>arg<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">cond</span>
+          <span class="org-rainbow-delimiters-depth-3">(</span>some #<span class="org-rainbow-delimiters-depth-4">(</span>= arg <span class="org-variable-name">%</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-string">"-T"</span> <span class="org-string">"--tasks"</span> <span class="org-clojure-keyword">:tasks</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">)</span>
+          <span class="org-rainbow-delimiters-depth-3">(</span>make-built-in-task <span class="org-clojure-keyword">:tasks</span><span class="org-rainbow-delimiters-depth-3">)</span>
 
-          (some #(= arg <span class="org-variable-name">%</span>) [<span class="org-string">"-h"</span> <span class="org-string">"-H"</span> <span class="org-string">"--help"</span> <span class="org-clojure-keyword">:help</span>])
-          (make-built-in-task <span class="org-clojure-keyword">:help</span>)))
+          <span class="org-rainbow-delimiters-depth-3">(</span>some #<span class="org-rainbow-delimiters-depth-4">(</span>= arg <span class="org-variable-name">%</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">[</span><span class="org-string">"-h"</span> <span class="org-string">"-H"</span> <span class="org-string">"--help"</span> <span class="org-clojure-keyword">:help</span><span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">)</span>
+          <span class="org-rainbow-delimiters-depth-3">(</span>make-built-in-task <span class="org-clojure-keyword">:help</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org8b244af" class="outline-4">
-<h4 id="org8b244af"><span class="section-number-4">3.0.1.</span> <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</h4>
+<div id="outline-container-org1b60934" class="outline-4">
+<h4 id="org1b60934"><span class="section-number-4">3.0.1.</span> <span class="todo TODO">TODO</span> -v for verbose, shut up otherwise</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.config</span>
-  (<span class="org-clojure-keyword">:require</span> [jakub-stastny.et.built-ins <span class="org-clojure-keyword">:as</span> built-ins]))
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.config</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.built-ins <span class="org-clojure-keyword">:as</span> built-ins<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">args-to-tasks</span> [args]
-  (reduce
-   (<span class="org-keyword">fn</span> [acc i]
-     (<span class="org-keyword">cond</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">args-to-tasks</span> <span class="org-rainbow-delimiters-depth-2">[</span>args<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>reduce
+   <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">fn</span> <span class="org-rainbow-delimiters-depth-4">[</span>acc i<span class="org-rainbow-delimiters-depth-4">]</span>
+     <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">cond</span>
        <span class="org-comment-delimiter">;; </span><span class="org-comment">First argument starting with a dash (-T, -h etc).</span>
-       (<span class="org-keyword">and</span> (empty? acc) (re-matches #<span class="org-string">"-{1,2}</span><span class="org-string"><span class="org-bold">\w</span></span><span class="org-string">+"</span> i))
-       (conj acc (<span class="org-type">built-ins</span>/get-task i))
+       <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-keyword">and</span> <span class="org-rainbow-delimiters-depth-6">(</span>empty? acc<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-rainbow-delimiters-depth-6">(</span>re-matches #<span class="org-string">"-{1,2}</span><span class="org-string"><span class="org-bold">\w</span></span><span class="org-string">+"</span> i<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
+       <span class="org-rainbow-delimiters-depth-5">(</span>conj acc <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-type">built-ins</span>/get-task i<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
 
        <span class="org-comment-delimiter">;; </span><span class="org-comment">Path name as the first argument (i. e. README.org).</span>
-       (<span class="org-keyword">and</span>
-        (re-find #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\.</span></span><span class="org-string">org$"</span> i)
-        (nil? (last acc)))
-       (conj acc {<span class="org-clojure-keyword">:path</span> i <span class="org-clojure-keyword">:args</span> []})
+       <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-keyword">and</span>
+        <span class="org-rainbow-delimiters-depth-6">(</span>re-find #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\.</span></span><span class="org-string">org$"</span> i<span class="org-rainbow-delimiters-depth-6">)</span>
+        <span class="org-rainbow-delimiters-depth-6">(</span>nil? <span class="org-rainbow-delimiters-depth-7">(</span>last acc<span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
+       <span class="org-rainbow-delimiters-depth-5">(</span>conj acc <span class="org-rainbow-delimiters-depth-6">{</span><span class="org-clojure-keyword">:path</span> i <span class="org-clojure-keyword">:args</span> <span class="org-rainbow-delimiters-depth-7">[]</span><span class="org-rainbow-delimiters-depth-6">}</span><span class="org-rainbow-delimiters-depth-5">)</span>
 
        <span class="org-comment-delimiter">;; </span><span class="org-comment">-T README.org</span>
-       (<span class="org-keyword">and</span>
-        (last acc)
-        (nil? ((last acc) <span class="org-clojure-keyword">:task-name</span>))
-        (not (= (get-in (last acc) [<span class="org-clojure-keyword">:task</span> <span class="org-clojure-keyword">:task-name</span>]) <span class="org-clojure-keyword">:tasks</span>)))
-       (conj (butlast acc)
-             (assoc-in (last acc) [<span class="org-clojure-keyword">:task-name</span>] i))
+       <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-keyword">and</span>
+        <span class="org-rainbow-delimiters-depth-6">(</span>last acc<span class="org-rainbow-delimiters-depth-6">)</span>
+        <span class="org-rainbow-delimiters-depth-6">(</span>nil? <span class="org-rainbow-delimiters-depth-7">(</span><span class="org-rainbow-delimiters-depth-8">(</span>last acc<span class="org-rainbow-delimiters-depth-8">)</span> <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span>
+        <span class="org-rainbow-delimiters-depth-6">(</span>not <span class="org-rainbow-delimiters-depth-7">(</span>= <span class="org-rainbow-delimiters-depth-8">(</span>get-in <span class="org-rainbow-delimiters-depth-9">(</span>last acc<span class="org-rainbow-delimiters-depth-9">)</span> <span class="org-rainbow-delimiters-depth-9">[</span><span class="org-clojure-keyword">:task</span> <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-9">]</span><span class="org-rainbow-delimiters-depth-8">)</span> <span class="org-clojure-keyword">:tasks</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
+       <span class="org-rainbow-delimiters-depth-5">(</span>conj <span class="org-rainbow-delimiters-depth-6">(</span>butlast acc<span class="org-rainbow-delimiters-depth-6">)</span>
+             <span class="org-rainbow-delimiters-depth-6">(</span>assoc-in <span class="org-rainbow-delimiters-depth-7">(</span>last acc<span class="org-rainbow-delimiters-depth-7">)</span> <span class="org-rainbow-delimiters-depth-7">[</span><span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-7">]</span> i<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
 
        <span class="org-comment-delimiter">;; </span><span class="org-comment">Add to args.</span>
        <span class="org-constant">true</span>
-       (conj (butlast acc)
-             (update-in (last acc) [<span class="org-clojure-keyword">:args</span>] #(conj <span class="org-variable-name">%</span> i)))))
-   []
-   args))
+       <span class="org-rainbow-delimiters-depth-5">(</span>conj <span class="org-rainbow-delimiters-depth-6">(</span>butlast acc<span class="org-rainbow-delimiters-depth-6">)</span>
+             <span class="org-rainbow-delimiters-depth-6">(</span>update-in <span class="org-rainbow-delimiters-depth-7">(</span>last acc<span class="org-rainbow-delimiters-depth-7">)</span> <span class="org-rainbow-delimiters-depth-7">[</span><span class="org-clojure-keyword">:args</span><span class="org-rainbow-delimiters-depth-7">]</span> #<span class="org-rainbow-delimiters-depth-7">(</span>conj <span class="org-variable-name">%</span> i<span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+   <span class="org-rainbow-delimiters-depth-3">[]</span>
+   args<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">task?</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">task?</span>
   <span class="org-doc">"..."</span>
-  [example]
-  (<span class="org-keyword">or</span> (= (example <span class="org-clojure-keyword">:task</span>) (symbol <span class="org-string">"yes"</span>)) ((example <span class="org-clojure-keyword">:opts</span>) <span class="org-clojure-keyword">:doc</span>)))
+  <span class="org-rainbow-delimiters-depth-2">[</span>example<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">or</span> <span class="org-rainbow-delimiters-depth-3">(</span>= <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-rainbow-delimiters-depth-5">(</span>example <span class="org-clojure-keyword">:opts</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-clojure-keyword">:task</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">(</span>symbol <span class="org-string">"yes"</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+      <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-rainbow-delimiters-depth-4">(</span>example <span class="org-clojure-keyword">:opts</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-clojure-keyword">:doc</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">def</span> <span class="org-variable-name">default-config</span>
-  {<span class="org-clojure-keyword">:args-to-tasks</span> args-to-tasks
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">def</span> <span class="org-variable-name">default-config</span>
+  <span class="org-rainbow-delimiters-depth-2">{</span><span class="org-clojure-keyword">:args-to-tasks</span> args-to-tasks
    <span class="org-clojure-keyword">:task?</span> task?
-   <span class="org-clojure-keyword">:exts</span> {<span class="org-clojure-keyword">:clojure</span> <span class="org-string">"clj"</span> <span class="org-clojure-keyword">:emacs-lisp</span> <span class="org-string">"el"</span>}
-   <span class="org-clojure-keyword">:cmds</span> {<span class="org-clojure-keyword">:clojure</span> <span class="org-string">"clojure -M"</span>}        <span class="org-comment">; -M -m to run -main OR bb</span>
-   <span class="org-clojure-keyword">:exec-fn</span> <span class="org-type">clojure.java.shell</span>/sh}) <span class="org-comment">; Or bb.shell https://github.com/babashka/process</span>
+   <span class="org-clojure-keyword">:exts</span> <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:clojure</span> <span class="org-string">"clj"</span> <span class="org-clojure-keyword">:emacs-lisp</span> <span class="org-string">"el"</span><span class="org-rainbow-delimiters-depth-3">}</span>
+   <span class="org-clojure-keyword">:cmds</span> <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:clojure</span> <span class="org-string">"clojure -M"</span><span class="org-rainbow-delimiters-depth-3">}</span>        <span class="org-comment">; -M -m to run -main OR bb</span>
+   <span class="org-clojure-keyword">:exec-fn</span> <span class="org-type">clojure.java.shell</span>/sh<span class="org-rainbow-delimiters-depth-2">}</span><span class="org-rainbow-delimiters-depth-1">)</span> <span class="org-comment">; Or bb.shell https://github.com/babashka/process</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orged8f800" class="outline-4">
-<h4 id="orged8f800"><span class="section-number-4">3.0.2.</span> <span class="todo TODO">TODO</span> spec: validate keys of config (run)</h4>
+<div id="outline-container-org719c1b1" class="outline-4">
+<h4 id="org719c1b1"><span class="section-number-4">3.0.2.</span> <span class="todo TODO">TODO</span> spec: validate keys of config (run)</h4>
 </div>
-<div id="outline-container-orgf37558e" class="outline-4">
-<h4 id="orgf37558e"><span class="section-number-4">3.0.3.</span> <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</h4>
+<div id="outline-container-orga76c3d7" class="outline-4">
+<h4 id="orga76c3d7"><span class="section-number-4">3.0.3.</span> <span class="todo TODO">TODO</span> Allow overriding built-in tasks in config</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.runner</span>
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.runner</span>
   <span class="org-doc">"Main namespace. Provides the default runner as well as the `</span><span class="org-doc"><span class="org-constant">run</span></span><span class="org-doc">`</span>
 <span class="org-doc">  fn for creating custom runners with their own custom config."</span>
-  (<span class="org-clojure-keyword">:gen-class</span>)
-  (<span class="org-clojure-keyword">:require</span> [clojure.string <span class="org-clojure-keyword">:as</span> str]
-            [clojure.java.shell]
-            [jakub-stastny.et.utils <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span>]
-            [jakub-stastny.et.config <span class="org-clojure-keyword">:as</span> config]
-            [jakub-stastny.et.built-ins <span class="org-clojure-keyword">:as</span> built-ins]
-            [jakub-stastny.et.org <span class="org-clojure-keyword">:as</span> org]))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:gen-class</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>clojure.string <span class="org-clojure-keyword">:as</span> str<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>clojure.java.shell<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.utils <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.config <span class="org-clojure-keyword">:as</span> config<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.built-ins <span class="org-clojure-keyword">:as</span> built-ins<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.org <span class="org-clojure-keyword">:as</span> org<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmulti</span> <span class="org-function-name">exec-task</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmulti</span> <span class="org-function-name">exec-task</span>
   <span class="org-doc">"Docstring"</span>
-  (<span class="org-keyword">fn</span> [task _] (task-type task)))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">fn</span> <span class="org-rainbow-delimiters-depth-3">[</span>task _<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-rainbow-delimiters-depth-3">(</span>task-type task<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmethod</span> <span class="org-function-name">exec-task</span> <span class="org-clojure-keyword">:built-in</span> [task _]
-  ((task <span class="org-clojure-keyword">:fn</span>) (task <span class="org-clojure-keyword">:args</span>)))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmethod</span> <span class="org-function-name">exec-task</span> <span class="org-clojure-keyword">:built-in</span> <span class="org-rainbow-delimiters-depth-2">[</span>task _<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">(</span>task <span class="org-clojure-keyword">:fn</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-rainbow-delimiters-depth-3">(</span>task <span class="org-clojure-keyword">:args</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmethod</span> <span class="org-function-name">exec-task</span> <span class="org-clojure-keyword">:custom</span> [task config]
-  (<span class="org-type">org</span>/run-task task config))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmethod</span> <span class="org-function-name">exec-task</span> <span class="org-clojure-keyword">:custom</span> <span class="org-rainbow-delimiters-depth-2">[</span>task config<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">org</span>/run-task task config<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defmethod</span> <span class="org-function-name">exec-task</span> <span class="org-clojure-keyword">:error</span> [task _]
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmethod</span> <span class="org-function-name">exec-task</span> <span class="org-clojure-keyword">:error</span> <span class="org-rainbow-delimiters-depth-2">[</span>task _<span class="org-rainbow-delimiters-depth-2">]</span>
   <span class="org-comment-delimiter">;; </span><span class="org-comment">(throw (ex-info "Don't know how to handle task" {:task task}))</span>
-  ((<span class="org-type">built-ins</span>/get-task <span class="org-clojure-keyword">:help</span>) <span class="org-clojure-keyword">:fn</span>))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">(</span><span class="org-type">built-ins</span>/get-task <span class="org-clojure-keyword">:help</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-clojure-keyword">:fn</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">Wrapper</span>
-(<span class="org-keyword">defn</span> <span class="org-function-name">run-task</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">run-task</span>
   <span class="org-doc">"...."</span>
-  [task config]
-  (info <span class="org-string">"Running "</span> (pr-task task) <span class="org-string">"."</span>)
-  (exec-task task config))
+  <span class="org-rainbow-delimiters-depth-2">[</span>task config<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>info <span class="org-string">"Running "</span> <span class="org-rainbow-delimiters-depth-3">(</span>pr-task task<span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-string">"."</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>exec-task task config<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">handle-att-error</span> [error]
-  (println (colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"Error in args-to-task:"</span>)
-           <span class="org-string">"caused the following error:"</span>)
-  (println error)
-  (<span class="org-type">System</span>/exit 1))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">handle-att-error</span> <span class="org-rainbow-delimiters-depth-2">[</span>error<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>println <span class="org-rainbow-delimiters-depth-3">(</span>colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"Error in args-to-task:"</span><span class="org-rainbow-delimiters-depth-3">)</span>
+           <span class="org-string">"caused the following error:"</span><span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span>println error<span class="org-rainbow-delimiters-depth-2">)</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-type">System</span>/exit 1<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">handle-user-error</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">handle-user-error</span>
   <span class="org-doc">"Abort on user error, re-throw otherwise."</span>
-  [error]
+  <span class="org-rainbow-delimiters-depth-2">[</span>error<span class="org-rainbow-delimiters-depth-2">]</span>
   <span class="org-comment">;(prn (ex-cause error))</span>
-  (<span class="org-keyword">let</span> [info (<span class="org-clojure-keyword">:or</span> (ex-data error) {})]
-    (<span class="org-keyword">if</span> (= (info <span class="org-clojure-keyword">:type</span>) <span class="org-clojure-keyword">:user-error</span>)
-      (abort (str (ex-message error) <span class="org-string">"."</span>))
-      (rethrow error))))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>info <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-clojure-keyword">:or</span> <span class="org-rainbow-delimiters-depth-5">(</span>ex-data error<span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-rainbow-delimiters-depth-5">{}</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-4">(</span>= <span class="org-rainbow-delimiters-depth-5">(</span>info <span class="org-clojure-keyword">:type</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-clojure-keyword">:user-error</span><span class="org-rainbow-delimiters-depth-4">)</span>
+      <span class="org-rainbow-delimiters-depth-4">(</span>abort <span class="org-rainbow-delimiters-depth-5">(</span>str <span class="org-rainbow-delimiters-depth-6">(</span>ex-message error<span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-string">"."</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+      <span class="org-rainbow-delimiters-depth-4">(</span>rethrow error<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">;; </span><span class="org-comment">; This is how you wrap exceptions:</span>
 <span class="org-comment-delimiter">;; </span><span class="org-comment">(def err (try (/ 1 0) (catch Exception e e)))</span>
@@ -451,175 +455,120 @@
 <span class="org-comment-delimiter">;;     </span><span class="org-comment">))</span>
 <span class="org-comment-delimiter">;; </span><span class="org-comment">(System/exit 1)</span>
 
-(<span class="org-keyword">defmacro</span> <span class="org-function-name">abort-on-error</span>
-  [handler body]
-  `(<span class="org-keyword">try</span> ~body (<span class="org-keyword">catch</span> Exception e# (~handler e#))))
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defmacro</span> <span class="org-function-name">abort-on-error</span>
+  <span class="org-rainbow-delimiters-depth-2">[</span>handler body<span class="org-rainbow-delimiters-depth-2">]</span>
+  `<span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">try</span> ~body <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">catch</span> Exception e# <span class="org-rainbow-delimiters-depth-4">(</span>~handler e#<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">run</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">run</span>
   <span class="org-doc">"Main entry fn for a custom runner.</span>
 <span class="org-doc">   Takes command-line `</span><span class="org-doc"><span class="org-constant">custom-config</span></span><span class="org-doc">` that it merges</span>
 <span class="org-doc">   into the default one and command-line `</span><span class="org-doc"><span class="org-constant">args</span></span><span class="org-doc">`."</span>
-  ([args] (run {} args))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[</span>args<span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-rainbow-delimiters-depth-3">(</span>run <span class="org-rainbow-delimiters-depth-4">{}</span> args<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span>
 
-  ([custom-config args]
-   (abort-on-error
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-rainbow-delimiters-depth-3">[</span>custom-config args<span class="org-rainbow-delimiters-depth-3">]</span>
+   <span class="org-rainbow-delimiters-depth-3">(</span>abort-on-error
     handle-user-error
-    (<span class="org-keyword">let</span> [config (conj <span class="org-type">config</span>/default-config custom-config)]
-      (<span class="org-keyword">let</span> [defs (abort-on-error handle-att-error ((config <span class="org-clojure-keyword">:args-to-tasks</span>) args))]
-        (<span class="org-keyword">doseq</span> [def defs] (run-task def config)))))))
+    <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-5">[</span>config <span class="org-rainbow-delimiters-depth-6">(</span>conj <span class="org-type">config</span>/default-config custom-config<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">]</span>
+      <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-6">[</span>defs <span class="org-rainbow-delimiters-depth-7">(</span>abort-on-error handle-att-error <span class="org-rainbow-delimiters-depth-8">(</span><span class="org-rainbow-delimiters-depth-9">(</span>config <span class="org-clojure-keyword">:args-to-tasks</span><span class="org-rainbow-delimiters-depth-9">)</span> args<span class="org-rainbow-delimiters-depth-8">)</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">]</span>
+        <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-keyword">doseq</span> <span class="org-rainbow-delimiters-depth-7">[</span>def defs<span class="org-rainbow-delimiters-depth-7">]</span>
+          <span class="org-rainbow-delimiters-depth-7">(</span>run-task def config<span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">-main</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">-main</span>
   <span class="org-doc">"This is the main entry for the default runner.</span>
 <span class="org-doc">   Write a custom runner if you want to customise the config."</span>
-  [&amp; args] (run args))
+  <span class="org-rainbow-delimiters-depth-2">[</span>&amp; args<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span>run args<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.org</span>
+<pre class="src src-clojure"><span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.org</span>
   <span class="org-doc">"...."</span>
-  (<span class="org-clojure-keyword">:require</span> [clojure.string <span class="org-clojure-keyword">:as</span> str]
-            [clojure.java.io <span class="org-clojure-keyword">:as</span> io]
-            [jakub-stastny.et.utils <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span>]
-            [clojure.java.shell <span class="org-clojure-keyword">:refer</span> [sh]] <span class="org-comment">; chmod +x</span>
-            [jakub-stastny.et.parser <span class="org-clojure-keyword">:as</span> parser]))
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-clojure-keyword">:require</span> <span class="org-rainbow-delimiters-depth-3">[</span>clojure.string <span class="org-clojure-keyword">:as</span> str<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>clojure.java.io <span class="org-clojure-keyword">:as</span> io<span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.et.utils <span class="org-clojure-keyword">:refer</span> <span class="org-clojure-keyword">:all</span><span class="org-rainbow-delimiters-depth-3">]</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>clojure.java.shell <span class="org-clojure-keyword">:refer</span> <span class="org-rainbow-delimiters-depth-4">[</span>sh<span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">]</span> <span class="org-comment">; chmod +x</span>
+            <span class="org-rainbow-delimiters-depth-3">[</span>jakub-stastny.org-mode.parser <span class="org-clojure-keyword">:as</span> parser<span class="org-rainbow-delimiters-depth-3">]</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">load-tasks</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">load-tasks</span>
   <span class="org-doc">"..."</span>
-  [path]
-  (<span class="org-keyword">if</span> (.exists (<span class="org-type">io</span>/as-file path)) <span class="org-comment">; Replace by fs/exists from bb.</span>
-    (<span class="org-type">parser</span>/parse-examples (<span class="org-type">str</span>/split (slurp path) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span>))
-    (throw-user-error (str <span class="org-string">"File "</span> path <span class="org-string">" doesn't exist"</span>))))
+  <span class="org-rainbow-delimiters-depth-2">[</span>path<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-3">(</span>.exists <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">io</span>/as-file path<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> <span class="org-comment">; Replace by fs/exists from bb.</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>filter <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">fn</span> <span class="org-rainbow-delimiters-depth-5">[</span>example<span class="org-rainbow-delimiters-depth-5">]</span>
+              <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-clojure-keyword">:task-name</span> example<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+            <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">parser</span>/parse-examples <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">str</span>/split <span class="org-rainbow-delimiters-depth-6">(</span>slurp path<span class="org-rainbow-delimiters-depth-6">)</span> #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>throw-user-error <span class="org-rainbow-delimiters-depth-4">(</span>str <span class="org-string">"File "</span> path <span class="org-string">" doesn't exist"</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">write-script-2</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">write-script-2</span>
   <span class="org-doc">"...."</span>
-  [script-name command lines task-file-path]
-  (<span class="org-keyword">let</span> [shebang (str <span class="org-string">"#!/usr/bin/env "</span> command)
-        indent (re-find #<span class="org-string">"^ *"</span> (first lines))]
-    (spit script-name
-          (<span class="org-type">str</span>/join <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span>
-                    (apply conj
-                           [shebang <span class="org-string">""</span>]
-                           (map
-                            (<span class="org-keyword">fn</span> [line] (<span class="org-keyword">-&gt;</span> line
-                                           (<span class="org-type">str</span>/replace indent <span class="org-string">""</span>)
-                                           (<span class="org-type">str</span>/replace #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\{\{\s</span></span><span class="org-string">*[CP]WD</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*</span><span class="org-string"><span class="org-bold">\}\}</span></span><span class="org-string">"</span> (<span class="org-type">System</span>/getenv <span class="org-string">"PWD"</span>))
-                                           (<span class="org-type">str</span>/replace #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\{\{\s</span></span><span class="org-string">*FILE</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*</span><span class="org-string"><span class="org-bold">\}\}</span></span><span class="org-string">"</span> task-file-path)))
-                            (conj lines <span class="org-string">""</span>)))))
-    (sh <span class="org-string">"chmod"</span> <span class="org-string">"+x"</span> script-name)))
+  <span class="org-rainbow-delimiters-depth-2">[</span>script-name command lines task-file-path<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>shebang <span class="org-rainbow-delimiters-depth-4">(</span>str <span class="org-string">"#!/usr/bin/env "</span> command<span class="org-rainbow-delimiters-depth-4">)</span>
+        indent <span class="org-rainbow-delimiters-depth-4">(</span>re-find #<span class="org-string">"^ *"</span> <span class="org-rainbow-delimiters-depth-5">(</span>first lines<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>spit script-name
+          <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">str</span>/join <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span>
+                    <span class="org-rainbow-delimiters-depth-5">(</span>apply conj
+                           <span class="org-rainbow-delimiters-depth-6">[</span>shebang <span class="org-string">""</span><span class="org-rainbow-delimiters-depth-6">]</span>
+                           <span class="org-rainbow-delimiters-depth-6">(</span>map
+                            <span class="org-rainbow-delimiters-depth-7">(</span><span class="org-keyword">fn</span> <span class="org-rainbow-delimiters-depth-8">[</span>line<span class="org-rainbow-delimiters-depth-8">]</span> <span class="org-rainbow-delimiters-depth-8">(</span><span class="org-keyword">-&gt;</span> line
+                                           <span class="org-rainbow-delimiters-depth-9">(</span><span class="org-type">str</span>/replace indent <span class="org-string">""</span><span class="org-rainbow-delimiters-depth-9">)</span>
+                                           <span class="org-rainbow-delimiters-depth-9">(</span><span class="org-type">str</span>/replace #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\{\{\s</span></span><span class="org-string">*[CP]WD</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*</span><span class="org-string"><span class="org-bold">\}\}</span></span><span class="org-string">"</span> <span class="org-rainbow-delimiters-depth-1">(</span><span class="org-type">System</span>/getenv <span class="org-string">"PWD"</span><span class="org-rainbow-delimiters-depth-1">)</span><span class="org-rainbow-delimiters-depth-9">)</span>
+                                           <span class="org-rainbow-delimiters-depth-9">(</span><span class="org-type">str</span>/replace #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\{\{\s</span></span><span class="org-string">*FILE</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*</span><span class="org-string"><span class="org-bold">\}\}</span></span><span class="org-string">"</span> task-file-path<span class="org-rainbow-delimiters-depth-9">)</span><span class="org-rainbow-delimiters-depth-8">)</span><span class="org-rainbow-delimiters-depth-7">)</span>
+                            <span class="org-rainbow-delimiters-depth-7">(</span>conj lines <span class="org-string">""</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>sh <span class="org-string">"chmod"</span> <span class="org-string">"+x"</span> script-name<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">get-ext</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">get-ext</span>
   <span class="org-doc">"..."</span>
-  [exts lang] (<span class="org-keyword">or</span> (get exts (keyword lang)) lang))
+  <span class="org-rainbow-delimiters-depth-2">[</span>exts lang<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">or</span> <span class="org-rainbow-delimiters-depth-3">(</span>get exts <span class="org-rainbow-delimiters-depth-4">(</span>keyword lang<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> lang<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">get-cmd</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">get-cmd</span>
   <span class="org-doc">"..."</span>
-  [cmds lang] (<span class="org-keyword">or</span> (get cmds (keyword lang)) lang))
+  <span class="org-rainbow-delimiters-depth-2">[</span>cmds lang<span class="org-rainbow-delimiters-depth-2">]</span> <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">or</span> <span class="org-rainbow-delimiters-depth-3">(</span>get cmds <span class="org-rainbow-delimiters-depth-4">(</span>keyword lang<span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span> lang<span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
 <span class="org-comment-delimiter">; </span><span class="org-comment">TODO: don't rewrite if same.</span>
-(<span class="org-keyword">defn</span> <span class="org-function-name">write-script</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">write-script</span>
   <span class="org-doc">"....."</span>
-  [{<span class="org-clojure-keyword">:keys</span> [task-name lang lines opts] <span class="org-clojure-keyword">:as</span> task} {<span class="org-clojure-keyword">:keys</span> [exts cmds]}]
-  (<span class="org-keyword">let</span> [shebang (<span class="org-keyword">if</span> (opts <span class="org-clojure-keyword">:shebang</span>)
-                  (<span class="org-type">str</span>/split (<span class="org-type">str</span>/replace (opts <span class="org-clojure-keyword">:shebang</span>) #<span class="org-string">"#!"</span> <span class="org-string">""</span>) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>)
-                  (<span class="org-type">str</span>/split (get-cmd cmds lang) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>))
-        script-path (str <span class="org-string">"/tmp/"</span> (<span class="org-type">str</span>/replace task-name #<span class="org-string">"/"</span> <span class="org-string">"-"</span>) <span class="org-string">"."</span> (get-ext exts lang))]
-    (write-script-2 script-path (<span class="org-type">str</span>/join <span class="org-string">" "</span> shebang) lines <span class="org-string">"ReplaceMe.org"</span>)
-    (conj shebang script-path)))
+  <span class="org-rainbow-delimiters-depth-2">[</span><span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:keys</span> <span class="org-rainbow-delimiters-depth-4">[</span>task-name lang lines opts<span class="org-rainbow-delimiters-depth-4">]</span> <span class="org-clojure-keyword">:as</span> task<span class="org-rainbow-delimiters-depth-3">}</span> <span class="org-rainbow-delimiters-depth-3">{</span><span class="org-clojure-keyword">:keys</span> <span class="org-rainbow-delimiters-depth-4">[</span>exts cmds<span class="org-rainbow-delimiters-depth-4">]</span><span class="org-rainbow-delimiters-depth-3">}</span><span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>shebang <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>opts <span class="org-clojure-keyword">:shebang</span><span class="org-rainbow-delimiters-depth-5">)</span>
+                  <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">str</span>/split <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-type">str</span>/replace <span class="org-rainbow-delimiters-depth-7">(</span>opts <span class="org-clojure-keyword">:shebang</span><span class="org-rainbow-delimiters-depth-7">)</span> #<span class="org-string">"#!"</span> <span class="org-string">""</span><span class="org-rainbow-delimiters-depth-6">)</span> #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span><span class="org-rainbow-delimiters-depth-5">)</span>
+                  <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">str</span>/split <span class="org-rainbow-delimiters-depth-6">(</span>get-cmd cmds lang<span class="org-rainbow-delimiters-depth-6">)</span> #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+        script-path <span class="org-rainbow-delimiters-depth-4">(</span>str <span class="org-string">"/tmp/"</span> <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">str</span>/replace task-name #<span class="org-string">"/"</span> <span class="org-string">"-"</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-string">"."</span> <span class="org-rainbow-delimiters-depth-5">(</span>get-ext exts lang<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>write-script-2 script-path <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">str</span>/join <span class="org-string">" "</span> shebang<span class="org-rainbow-delimiters-depth-4">)</span> lines <span class="org-string">"ReplaceMe.org"</span><span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span>conj shebang script-path<span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">exec-task</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">exec-task</span>
   <span class="org-doc">"..."</span>
-  [task config]
-  (<span class="org-keyword">let</span> [exec-fn (config <span class="org-clojure-keyword">:exec-fn</span>)
-        base-command (write-script task config)
-        command (apply conj base-command (task <span class="org-clojure-keyword">:args</span>))]
+  <span class="org-rainbow-delimiters-depth-2">[</span>task config<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>exec-fn <span class="org-rainbow-delimiters-depth-4">(</span>config <span class="org-clojure-keyword">:exec-fn</span><span class="org-rainbow-delimiters-depth-4">)</span>
+        base-command <span class="org-rainbow-delimiters-depth-4">(</span>write-script task config<span class="org-rainbow-delimiters-depth-4">)</span>
+        command <span class="org-rainbow-delimiters-depth-4">(</span>apply conj base-command <span class="org-rainbow-delimiters-depth-5">(</span>task <span class="org-clojure-keyword">:args</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
     <span class="org-comment-delimiter">;; </span><span class="org-comment">With exec it'll never run so no prob.</span>
     <span class="org-comment-delimiter">;; </span><span class="org-comment">(prn command) (prn res) (puts)</span>
-    (info <span class="org-string">"Running "</span> (colour <span class="org-clojure-keyword">:green</span> <span class="org-string">"$ "</span>) (colour <span class="org-clojure-keyword">:purple</span> (<span class="org-type">str</span>/join <span class="org-string">" "</span> command)) <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span>)
-    (<span class="org-keyword">let</span> [res (apply exec-fn command)]
-      (<span class="org-keyword">if</span> (= (res <span class="org-clojure-keyword">:exit</span>) 0)
-        (puts (<span class="org-type">str</span>/trim (res <span class="org-clojure-keyword">:out</span>)))
-        (puts (<span class="org-type">str</span>/trim (res <span class="org-clojure-keyword">:err</span>))))
-      (<span class="org-type">System</span>/exit (res <span class="org-clojure-keyword">:exit</span>)))))
+    <span class="org-rainbow-delimiters-depth-3">(</span>info <span class="org-string">"Running "</span> <span class="org-rainbow-delimiters-depth-4">(</span>colour <span class="org-clojure-keyword">:green</span> <span class="org-string">"$ "</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-rainbow-delimiters-depth-4">(</span>colour <span class="org-clojure-keyword">:purple</span> <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">str</span>/join <span class="org-string">" "</span> command<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span> <span class="org-string">"</span><span class="org-string"><span class="org-bold">\n</span></span><span class="org-string">"</span><span class="org-rainbow-delimiters-depth-3">)</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-4">[</span>res <span class="org-rainbow-delimiters-depth-5">(</span>apply exec-fn command<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">]</span>
+      <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-keyword">if</span> <span class="org-rainbow-delimiters-depth-5">(</span>= <span class="org-rainbow-delimiters-depth-6">(</span>res <span class="org-clojure-keyword">:exit</span><span class="org-rainbow-delimiters-depth-6">)</span> 0<span class="org-rainbow-delimiters-depth-5">)</span>
+        <span class="org-rainbow-delimiters-depth-5">(</span>puts <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-type">str</span>/trim <span class="org-rainbow-delimiters-depth-7">(</span>res <span class="org-clojure-keyword">:out</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span>
+        <span class="org-rainbow-delimiters-depth-5">(</span>puts <span class="org-rainbow-delimiters-depth-6">(</span><span class="org-type">str</span>/trim <span class="org-rainbow-delimiters-depth-7">(</span>res <span class="org-clojure-keyword">:err</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+      <span class="org-rainbow-delimiters-depth-4">(</span><span class="org-type">System</span>/exit <span class="org-rainbow-delimiters-depth-5">(</span>res <span class="org-clojure-keyword">:exit</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 
-(<span class="org-keyword">defn</span> <span class="org-function-name">run-task</span>
+<span class="org-rainbow-delimiters-depth-1">(</span><span class="org-keyword">defn</span> <span class="org-function-name">run-task</span>
   <span class="org-doc">"..."</span>
-  [task-def config]
-  (<span class="org-keyword">let</span> [examples (load-tasks (task-def <span class="org-clojure-keyword">:path</span>))
-        tasks (filter #((config <span class="org-clojure-keyword">:task?</span>) <span class="org-variable-name">%</span>) examples)
-        task (first (filter #(= (task-def <span class="org-clojure-keyword">:task-name</span>) (<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:task-name</span>)) tasks))]
-    (<span class="org-keyword">if</span> task
-      (exec-task (conj task-def task) config)
-      (abort (colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"No such task: "</span>)
-             (task-def <span class="org-clojure-keyword">:task-name</span>) <span class="org-string">".</span><span class="org-string"><span class="org-bold">\n\n</span></span><span class="org-string">"</span>
-             (colour <span class="org-clojure-keyword">:green</span> <span class="org-string">"Available tasks: "</span>)
-             (<span class="org-type">str</span>/join <span class="org-string">", "</span> (map #(<span class="org-variable-name">%</span> <span class="org-clojure-keyword">:task-name</span>) tasks)) <span class="org-string">"."</span>))))
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-clojure">(<span class="org-keyword">ns</span> <span class="org-type">jakub-stastny.et.parser</span>
-  <span class="org-doc">"...."</span>
-  (<span class="org-clojure-keyword">:require</span> [clojure.string <span class="org-clojure-keyword">:as</span> str]
-            [clojure.edn <span class="org-clojure-keyword">:as</span> edn]))
-
-(<span class="org-keyword">defn</span> <span class="org-function-name">parse-var</span> [line]
-  (<span class="org-type">str</span>/trim (<span class="org-type">str</span>/replace line #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+\w</span></span><span class="org-string">+:?</span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">.*</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">$"</span> <span class="org-string">"$1"</span>)))
-
-(<span class="org-keyword">defn</span> <span class="org-function-name">babel-to-map</span> [string]
-  (<span class="org-type">edn</span>/read-string (str <span class="org-string">"{"</span> string <span class="org-string">"}"</span>)))
-
-(<span class="org-keyword">defn</span> <span class="org-function-name">parse-examples</span> [lines]
-  (<span class="org-keyword">let</span> [update-last-task
-        (<span class="org-keyword">fn</span> [tasks update-fn]
-          (conj
-           (vec (butlast tasks))
-           (conj (last tasks) (update-fn (last tasks)))))]
-
-    (first
-     (reduce
-      (<span class="org-keyword">fn</span> [[tasks status] line]
-        (<span class="org-keyword">cond</span>
-          <span class="org-comment-delimiter">;; </span><span class="org-comment">Read name.</span>
-          (re-find #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">?i</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">name:"</span> line)
-          [(conj tasks {<span class="org-clojure-keyword">:task-name</span> (parse-var line)}) <span class="org-clojure-keyword">:named</span>]
-
-          <span class="org-comment-delimiter">;; </span><span class="org-comment">Read block options.</span>
-          (<span class="org-keyword">and</span> (re-find #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">?i</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">begin_src"</span> line)
-               (= status <span class="org-clojure-keyword">:named</span>))
-          [(update-last-task
-            tasks
-            (<span class="org-keyword">fn</span> [task]
-              (<span class="org-keyword">let</span> [raw-opts (<span class="org-type">str</span>/split (parse-var line) #<span class="org-string">"</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">+"</span>)
-                    lang (first raw-opts)
-                    opts (babel-to-map (<span class="org-type">str</span>/join <span class="org-string">" "</span> (rest raw-opts)))]
-                {<span class="org-clojure-keyword">:lines</span> [] <span class="org-clojure-keyword">:lang</span> lang <span class="org-clojure-keyword">:opts</span> opts})))
-           <span class="org-clojure-keyword">:reading</span>]
-
-          <span class="org-comment-delimiter">;; </span><span class="org-comment">Stop reading block body.</span>
-          <span class="org-comment-delimiter">;; </span><span class="org-comment">We do need this line even though it does the same</span>
-          <span class="org-comment-delimiter">;; </span><span class="org-comment">as the default cond so the end_src line gets skipped.</span>
-          (re-find #<span class="org-string">"^</span><span class="org-string"><span class="org-bold">\s</span></span><span class="org-string">*#</span><span class="org-string"><span class="org-bold">\+</span></span><span class="org-string"><span class="org-regexp-grouping-construct">(</span></span><span class="org-string">?i</span><span class="org-string"><span class="org-regexp-grouping-construct">)</span></span><span class="org-string">end_src"</span> line)
-          [tasks <span class="org-constant">nil</span>]
-
-          <span class="org-comment-delimiter">;; </span><span class="org-comment">Read body.</span>
-          (= status <span class="org-clojure-keyword">:reading</span>)
-          [(update-last-task
-            tasks
-            (<span class="org-keyword">fn</span> [task] {<span class="org-clojure-keyword">:lines</span> (vec (conj (<span class="org-clojure-keyword">:lines</span> task) line))}))
-           <span class="org-clojure-keyword">:reading</span>]
-
-          <span class="org-clojure-keyword">:default</span> [tasks <span class="org-constant">nil</span>]))
-      [[] <span class="org-constant">nil</span>]
-      lines))))
+  <span class="org-rainbow-delimiters-depth-2">[</span>task-def config<span class="org-rainbow-delimiters-depth-2">]</span>
+  <span class="org-rainbow-delimiters-depth-2">(</span><span class="org-keyword">let</span> <span class="org-rainbow-delimiters-depth-3">[</span>examples <span class="org-rainbow-delimiters-depth-4">(</span>load-tasks <span class="org-rainbow-delimiters-depth-5">(</span>task-def <span class="org-clojure-keyword">:path</span><span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span>
+        tasks <span class="org-rainbow-delimiters-depth-4">(</span>filter #<span class="org-rainbow-delimiters-depth-5">(</span><span class="org-rainbow-delimiters-depth-6">(</span>config <span class="org-clojure-keyword">:task?</span><span class="org-rainbow-delimiters-depth-6">)</span> <span class="org-variable-name">%</span><span class="org-rainbow-delimiters-depth-5">)</span> examples<span class="org-rainbow-delimiters-depth-4">)</span>
+        task <span class="org-rainbow-delimiters-depth-4">(</span>first <span class="org-rainbow-delimiters-depth-5">(</span>filter #<span class="org-rainbow-delimiters-depth-6">(</span>= <span class="org-rainbow-delimiters-depth-7">(</span>task-def <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-7">)</span> <span class="org-rainbow-delimiters-depth-7">(</span><span class="org-variable-name">%</span> <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-7">)</span><span class="org-rainbow-delimiters-depth-6">)</span> tasks<span class="org-rainbow-delimiters-depth-5">)</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">]</span>
+    <span class="org-rainbow-delimiters-depth-3">(</span><span class="org-keyword">if</span> task
+      <span class="org-rainbow-delimiters-depth-4">(</span>exec-task <span class="org-rainbow-delimiters-depth-5">(</span>conj task-def task<span class="org-rainbow-delimiters-depth-5">)</span> config<span class="org-rainbow-delimiters-depth-4">)</span>
+      <span class="org-rainbow-delimiters-depth-4">(</span>abort <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:red</span> <span class="org-string">"No such task: "</span><span class="org-rainbow-delimiters-depth-5">)</span>
+             <span class="org-rainbow-delimiters-depth-5">(</span>task-def <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-string">".</span><span class="org-string"><span class="org-bold">\n\n</span></span><span class="org-string">"</span>
+             <span class="org-rainbow-delimiters-depth-5">(</span>colour <span class="org-clojure-keyword">:green</span> <span class="org-string">"Available tasks: "</span><span class="org-rainbow-delimiters-depth-5">)</span>
+             <span class="org-rainbow-delimiters-depth-5">(</span><span class="org-type">str</span>/join <span class="org-string">", "</span> <span class="org-rainbow-delimiters-depth-6">(</span>map #<span class="org-rainbow-delimiters-depth-7">(</span><span class="org-variable-name">%</span> <span class="org-clojure-keyword">:task-name</span><span class="org-rainbow-delimiters-depth-7">)</span> tasks<span class="org-rainbow-delimiters-depth-6">)</span><span class="org-rainbow-delimiters-depth-5">)</span> <span class="org-string">"."</span><span class="org-rainbow-delimiters-depth-4">)</span><span class="org-rainbow-delimiters-depth-3">)</span><span class="org-rainbow-delimiters-depth-2">)</span><span class="org-rainbow-delimiters-depth-1">)</span>
 </pre>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org54ced4b" class="outline-2">
-<h2 id="org54ced4b"><span class="section-number-2">4.</span> Links</h2>
+<div id="outline-container-org245a51a" class="outline-2">
+<h2 id="org245a51a"><span class="section-number-2">4.</span> Links</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li><a href="./development.html">Developing ET</a>.</li>
