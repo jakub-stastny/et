@@ -71,13 +71,16 @@
     [message]
     (throw (ex-info message {:type :user-error})))
 
+
   (defn rethrow
     "..."
     [error]
-    (throw (ex-info
-            (str "rethrow " (ex-message error))
-            (merge {:rethrown true} (ex-data error))
-            error)))
+    (if (instance? clojure.lang.ExceptionInfo error)
+      (throw (ex-info
+              (str "rethrow " (or (ex-message error) "unknown error"))
+              (merge {:rethrown true} (ex-data error))
+              error))
+      (throw (ex-info (str error) {:rethrown true}))))
 #+end_src
 
 #+begin_src clojure :tangle ../src/jakub_stastny/et/built_ins.clj :mkdirp yes
@@ -268,13 +271,20 @@
               [clojure.java.shell :refer [sh]] ; chmod +x
               [jakub-stastny.org-mode.parser :as parser]))
 
+  ;; TODO: stick this into utils.
+  (defn rename-key [m old-key new-key]
+    (if (contains? m old-key)
+      (assoc (dissoc m old-key) new-key (get m old-key))
+      m))
+
   (defn load-tasks
     "..."
     [path]
-    (if (.exists (io/as-file path)) ; Replace by fs/exists from bb.
+    (if (.exists (io/as-file path))      ; Replace by fs/exists from bb.
       (filter (fn [example]
                 (:task-name example))
-              (parser/parse-examples (str/split (slurp path) #"\n")))
+              (map #(rename-key % :name :task-name)
+                   (parser/parse-examples (str/split (slurp path) #"\n"))))
       (throw-user-error (str "File " path " doesn't exist"))))
 
   (defn write-script-2
@@ -340,6 +350,22 @@
                (task-def :task-name) ".\n\n"
                (colour :green "Available tasks: ")
                (str/join ", " (map #(% :task-name) tasks)) "."))))
+
+  (defn- no-such-task [{:keys [task-name]} message]
+    (abort (format "No such task %s.\n\n%s" task-name message)))
+
+  (defn run-task
+    "..."
+    [task-def config]
+    (let [examples (load-tasks (task-def :path))
+          tasks (filter #((config :task?) %) examples)
+          task (first (filter #(= (task-def :name) (% :name)) tasks))]
+      (if task
+        (exec-task (conj task-def task) config)
+        (if (empty? tasks)
+          (no-such-task task-def (format "No tasks available in %s." (:path task-def)))
+          (let [available-tasks (str/join ", " (map #(% :name) tasks))]
+            (no-such-task task-def (colour :green "Available tasks:") available-tasks "."))))))
 #+end_src
 
 * Links
