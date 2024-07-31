@@ -63,8 +63,8 @@
 #+name: uber
 #+begin_src sh :task yes :doc "...."
   # java -jar target/et.jar build.org uber
-  # bb -cp src -m jakub-stastny.et.runner build.org uber
-  # clojure -M -m jakub-stastny.et.runner build.org uber
+  # bb -cp src -m jakub-stastny.et.runner chapters/build.org uber
+  # clojure -M -m jakub-stastny.et.runner chapters/build.org uber
   clojure -T:build uber
 #+end_src
 
